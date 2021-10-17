@@ -1,0 +1,26 @@
+{
+  "ProjectName": "BetterGD",
+  "GithubRepo": null,
+  "EntryPoint": null,
+  "Version": "v1.0",
+  "ConsoleEnabled": false,
+  "Compiler": 0,
+  "Platform": 0,
+  "Submodules": [
+    "gd.h",
+    "MinHook",
+    "Cocos2d"
+  ],
+  "IgnoredFiles": [],
+  "Libs": [
+    "libs/minhook.x32.lib",
+    "submodules/Cocos2d/cocos2dx/libcocos2d.lib",
+    "submodules/Cocos2d/extensions/libExtensions.lib"
+  ],
+  "Dlls": null,
+  "Resources": [],
+  "DebugLogHookCalls": false,
+  "SeparateHookFiles": false,
+  "ReplaceIncludeGuards": false,
+  "IncludeVersionInName": true
+}
