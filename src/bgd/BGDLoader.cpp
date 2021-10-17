@@ -7,7 +7,7 @@ bgd::BGDLoader* bgd::BGDLoader::get() {
 }
 
 void bgd::BGDLoader::createDirectories() {
-    
+    bgd::directory_create(bgd_directory);
 }
 
 void bgd::BGDLoader::updatePlugins() {

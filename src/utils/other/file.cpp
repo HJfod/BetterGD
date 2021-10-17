@@ -1,5 +1,6 @@
 #include <utils/other/file.hpp>
 #include <fstream>
+#include <filesystem>
 
 bgd::Result<std::string> bgd::file_read_string(std::string const& path) {
     std::ifstream in(path, std::ios::in | std::ios::binary);
@@ -47,4 +48,16 @@ bgd::Result<> bgd::write_file_binary(std::string const& path, byte_array const& 
     }
     file.close();
     return Err<>("Unable to open file");
+}
+
+bgd::Result<> bgd::directory_create(std::string const& path) {
+    if (std::filesystem::create_directory(path))
+        return Ok<>();
+    return Err<>("Unable to create directory");
+}
+
+bgd::Result<> bgd::directory_create_all(std::string const& path) {
+    if (std::filesystem::create_directories(path))
+        return Ok<>();
+    return Err<>("Unable to create directories");
 }

@@ -4,6 +4,8 @@
 #include "bgd/BGDPlugin.hpp"
 #include "bgd/BGDLoader.hpp"
 
+#include "utils/other/types.hpp"
+#include "utils/other/general.hpp"
 #include "utils/other/platform.hpp"
 #include "utils/other/ext.hpp"
 
