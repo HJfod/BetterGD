@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../bgd/BGDMacros.hpp"
+#include <BGDMacros.hpp>
 #include <string>
 #include <vector>
 #include <functional>
@@ -12,14 +12,12 @@ namespace bgd {
         kfFileOpenFile  = 0b10,
     };
 
-    void registerFileExtension(
+    BGD_DLL void registerFileExtension(
         std::string const& ext,
         FileFlags flags,
         std::function<void(std::vector<std::string> const&)> handler
     );
 
-    void copyToClipboard(std::string const&);
-    void copyToClipboard(void*);
-    std::string readClipboard();
-    void* readClipboardData();
+    BGD_DLL bool copyToClipboard(std::string const& data);
+    BGD_DLL std::string readClipboard();
 }

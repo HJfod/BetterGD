@@ -5,12 +5,19 @@
 #include <vector>
 
 namespace bgd {
+    static constexpr const char* bgd_directory          = "BetterGD";
+    static constexpr const char* bgd_plugin_directory   = "plugins";
+    static constexpr const char* bgd_plugin_extension   = "bgd";
+
     BGD_DLL class BGDLoader {
         protected:
             std::vector<BGDPlugin*> m_vLoadedPlugins;
 
             BGDLoader();
             virtual ~BGDLoader();
+
+            void createDirectories();
+            void updatePlugins();
             
         public:
             static BGDLoader* get();

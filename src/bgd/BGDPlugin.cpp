@@ -1,12 +1,10 @@
 #include <BGDPlugin.hpp>
 
-using namespace bgd;
-
-BGDPlugin::BGDPlugin() {
+bgd::BGDPlugin::BGDPlugin() {
     this->setup();
 }
 
-BGDPlugin::~BGDPlugin() {}
+bgd::BGDPlugin::~BGDPlugin() {}
 
-void BGDPlugin::enable() {}
-void BGDPlugin::disable() {}
+void bgd::BGDPlugin::enable() {}
+void bgd::BGDPlugin::disable() {}

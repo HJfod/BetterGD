@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../bgd/BGDMacros.hpp"
+#include <BGDMacros.hpp>
 
 #ifdef BGD_IS_WIN32
 

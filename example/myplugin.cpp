@@ -22,3 +22,5 @@ class MyPlugin : public bgd::BGDPlugin {
 };
 
 BGD_LOAD(MyPlugin);
+
+
