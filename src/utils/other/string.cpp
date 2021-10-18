@@ -120,7 +120,8 @@ std::string & bgd::string_trim_self(std::string & str) {
 }
 
 std::string bgd::string_trim_left(std::string const& str) {
-    return bgd::string_trim_left_self(std::string(str));
+    auto s2 = str;
+    return bgd::string_trim_left_self(s2);
 }
 
 std::string bgd::string_trim_right(std::string const& str) {

@@ -3,7 +3,7 @@
 #define BGD_DLL __declspec(dllexport)
 
 #define BGD_LOAD($pluginName) \
-    __declspec(dllexport) bgd::BGDPlugin* bgd_load() { return $pluginName::get(); }
+    extern "C" { __declspec(dllexport) bgd::BGDPlugin* __stdcall bgd_load() { return $pluginName::get(); } };
 
 #define BGD_PLUGIN_GET($pluginName)             \
     public:                                     \

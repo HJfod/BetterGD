@@ -6,7 +6,7 @@
 namespace bgd {
     class BGDLoader;
 
-    BGD_DLL class BGDPlugin {
+    class BGD_DLL BGDPlugin {
         protected:
             std::string m_sName;
             std::string m_sID;
@@ -21,4 +21,6 @@ namespace bgd {
             BGDPlugin();
             virtual ~BGDPlugin();
     };
+
+    typedef bgd::BGDPlugin* (__stdcall* bgd_load_type)();
 }

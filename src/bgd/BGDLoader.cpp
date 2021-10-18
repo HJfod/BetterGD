@@ -7,16 +7,29 @@ bgd::BGDLoader* bgd::BGDLoader::get() {
 }
 
 void bgd::BGDLoader::createDirectories() {
-    bgd::directory_create(bgd_directory);
+    directory_create(bgd_directory);
+    directory_create(bgd_directory + "/"_s + bgd_plugin_directory);
 }
 
 void bgd::BGDLoader::updatePlugins() {
     this->createDirectories();
+    auto baseDir = std::filesystem::path(bgd_directory);
+    for (auto const& filer : baseDir / bgd_plugin_directory) {
+        auto file = std::filesystem::absolute(baseDir / filer);
+        if (
+            std::filesystem::is_regular_file(file) &&
+            file.extension() == bgd_plugin_extension
+        ) {
+            if (!this->m_mLoadedPlugins.count(file.string())) {
+                this->loadPluginFromFile(file.string());
+            }
+        }
+    }
 }
 
 bool bgd::BGDLoader::isPluginLoaded(std::string const& id) {
-    return vector_contains<BGDPlugin*>(
-        this->m_vLoadedPlugins,
+    return map_contains<std::string, BGDPlugin*>(
+        this->m_mLoadedPlugins,
         [id](BGDPlugin* p) -> bool {
             p->m_sID == id;
         }
@@ -24,8 +37,8 @@ bool bgd::BGDLoader::isPluginLoaded(std::string const& id) {
 }
 
 bgd::BGDPlugin* bgd::BGDLoader::getLoadedPlugin(std::string const& id) {
-    return vector_select<BGDPlugin*>(
-        this->m_vLoadedPlugins,
+    return map_select<std::string, BGDPlugin*>(
+        this->m_mLoadedPlugins,
         [id](BGDPlugin* p) -> bool {
             p->m_sID == id;
         }
@@ -35,7 +48,7 @@ bgd::BGDPlugin* bgd::BGDLoader::getLoadedPlugin(std::string const& id) {
 bgd::BGDLoader::BGDLoader() {}
 
 bgd::BGDLoader::~BGDLoader() {
-    for (auto const& plugin : this->m_vLoadedPlugins) {
+    for (auto const& [_, plugin] : this->m_mLoadedPlugins) {
         delete plugin;
     }
 }
