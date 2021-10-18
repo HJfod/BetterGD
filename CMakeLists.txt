@@ -4,8 +4,10 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(PROJECT_NAME BetterGD)
 
-set(GD_H_LOCATION C:/Users/HJfod/Documents/github/GDMake/bin/Debug/net5.0/win10-x64/submodules)
-set(COCOS2D_LOCATION C:/Users/HJfod/Documents/github/GDMake/bin/Debug/net5.0/win10-x64/submodules)
+# set(GD_H_LOCATION C:/Users/HJfod/Documents/github/GDMake/bin/Debug/net5.0/win10-x64/submodules)
+# set(COCOS2D_LOCATION C:/Users/HJfod/Documents/github/GDMake/bin/Debug/net5.0/win10-x64/submodules)
+set(GD_H_LOCATION K:/gdmake/bin/Debug/net5.0/win10-x64/submodules/gd.h)
+set(COCOS2D_LOCATION K:/gdmake/bin/Debug/net5.0/win10-x64/submodules/Cocos2d)
 
 set(BGD_PRODUCT_NUMBER 1)
 set(BGD_PRODUCT_VERSION 0)
@@ -26,18 +28,25 @@ configure_file(
 set(WIN32 ON)
 add_library(${PROJECT_NAME} SHARED ${SOURCES} ${CMAKE_CURRENT_BINARY_DIR}/version.rc)
 
-target_include_directories(
-    ${PROJECT_NAME} PRIVATE
-    ${COCOS2D_LOCATION}/cocos2dx
-    ${COCOS2D_LOCATION}/cocos2dx/include
-    ${COCOS2D_LOCATION}/cocos2dx/kazmath/include
-    ${COCOS2D_LOCATION}/cocos2dx/platform/third_party/win32/OGLES
-    ${COCOS2D_LOCATION}/cocos2dx/platform/win32
-    ${COCOS2D_LOCATION}/extensions
-    ${GD_H_LOCATION}/gd/include
-    ${GD_H_LOCATION}/gd
-    ${CMAKE_SOURCE_DIR}/include
-    ${CMAKE_SOURCE_DIR}/include/bgd
+add_compile_definitions(_EXPORTING)
+
+include_directories(
+    "${COCOS2D_LOCATION}/cocos2dx"
+    "${COCOS2D_LOCATION}/cocos2dx/include"
+    "${COCOS2D_LOCATION}/cocos2dx/kazmath/include"
+    "${COCOS2D_LOCATION}/cocos2dx/platform/third_party/win32/OGLES"
+    "${COCOS2D_LOCATION}/cocos2dx/platform/win32"
+    "${COCOS2D_LOCATION}/extensions"
+    "${GD_H_LOCATION}/include"
+    "${GD_H_LOCATION}"
+    "${CMAKE_SOURCE_DIR}/include"
+    "${CMAKE_SOURCE_DIR}/include/bgd"
+)
+
+target_link_libraries(
+    ${PROJECT_NAME}
+    "${COCOS2D_LOCATION}/cocos2dx/libcocos2d.lib"
+    "${COCOS2D_LOCATION}/extensions/libExtensions.lib"
 )
 
 set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "")

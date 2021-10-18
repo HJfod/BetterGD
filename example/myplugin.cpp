@@ -1,10 +1,12 @@
-#include "../include/BetterGD.hpp"
+#include <BetterGD.hpp>
 
 class MyPlugin : public bgd::BGDPlugin {
     protected:
         void setup() override {
             this->m_sID = "hjfod.my_awesome_plugin";
             this->m_sName = "My Awesome Plugin";
+
+            std::cout << "Hello from my plugin!\n";
         }
         // A `get` method is required for the
         // `BGD_LOAD` macro, and is useful in

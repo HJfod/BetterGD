@@ -8,8 +8,8 @@ namespace bgd {
 
     class BGD_DLL BGDPlugin {
         protected:
-            std::string m_sName;
-            std::string m_sID;
+            const char* m_sName;
+            const char* m_sID;
             
             virtual void setup() = 0;
             virtual void enable();

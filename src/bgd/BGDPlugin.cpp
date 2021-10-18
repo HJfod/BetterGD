@@ -6,5 +6,6 @@ bgd::BGDPlugin::BGDPlugin() {
 
 bgd::BGDPlugin::~BGDPlugin() {}
 
+void bgd::BGDPlugin::setup() {}
 void bgd::BGDPlugin::enable() {}
 void bgd::BGDPlugin::disable() {}

@@ -6,7 +6,7 @@
 
 #include <Windows.h>
 
-class GLFWwindow;
+struct GLFWwindow;
 
 namespace bgd {
     HWND glfwGetWin32Window(GLFWwindow* window);

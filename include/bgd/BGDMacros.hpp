@@ -1,6 +1,10 @@
 #pragma once
 
-#define BGD_DLL __declspec(dllexport)
+#ifdef _EXPORTING
+   #define BGD_DLL    __declspec(dllexport)
+#else
+   #define BGD_DLL    __declspec(dllimport)
+#endif
 
 #define BGD_LOAD($pluginName) \
     extern "C" { __declspec(dllexport) bgd::BGDPlugin* __stdcall bgd_load() { return $pluginName::get(); } };

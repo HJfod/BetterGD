@@ -14,7 +14,8 @@ namespace bgd {
 
     class BGD_DLL BGDLoader {
         protected:
-            std::unordered_map<std::string, BGDPlugin*> m_mLoadedPlugins;
+            std::unordered_map<std::string, BGDPlugin*>* m_pLoadedPlugins;
+            bool m_bIsSetup = false;
 
             BGDLoader();
             virtual ~BGDLoader();
@@ -25,6 +26,7 @@ namespace bgd {
             
         public:
             static BGDLoader* get();
+            bool setup();
     
             bool isPluginLoaded(std::string const& id);
             BGDPlugin* getLoadedPlugin(std::string const& id);

@@ -11,3 +11,8 @@ add_library(${PROJECT_NAME} SHARED myplugin.cpp)
 set(WIN32 ON)
 set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "")
 
+target_link_libraries(
+    ${PROJECT_NAME}
+    BetterGD
+)
+

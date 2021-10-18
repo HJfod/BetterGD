@@ -1,5 +1,6 @@
 #pragma once
 
+#include <BGDMacros.hpp>
 #include <string>
 #include <vector>
 #include <functional>
@@ -12,7 +13,9 @@ namespace bgd {
      * @returns True if element is in `vec`, false if not.
      */
     template<class T>
-    bool vector_contains(std::vector<T> const& vec, T elem);
+    bool vector_contains(std::vector<T> const& vec, T elem) {
+        return std::find(vec.begin(), vec.end(), elem) != vec.end();
+    }
 
     /** 
      * Check if a vector contains an element via a function.
@@ -23,7 +26,13 @@ namespace bgd {
      * in `vec`, false if not.
      */
     template<class T>
-    bool vector_contains(std::vector<T> const& vec, std::function<bool(T)> containFunc);
+    bool vector_contains(std::vector<T> const& vec, std::function<bool(T)> containFunc) {
+        for (auto const& item : vec) {
+            if (containFunc(item))
+                return true;
+        }
+        return false;
+    }
 
     /** 
      * Add a vector to the end of another vector.
@@ -31,7 +40,9 @@ namespace bgd {
      * @param subVec The vector to add.
      */
     template<class T>
-    void vector_push(std::vector<T> & vec, std::vector<T> const& subVec);
+    void vector_push(std::vector<T> & vec, std::vector<T> const& subVec) {
+        vec.insert(vec.begin(), subVec.begin(), subVec.end());
+    }
 
     /** 
      * Turn a vector into a string. T must be either a string,
@@ -41,7 +52,21 @@ namespace bgd {
      * @returns Joined string.
      */
     template<class T>
-    std::string vector_join(std::vector<T> const& vec, std::string const& sep);
+    std::string vector_join(std::vector<T> const& vec, std::string const& sep) {
+        std::string res = "";
+
+        for (auto p : vec) {
+            if (!std::is_same<T, std::string>::value) {
+                res += std::to_string(p) + sep;
+            } else {
+                res += p + sep;
+            }
+        }
+        
+        res = res.substr(0, res.length() - sep.length());
+
+        return res;
+    }
 
     /** 
      * Map a vector of items type T to a new vector of items
@@ -51,7 +76,13 @@ namespace bgd {
      * @returns Mapped vector.
      */
     template<class T, class T2>
-    std::vector<T2> vector_map(std::vector<T> const& vec, std::function<T2(T)> mapFunc);
+    std::vector<T2> vector_map(std::vector<T> const& vec, std::function<T2(T)> mapFunc) {
+        std::vector<T2> res;
+        for (auto m : vec) {
+            res.push_back(mapFunc(m));
+        }
+        return res;
+    }
 
     /** 
      * Remove items from a vector that don't match the filter
@@ -62,7 +93,16 @@ namespace bgd {
      * @returns Filtered vector.
      */
     template<class T>
-    std::vector<T>& vector_filter_self(std::vector<T> & vec, std::function<bool(T)> filterFunc);
+    std::vector<T>& vector_filter_self(std::vector<T> & vec, std::function<bool(T)> filterFunc) {
+        std::vector<T> res;
+        for (auto m : vec) {
+            if (filterFunc(m)) {
+                res.push_back(m);
+            }
+        }
+        vec = res;
+        return vec;
+    }
 
     /** 
      * Return a copy of the vector that has items not
@@ -73,7 +113,15 @@ namespace bgd {
      * @returns Filtered vector.
      */
     template<class T>
-    std::vector<T> vector_filter(std::vector<T> const& vec, std::function<bool(T)> filterFunc);
+    std::vector<T> vector_filter(std::vector<T> const& vec, std::function<bool(T)> filterFunc) {
+        std::vector<T> res;
+        for (auto m : vec) {
+            if (filterFunc(m)) {
+                res.push_back(m);
+            }
+        }
+        return res;
+    }
 
     /** 
      * See if an item in the vector matching the predicate
@@ -86,7 +134,18 @@ namespace bgd {
      * found, the return type is nullptr.
      */
     template<class T>
-    T vector_select(std::vector<T> const& vec, std::function<bool(T)> selectFunc);
+        T vector_select(std::vector<T> const& vec, std::function<bool(T)> selectFunc) {
+        for (auto const& v : vec) {
+            if (selectFunc(v)) {
+                return v;
+            }
+        }
+        if (std::is_pointer<T>::value) {
+            return nullptr;
+        }
+        return T();
+    }
+
     /** 
      * Alias for `vector_filter`.
      * @param vec The vector to filter.
@@ -95,5 +154,7 @@ namespace bgd {
      * @returns Filtered vector.
      */
     template<class T>
-    std::vector<T> vector_select_all(std::vector<T> const& vec, std::function<bool(T)> selectFunc);
+    std::vector<T> vector_select_all(std::vector<T> const& vec, std::function<bool(T)> selectFunc) {
+        return vector_filter<T>(vec, selectFunc);
+    }
 }

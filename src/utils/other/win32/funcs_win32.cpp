@@ -1,8 +1,7 @@
+#include <utils/gd/include_gd.hpp>
 #include <utils/other/platform.hpp>
 
 #ifdef BGD_IS_WIN32
-
-#include <utils/gd/include_gd.hpp>
 
 USE_BGD_NAMESPACE();
 

@@ -10,10 +10,12 @@ std::string & bgd::string_lower_self(std::string & str) {
             return std::tolower(c);
         }
     );
+    return str;
 }
 
 std::string bgd::string_lower(std::string const& str) {
-    return bgd::string_lower_self(std::string(str));
+    auto ret = str;
+    return bgd::string_lower_self(ret);
 }
 
 std::string & bgd::string_replace_self(
@@ -34,7 +36,8 @@ std::string bgd::string_replace(
     std::string const& orig,
     std::string const& repl
 ) {
-    return bgd::string_replace_self(std::string(str), orig, repl);
+    auto ret = str;
+    return bgd::string_replace_self(ret, orig, repl);
 }
 
 std::vector<std::string> bgd::string_split(
@@ -125,11 +128,13 @@ std::string bgd::string_trim_left(std::string const& str) {
 }
 
 std::string bgd::string_trim_right(std::string const& str) {
-    return bgd::string_trim_right_self(std::string(str));
+    auto ret = str;
+    return bgd::string_trim_right_self(ret);
 }
 
 std::string bgd::string_trim(std::string const& str) {
-    return bgd::string_trim_self(std::string(str));
+    auto ret = str;
+    return bgd::string_trim_self(ret);
 }
 
 std::string & bgd::string_normalize_self(std::string & str) {
@@ -139,7 +144,8 @@ std::string & bgd::string_normalize_self(std::string & str) {
 }
 
 std::string bgd::string_normalize(std::string const& str) {
-    return bgd::string_normalize_self(std::string(str));
+    auto ret = str;
+    return bgd::string_normalize_self(ret);
 }
 
 std::string operator"" _s (const char* string, size_t) {
