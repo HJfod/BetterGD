@@ -1,18 +1,11 @@
 #pragma once
 
-#include "utils/gd/include_gd.hpp"
+#include "BGDUtils.hpp"
 
-#include "bgd/BGDMacros.hpp"
-#include "bgd/BGDPlugin.hpp"
-#include "bgd/BGDLoader.hpp"
-
-#include "utils/other/types.hpp"
-#include "utils/other/general.hpp"
-#include "utils/other/platform.hpp"
-#include "utils/other/ext.hpp"
-
-#include "utils/gd/macros.hpp"
-#include "utils/gd/general.hpp"
-#include "utils/gd/operators.hpp"
-#include "utils/gd/convert.hpp"
-#include "utils/gd/stream.hpp"
+#include "nodes/general/BrownAlertDelegate.hpp"
+#include "nodes/general/BGCheckbox.hpp"
+#include "nodes/general/HorizontalSelectMenu.hpp"
+#include "nodes/general/InputNode.hpp"
+#include "nodes/general/InputPrompt.hpp"
+#include "nodes/general/MonoSpaceLabel.hpp"
+#include "nodes/general/PickMenu.hpp"
