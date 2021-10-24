@@ -2,6 +2,9 @@
 
 #ifdef BGD_IS_WIN32
 
+#include <iostream>
+#include <sstream>
+
 void bgd::registerFileExtension(
     std::string const& ext,
     FileFlags flags,
@@ -66,6 +69,37 @@ std::string bgd::readClipboard() {
     CloseClipboard();
 
     return text;
+}
+
+bool bgd::loadConsole() {
+    if (AllocConsole() == 0)
+        return false;
+    // redirect console output
+    freopen_s(reinterpret_cast<FILE**>(stdout), "CONOUT$", "w", stdout);
+    freopen_s(reinterpret_cast<FILE**>(stdin), "CONIN$", "r", stdin);
+    freopen_s(reinterpret_cast<FILE**>(stdout),"CONERR$", "w", stderr);
+
+    return true;
+}
+
+bool bgd::unloadConsole() {
+    fclose(stdin);
+    fclose(stdout);
+    fclose(stderr);
+    return FreeConsole();
+}
+
+void bgd::bufferConsoleInput() {
+    std::string inp;
+    getline(std::cin, inp);
+    std::string inpa;
+    std::stringstream ss(inp);
+    std::vector<std::string> args;
+
+    while (ss >> inpa) args.push_back(inpa);
+    ss.clear();
+
+    if (inp != "e") bufferConsoleInput();
 }
 
 #endif

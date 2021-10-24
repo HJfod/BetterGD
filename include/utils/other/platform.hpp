@@ -20,4 +20,8 @@ namespace bgd {
 
     BGD_DLL bool copyToClipboard(std::string const& data);
     BGD_DLL std::string readClipboard();
+
+    BGD_DLL bool loadConsole();
+    BGD_DLL bool unloadConsole();
+    BGD_DLL void bufferConsoleInput();
 }

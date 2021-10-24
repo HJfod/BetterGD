@@ -18,3 +18,5 @@
 #include "utils/gd/operators.hpp"
 #include "utils/gd/convert.hpp"
 #include "utils/gd/stream.hpp"
+
+#include "matdash/matdash.hpp"

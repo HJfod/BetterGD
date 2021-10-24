@@ -12,21 +12,25 @@ namespace bgd {
 
     class BGDPlugin;
 
+    #pragma warning(disable: 4251) // i will use unordered_map and
+                                   // no amount of compiler warnings
+                                   // can stop me >:)
+
     class BGD_DLL BGDLoader {
         protected:
-            std::unordered_map<std::string, BGDPlugin*>* m_pLoadedPlugins;
+            std::unordered_map<std::string, BGDPlugin*> m_mLoadedPlugins;
             bool m_bIsSetup = false;
 
             BGDLoader();
             virtual ~BGDLoader();
 
             void createDirectories();
-            void updatePlugins();
-            void loadPluginFromFile(std::string const& file);
+            bool loadPluginFromFile(std::string const& file);
             
         public:
             static BGDLoader* get();
             bool setup();
+            size_t updatePlugins();
     
             bool isPluginLoaded(std::string const& id);
             BGDPlugin* getLoadedPlugin(std::string const& id);

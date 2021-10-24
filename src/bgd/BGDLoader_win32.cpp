@@ -3,17 +3,25 @@
 #include <utils/other/ext.hpp>
 #include <iostream>
 
-void bgd::BGDLoader::loadPluginFromFile(std::string const& path) {
+bool bgd::BGDLoader::loadPluginFromFile(std::string const& path) {
     std::cout << "loading " << path << "\n";
     auto load = LoadLibraryA(path.c_str());
     if (load) {
-        auto addr = reinterpret_cast<bgd::bgd_load_type>(GetProcAddress(load, "bgd_load"));
-        if (addr) {
+        std::cout << "loaded, yay\n";
+        auto loadFunc = reinterpret_cast<bgd::bgd_load_type>(GetProcAddress(load, "bgd_load"));
+        if (!loadFunc) {
+            loadFunc  = reinterpret_cast<bgd::bgd_load_type>(GetProcAddress(load, "_bgd_load@0"));
+        }
+        if (loadFunc) {
             std::cout << "found entry function\n";
-            auto plugin = addr();
+            auto plugin = loadFunc();
             if (plugin) {
-                this->m_pLoadedPlugins->insert({ path, plugin });
+                std::cout << "entry function call succesful!\n";
+                this->m_mLoadedPlugins.insert({ path, plugin });
+                FreeLibrary(load);
+                return true;
             }
         }
     }
+    return false;
 }

@@ -40,3 +40,7 @@ class MyPlugin : public bgd::BGDPlugin {
 
 BGD_LOAD(MyPlugin);
 ```
+
+## Credits
+
+[mat-dash](https://github.com/matcool/mat-dash) by [mat](https://github.com/matcool)
