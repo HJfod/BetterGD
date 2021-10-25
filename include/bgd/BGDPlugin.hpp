@@ -1,16 +1,22 @@
 #pragma once
 
 #include "BGDMacros.hpp"
+#include "BGDError.hpp"
 #include <string>
 
 namespace bgd {
     class BGDLoader;
 
+    struct BGDPlatformInfo;
+
     class BGD_DLL BGDPlugin {
         protected:
             const char* m_sName;
             const char* m_sID;
+            BGDPlatformInfo* m_pInfo;
             
+            void platformCleanup();
+
             virtual void setup() = 0;
             virtual void enable();
             virtual void disable();
@@ -18,6 +24,8 @@ namespace bgd {
             friend class BGDLoader;
 
         public:
+            void throwError(BGDError const&);
+
             BGDPlugin();
             virtual ~BGDPlugin();
     };

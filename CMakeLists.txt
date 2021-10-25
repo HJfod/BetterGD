@@ -4,11 +4,12 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(PROJECT_NAME BetterGD)
 
-# set(GD_H_LOCATION C:/Users/HJfod/Documents/github/GDMake/bin/Debug/net5.0/win10-x64/submodules/gd.h)
-# set(COCOS2D_LOCATION C:/Users/HJfod/Documents/github/GDMake/bin/Debug/net5.0/win10-x64/submodules/Cocos2d)
-set(GD_H_LOCATION K:/gdmake/bin/Debug/net5.0/win10-x64/submodules/gd.h)
-set(COCOS2D_LOCATION K:/gdmake/bin/Debug/net5.0/win10-x64/submodules/Cocos2d)
-set(MINHOOK_LOCATION K:/gdmake/bin/Debug/net5.0/win10-x64/submodules/MinHook)
+set(GD_H_LOCATION C:/Users/HJfod/Documents/github/GDMake/bin/Debug/net5.0/win10-x64/submodules/gd.h)
+set(COCOS2D_LOCATION C:/Users/HJfod/Documents/github/GDMake/bin/Debug/net5.0/win10-x64/submodules/Cocos2d)
+set(MINHOOK_LOCATION C:/Users/HJfod/Documents/github/GDMake/bin/Debug/net5.0/win10-x64/submodules/MinHook)
+# set(GD_H_LOCATION K:/gdmake/bin/Debug/net5.0/win10-x64/submodules/gd.h)
+# set(COCOS2D_LOCATION K:/gdmake/bin/Debug/net5.0/win10-x64/submodules/Cocos2d)
+# set(MINHOOK_LOCATION K:/gdmake/bin/Debug/net5.0/win10-x64/submodules/MinHook)
 
 set(BGD_PRODUCT_NUMBER 1)
 set(BGD_PRODUCT_VERSION 0)

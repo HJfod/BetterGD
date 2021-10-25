@@ -3,7 +3,9 @@
 #include <utils/other/platform.hpp>
 #include <iostream>
 
-bgd::BGDLoader* bgd::BGDLoader::get() {
+using namespace bgd;
+
+BGDLoader* bgd::BGDLoader::get() {
     static auto g_loader = new BGDLoader;
     return g_loader;
 }
@@ -32,7 +34,7 @@ size_t bgd::BGDLoader::updatePlugins() {
     }
     std::cout << "plugin list: \n";
     for (auto const& [_, plugin] : this->m_mLoadedPlugins) {
-        std::cout << plugin->m_sName << "\n";
+        std::cout << plugin << " -> " << plugin->m_sName << "\n";
     }
     return loaded;
 }
@@ -46,7 +48,7 @@ bool bgd::BGDLoader::isPluginLoaded(std::string const& id) {
     );
 }
 
-bgd::BGDPlugin* bgd::BGDLoader::getLoadedPlugin(std::string const& id) {
+BGDPlugin* bgd::BGDLoader::getLoadedPlugin(std::string const& id) {
     return map_select<std::string, BGDPlugin*>(
         this->m_mLoadedPlugins,
         [id](BGDPlugin* p) -> bool {
@@ -78,4 +80,36 @@ bgd::BGDLoader::~BGDLoader() {
     for (auto const& [_, plugin] : this->m_mLoadedPlugins) {
         delete plugin;
     }
+}
+
+void bgd::BGDLoader::throwError(BGDError const& error) {
+    this->m_vErrors.push_back(error);
+}
+
+std::vector<BGDError> bgd::BGDLoader::getErrors(
+    std::initializer_list<BGDErrorType> typeFilter,
+    std::initializer_list<BGDSeverity>  severityFilter
+) {
+    if (
+        !typeFilter.size() && !severityFilter.size()
+    ) return this->m_vErrors;
+
+    std::vector<BGDError> errs;
+
+    for (auto const& err : this->m_vErrors) {
+        for (auto const& type : typeFilter) {
+            if (err.type == type) {
+                errs.push_back(err);
+                break;
+            }
+        }
+        for (auto const& severity : severityFilter) {
+            if (err.severity == severity) {
+                errs.push_back(err);
+                break;
+            }
+        }
+    }
+
+    return errs;
 }
