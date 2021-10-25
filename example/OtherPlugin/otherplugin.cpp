@@ -8,6 +8,8 @@ class OtherPlugin : public bgd::BGDPlugin {
         void setup() override {
             this->m_sID = "hjfod.other_awesome_plugin";
             this->m_sName = "My Other Plugin";
+            this->m_sDeveloper = "HJfod";
+            this->m_sCredits = "Various different chords in Onnanoko ni Naritai";
 
             std::cout << "hey from other plugin\n";
         }

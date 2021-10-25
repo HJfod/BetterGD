@@ -18,7 +18,7 @@ namespace bgd {
 
     class BGD_DLL BGDLoader {
         protected:
-            std::unordered_map<std::string, BGDPlugin*> m_mLoadedPlugins;
+            std::vector<BGDPlugin*> m_vLoadedPlugins;
             std::vector<BGDError> m_vErrors;
             bool m_bIsSetup = false;
 
@@ -33,6 +33,9 @@ namespace bgd {
             bool setup();
             size_t updatePlugins();
 
+            void saveData();
+            void loadData();
+
             void throwError(BGDError const&);
             std::vector<BGDError> getErrors(
                 std::initializer_list<BGDErrorType> typeFilter     = {},
@@ -41,5 +44,6 @@ namespace bgd {
     
             bool isPluginLoaded(std::string const& id);
             BGDPlugin* getLoadedPlugin(std::string const& id);
+            std::vector<BGDPlugin*> getAllPlugins();
     };
 }

@@ -5,6 +5,8 @@ USE_BGD_NAMESPACE();
 void MyPlugin::setup() {
     this->m_sID = "hjfod.my_awesome_plugin";
     this->m_sName = "My Awesome Plugin";
+    this->m_sDeveloper = "HJfod";
+    this->m_sDescription = "Awesome example plugin";
 
     this->logText("Hello from my plugin!");
 }

@@ -25,7 +25,12 @@ size_t bgd::BGDLoader::updatePlugins() {
             std::filesystem::is_regular_file(entry) &&
             entry.path().extension() == bgd_plugin_extension
         ) {
-            if (!this->m_mLoadedPlugins.count(entry.path().string())) {
+            if (!vector_contains<BGDPlugin*>(
+                this->m_vLoadedPlugins,
+                [entry](BGDPlugin* p) -> bool {
+                    return p->m_sPath == entry.path().string();
+                }
+            )) {
                 if (this->loadPluginFromFile(entry.path().string())) {
                     loaded++;
                 }
@@ -36,8 +41,8 @@ size_t bgd::BGDLoader::updatePlugins() {
 }
 
 bool bgd::BGDLoader::isPluginLoaded(std::string const& id) {
-    return map_contains<std::string, BGDPlugin*>(
-        this->m_mLoadedPlugins,
+    return vector_contains<BGDPlugin*>(
+        this->m_vLoadedPlugins,
         [id](BGDPlugin* p) -> bool {
             return p->m_sID == id;
         }
@@ -45,12 +50,16 @@ bool bgd::BGDLoader::isPluginLoaded(std::string const& id) {
 }
 
 BGDPlugin* bgd::BGDLoader::getLoadedPlugin(std::string const& id) {
-    return map_select<std::string, BGDPlugin*>(
-        this->m_mLoadedPlugins,
+    return vector_select<BGDPlugin*>(
+        this->m_vLoadedPlugins,
         [id](BGDPlugin* p) -> bool {
             return p->m_sID == id;
         }
     );
+}
+
+std::vector<BGDPlugin*> bgd::BGDLoader::getAllPlugins() {
+    return this->m_vLoadedPlugins;
 }
 
 bool bgd::BGDLoader::setup() {
@@ -64,14 +73,28 @@ bool bgd::BGDLoader::setup() {
 
     bgd::bufferConsoleInput();
 
+    this->loadData();
+
     this->m_bIsSetup = true;
     return true;
+}
+
+void bgd::BGDLoader::loadData() {
+    for (auto const& plugin : this->m_vLoadedPlugins) {
+        plugin->loadData();
+    }
+}
+
+void bgd::BGDLoader::saveData() {
+    for (auto const& plugin : this->m_vLoadedPlugins) {
+        plugin->saveData();
+    }
 }
 
 bgd::BGDLoader::BGDLoader() {}
 
 bgd::BGDLoader::~BGDLoader() {
-    for (auto const& [_, plugin] : this->m_mLoadedPlugins) {
+    for (auto const& plugin : this->m_vLoadedPlugins) {
         delete plugin;
     }
 }

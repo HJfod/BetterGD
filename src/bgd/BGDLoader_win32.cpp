@@ -19,7 +19,8 @@ bool bgd::BGDLoader::loadPluginFromFile(std::string const& path) {
             if (plugin) {
                 plugin->setup();
                 plugin->m_pInfo = new bgd::BGDPlatformInfo { load };
-                this->m_mLoadedPlugins.insert({ path, plugin });
+                plugin->m_sPath = path.c_str();
+                this->m_vLoadedPlugins.push_back(plugin);
                 return true;
             }
         }
