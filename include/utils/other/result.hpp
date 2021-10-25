@@ -11,6 +11,7 @@ namespace bgd {
 
     template <class T = no_result, class E = std::string_view>
     class Result {
+    protected:
         bool success;
         union {
             T my_value;
@@ -40,13 +41,25 @@ namespace bgd {
                 this->error_msg = other.error_msg;
             }
         }
+        template<class T2, class E2>
+        Result(Result<T2, E2> const& other) {
+            if (other) {
+                this->success = true;
+                if constexpr (!std::is_same<T, no_result>::value) {
+                    this->my_value = other.value();
+                }
+            } else {
+                this->success = false;
+                this->error_msg = other.error();
+            }
+        }
 
         bool is_error() const { return !success; }
         bool is_value() const { return success; }
         auto value() const { return my_value; }
         auto error() const { return error_msg; }
 
-        operator bool() { return this->success; }
+        operator bool() const { return this->success; }
 
         static auto ok(const T value) { return Result<T>(value); }
         static auto err(E error) { return Result<T>(error, 0); }

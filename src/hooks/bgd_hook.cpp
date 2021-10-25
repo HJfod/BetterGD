@@ -8,18 +8,27 @@ bgd::Result<> matdash::__mat_dash_add_hook(void* addr, void* detour, void** tram
         if (
             init != MH_OK &&
             init != MH_ERROR_ALREADY_INITIALIZED
-        ) return Err<>("Unable to initialize MinHook");
+        ) return Err<>(
+            "Unable to initialize MinHook: "_s + MH_StatusToString(init)
+        );
         initialized = true;
     }
     auto hook = MH_CreateHook(addr, detour, trampoline);
     if (
         hook != MH_OK
-    ) return Err<>("Unable to create hook at " + std::to_string(as<uintptr_t>(addr)));
+    ) return Err<>(
+        "Unable to create hook at " +
+        std::to_string(as<uintptr_t>(addr)) + ": " +
+        MH_StatusToString(hook)
+    );
 
     auto enable = MH_EnableHook(addr);
     if (
         enable != MH_OK
-    ) return Err<>("Unable to enable hook at " + std::to_string(as<uintptr_t>(addr)));
+    ) return Err<>(
+        "Unable to enable hook at " + std::to_string(as<uintptr_t>(addr)) + ": " +
+        MH_StatusToString(enable)
+    );
 
     return Ok<>();
 }

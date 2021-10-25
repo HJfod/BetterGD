@@ -9,7 +9,7 @@ project(${PROJECT_NAME} VERSION 1.0.0)
 add_library(${PROJECT_NAME} SHARED otherplugin.cpp)
 
 set(WIN32 ON)
-set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "" SUFFIX ".bgd")
+set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "" SUFFIX ".bgd" LINK_FLAGS "/DELAYLOAD:MyPlugin.bgd")
 
 remove_definitions(-D_EXPORTING_MYPLUGIN)
 

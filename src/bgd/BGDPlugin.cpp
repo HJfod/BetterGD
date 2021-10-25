@@ -1,5 +1,6 @@
 #include <BGDPlugin.hpp>
 #include <BGDLoader.hpp>
+#include <iostream>
 
 bgd::BGDPlugin::BGDPlugin() {
     this->setup();
@@ -7,6 +8,10 @@ bgd::BGDPlugin::BGDPlugin() {
 
 bgd::BGDPlugin::~BGDPlugin() {
     this->platformCleanup();
+}
+
+std::ostream& bgd::BGDPlugin::log() {
+    return std::cout << " [ " << this->m_sName << " ]: ";
 }
 
 void bgd::BGDPlugin::setup() {}

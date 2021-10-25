@@ -18,14 +18,6 @@ MyPlugin* MyPlugin::get() {
     return g_plugin;
 }
 
-extern "C" {
-    __declspec(dllexport) bgd::BGDPlugin* __stdcall bgd_load() {
-        std::cout << "wee woo i have been called!\n";
-        auto ret = MyPlugin::get();
-        std::cout << "MyPlugin is: " << ret << "\n";
-        return ret;
-    }
-};
-// BGD_LOAD(MyPlugin);
+BGD_LOAD(MyPlugin);
 
 

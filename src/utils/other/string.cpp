@@ -91,6 +91,12 @@ bool bgd::string_contains_all(std::string const& str, std::vector<std::string> c
     return found;
 }
 
+bool bgd::string_ends_with(std::string const& value, std::string const& ending) {
+    // https://stackoverflow.com/questions/874134/find-out-if-string-ends-with-another-string-in-c
+    if (ending.size() > value.size()) return false;
+    return std::equal(ending.rbegin(), ending.rend(), value.rbegin());
+}
+
 size_t bgd::string_count(std::string const& str, char countC) {
     size_t res = 0;
     for (auto c : str)

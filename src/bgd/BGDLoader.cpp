@@ -32,10 +32,6 @@ size_t bgd::BGDLoader::updatePlugins() {
             }
         }
     }
-    std::cout << "plugin list: \n";
-    for (auto const& [_, plugin] : this->m_mLoadedPlugins) {
-        std::cout << plugin << " -> " << plugin->m_sName << "\n";
-    }
     return loaded;
 }
 
@@ -62,8 +58,6 @@ bool bgd::BGDLoader::setup() {
         return true;
 
     bgd::loadConsole();
-
-    std::cout << "setting up BGDLoader\n";
 
     this->createDirectories();
     this->updatePlugins();

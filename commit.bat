@@ -9,7 +9,7 @@ if "%1"=="pull" (
     goto done
 )
 
-echo ==== BetterEdit ====
+echo ==== BetterGD ====
 echo.
 
 git add --all

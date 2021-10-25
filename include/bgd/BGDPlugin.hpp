@@ -26,6 +26,8 @@ namespace bgd {
         public:
             void throwError(BGDError const&);
 
+            std::ostream& log();
+
             BGDPlugin();
             virtual ~BGDPlugin();
     };

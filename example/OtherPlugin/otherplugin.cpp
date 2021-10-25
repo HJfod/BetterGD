@@ -8,6 +8,8 @@ class OtherPlugin : public bgd::BGDPlugin {
         void setup() override {
             this->m_sID = "hjfod.other_awesome_plugin";
             this->m_sName = "My Other Plugin";
+
+            std::cout << "hey from other plugin\n";
         }
         BGD_PLUGIN_GET(OtherPlugin);
 };
@@ -18,6 +20,8 @@ bool GJGarageLayer_init(GJGarageLayer* self) {
     
     if (BGDLoader::get()->isPluginLoaded("hjfod.my_awesome_plugin")) {
         MyPlugin::get()->logText("Hello from other plugin!");
+    } else {
+        std::cout << "MyPlugin is not loaded :( T: other plugin\n";
     }
 
     return true;
