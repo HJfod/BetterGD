@@ -8,8 +8,8 @@
 namespace bgd {
     BGD_DLL bool string_ends_with(std::string const& str, std::string const& substr);
 
-    BGD_DLL std::string& string_lower_self(std::string & str);
-    BGD_DLL std::string  string_lower(std::string const& str);
+    BGD_DLL std::string& string_to_lower_self(std::string & str);
+    BGD_DLL std::string  string_to_lower(std::string const& str);
 
     BGD_DLL std::string& string_replace_self(
         std::string & str,

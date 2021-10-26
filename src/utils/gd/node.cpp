@@ -25,3 +25,15 @@ bool bgd::nodeIsHovered(CCNode* node, CCPoint const& gpos) {
 
     return rect.containsPoint(gpos);
 }
+
+CCPoint bgd::getMousePos() {
+    auto winSize = CCDirector::sharedDirector()->getWinSize();
+    auto winSizePx = CCDirector::sharedDirector()->getOpenGLView()->getViewPortRect();
+    auto ratio_w = winSize.width / winSizePx.size.width;
+    auto ratio_h = winSize.height / winSizePx.size.height;
+    auto mpos = CCDirector::sharedDirector()->getOpenGLView()->getMousePosition();
+    mpos.y = winSizePx.size.height - mpos.y;
+    mpos.x *= ratio_w;
+    mpos.y *= ratio_h;
+    return mpos;
+}

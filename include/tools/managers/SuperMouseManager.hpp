@@ -1,7 +1,7 @@
 #pragma once
 
 #include <BGDUtils.hpp>
-#include "MouseButton.hpp"
+#include "../keybinds/MouseButton.hpp"
 
 namespace bgd {
 

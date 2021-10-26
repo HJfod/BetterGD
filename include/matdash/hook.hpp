@@ -25,5 +25,44 @@ namespace bgd {
                 });
             }
         }
+        CreateHook(const char* module, const char* symbol, bgd::BGDPlugin* plugin = nullptr) {
+            static std::unordered_map<std::string, HMODULE> mods = {};
+            HMODULE mod;
+            if (mods.count(module)) {
+                mod = mods[module];
+            } else {
+                mod = GetModuleHandleA(module);
+                mods[module] = mod;
+            }
+            if (!mod) {
+                BGDLoader::get()->throwError(BGDError {
+                    "Error Creating Hook",
+                    "Unable to find module \""_s + module + "\"",
+                    kBGDSeverityError,
+                    kBGDErrorTypeHook,
+                    plugin
+                });
+            }
+            auto addr = reinterpret_cast<uintptr_t>(GetProcAddress(mod, symbol));
+            if (!addr) {
+                BGDLoader::get()->throwError(BGDError {
+                    "Error Creating Hook",
+                    "Unable to find symbol \""_s + symbol + "\" in module \""_s + module + "\"",
+                    kBGDSeverityError,
+                    kBGDErrorTypeHook,
+                    plugin
+                });
+            }
+            auto res = matdash::add_hook<Func, CallConv>(addr);
+            if (!res) {
+                BGDLoader::get()->throwError(BGDError {
+                    "Error Creating Hook",
+                    res.error(),
+                    kBGDSeverityError,
+                    kBGDErrorTypeHook,
+                    plugin
+                });
+            }
+        }
     };
 }

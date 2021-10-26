@@ -10,4 +10,7 @@
 #include "tools/nodes/MonoSpaceLabel.hpp"
 #include "tools/nodes/PickMenu.hpp"
 
+#include "tools/managers/SuperMouseManager.hpp"
+#include "tools/managers/SuperKeyboardManager.hpp"
+
 #include "tools/gmd/gmd.hpp"

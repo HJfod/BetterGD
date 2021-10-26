@@ -1,7 +1,7 @@
 #include <utils/other/ext.hpp>
 #include <algorithm>
 
-std::string & bgd::string_lower_self(std::string & str) {
+std::string & bgd::string_to_lower_self(std::string & str) {
     std::transform(
         str.begin(),
         str.end(),
@@ -13,9 +13,9 @@ std::string & bgd::string_lower_self(std::string & str) {
     return str;
 }
 
-std::string bgd::string_lower(std::string const& str) {
+std::string bgd::string_to_lower(std::string const& str) {
     auto ret = str;
-    return bgd::string_lower_self(ret);
+    return bgd::string_to_lower_self(ret);
 }
 
 std::string & bgd::string_replace_self(
