@@ -46,8 +46,8 @@ include_directories(
     "${ZIPPER_LOCATION}/zipper"
     "${CMAKE_SOURCE_DIR}/include"
     "${CMAKE_SOURCE_DIR}/include/bgd"
-    "${CMAKE_SOURCE_DIR}/include/nodes/general"
-    "${CMAKE_SOURCE_DIR}/include/nodes/managers"
+    "${CMAKE_SOURCE_DIR}/include/tools/nodes"
+    "${CMAKE_SOURCE_DIR}/include/tools/managers"
 )
 
 target_link_libraries(

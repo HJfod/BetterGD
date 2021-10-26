@@ -2,10 +2,12 @@
 
 #include "BGDUtils.hpp"
 
-#include "nodes/general/BrownAlertDelegate.hpp"
-#include "nodes/general/BGCheckbox.hpp"
-#include "nodes/general/HorizontalSelectMenu.hpp"
-#include "nodes/general/InputNode.hpp"
-#include "nodes/general/InputPrompt.hpp"
-#include "nodes/general/MonoSpaceLabel.hpp"
-#include "nodes/general/PickMenu.hpp"
+#include "tools/nodes/BrownAlertDelegate.hpp"
+#include "tools/nodes/BGCheckbox.hpp"
+#include "tools/nodes/HorizontalSelectMenu.hpp"
+#include "tools/nodes/InputNode.hpp"
+#include "tools/nodes/InputPrompt.hpp"
+#include "tools/nodes/MonoSpaceLabel.hpp"
+#include "tools/nodes/PickMenu.hpp"
+
+#include "tools/gmd/gmd.hpp"
