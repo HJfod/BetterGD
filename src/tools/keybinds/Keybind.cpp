@@ -38,10 +38,8 @@ bool Keybind::operator<(Keybind const& other) const {
 std::string Keybind::toString() const {
     std::string res = "";
 
-    // for mac, might want to make Control appear
-    // as Command
-    BGD_WIN32(
-    if (this->modifiers & kmControl)    res += "Ctrl + ";   )
+    if (this->modifiers & kmControl)    res += "Ctrl + ";
+    if (this->modifiers & kmCommand)    res += "Command + ";
     if (this->modifiers & kmAlt)        res += "Alt + ";
     if (this->modifiers & kmShift)      res += "Shift + ";
 
@@ -73,10 +71,11 @@ Keybind::Keybind() {
 
 Keybind::Keybind(enumKeyCodes pressed) {
     switch (pressed) {
-        case KEY_Control:   this->key = KEY_None; break;
-        case KEY_Shift:     this->key = KEY_None; break;
-        case KEY_Alt:       this->key = KEY_None; break;
-        default:            this->key = pressed;  break;
+        // same for command for mac users
+        case KEY_Control:       this->key = KEY_None; break;
+        case KEY_Shift:         this->key = KEY_None; break;
+        case KEY_Alt:           this->key = KEY_None; break;
+        default:                this->key = pressed;  break;
     }
 
     auto kb = CCDirector::sharedDirector()->getKeyboardDispatcher();
@@ -84,6 +83,8 @@ Keybind::Keybind(enumKeyCodes pressed) {
     this->modifiers = 0;
     if (kb->getControlKeyPressed())
         this->modifiers |= this->kmControl;
+    if (kb->getCommandKeyPressed())
+        this->modifiers |= this->kmCommand;
     if (kb->getShiftKeyPressed())
         this->modifiers |= this->kmShift;
     if (kb->getAltKeyPressed())
@@ -109,7 +110,7 @@ Keybind::Keybind(MouseButton btn) {
     if (kb->getControlKeyPressed())
         this->modifiers |= this->kmControl;
     if (kb->getCommandKeyPressed())
-        this->modifiers |= this->kmControl;
+        this->modifiers |= this->kmCommand;
     if (kb->getShiftKeyPressed())
         this->modifiers |= this->kmShift;
     if (kb->getAltKeyPressed())

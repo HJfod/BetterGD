@@ -14,6 +14,7 @@ namespace bgd {
             kmControl   = 1,
             kmShift     = 2,
             kmAlt       = 4,
+            kmCommand   = 8,
         };
         int modifiers;
         MouseButton mouse = kMouseButtonNone;
