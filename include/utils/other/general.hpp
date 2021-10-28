@@ -4,8 +4,16 @@ namespace bgd {
     constexpr unsigned int hash(const char* str, int h = 0) {
         return !str[h] ? 5381 : (hash(str, h+1) * 33) ^ str[h];
     }
+    
+    constexpr unsigned int hash(const wchar_t* str, int h = 0) {
+        return !str[h] ? 5381 : (hash(str, h+1) * 33) ^ str[h];
+    }
 
     constexpr size_t operator"" _h (const char* txt, size_t) {
+        return bgd::hash(txt);
+    }
+
+    constexpr size_t operator"" _h (const wchar_t* txt, size_t) {
         return bgd::hash(txt);
     }
 

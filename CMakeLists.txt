@@ -4,14 +4,14 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(PROJECT_NAME BetterGD)
 
-set(GD_H_LOCATION C:/Users/HJfod/Documents/github/GDMake/bin/Debug/net5.0/win10-x64/submodules/gd.h)
-set(COCOS2D_LOCATION C:/Users/HJfod/Documents/github/GDMake/bin/Debug/net5.0/win10-x64/submodules/Cocos2d)
-set(MINHOOK_LOCATION C:/Users/HJfod/Documents/github/GDMake/bin/Debug/net5.0/win10-x64/submodules/MinHook)
-set(ZIPPER_LOCATION C:/Users/HJfod/Documents/github/GDMake/bin/Debug/net5.0/win10-x64/submodules/Zipper)
-# set(GD_H_LOCATION K:/gdmake/bin/Debug/net5.0/win10-x64/submodules/gd.h)
-# set(COCOS2D_LOCATION K:/gdmake/bin/Debug/net5.0/win10-x64/submodules/Cocos2d)
-# set(MINHOOK_LOCATION K:/gdmake/bin/Debug/net5.0/win10-x64/submodules/MinHook)
-# set(ZIPPER_LOCATION K:/gdmake/bin/Debug/net5.0/win10-x64/submodules/Zipper)
+# set(GD_H_LOCATION C:/Users/HJfod/Documents/github/GDMake/bin/Debug/net5.0/win10-x64/submodules/gd.h)
+# set(COCOS2D_LOCATION C:/Users/HJfod/Documents/github/GDMake/bin/Debug/net5.0/win10-x64/submodules/Cocos2d)
+# set(MINHOOK_LOCATION C:/Users/HJfod/Documents/github/GDMake/bin/Debug/net5.0/win10-x64/submodules/MinHook)
+# set(ZIPPER_LOCATION C:/Users/HJfod/Documents/github/GDMake/bin/Debug/net5.0/win10-x64/submodules/Zipper)
+set(GD_H_LOCATION K:/gdmake/bin/Debug/net5.0/win10-x64/submodules/gd.h)
+set(COCOS2D_LOCATION K:/gdmake/bin/Debug/net5.0/win10-x64/submodules/Cocos2d)
+set(MINHOOK_LOCATION K:/gdmake/bin/Debug/net5.0/win10-x64/submodules/MinHook)
+set(ZIPPER_LOCATION K:/gdmake/bin/Debug/net5.0/win10-x64/submodules/Zipper)
 
 set(BGD_PRODUCT_NUMBER 1)
 set(BGD_PRODUCT_VERSION 0)
@@ -24,6 +24,14 @@ find_package(ZLIB REQUIRED)
 file(GLOB_RECURSE SOURCES 
     src/*.cpp
 )
+
+if(CMake_MSVC_PARALLEL)
+  if(CMake_MSVC_PARALLEL GREATER 0)
+    add_definitions(/MP${CMake_MSVC_PARALLEL})
+  else()
+    add_definitions(/MP)
+  endif()
+endif()
 
 configure_file(
     ${CMAKE_CURRENT_SOURCE_DIR}/version.rc.in

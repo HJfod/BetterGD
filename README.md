@@ -1,5 +1,22 @@
 # BetterGD
 
+A Geometry Dash modpack & utility library. Still WIP, but once finished, will contain tons of awesome features & default installed mods that improve the GD experience.
+
+## Features
+
+(Note: Some features have not yet been implemented)
+
+ * Customizable Keybinds
+ * Load BGD Plugins
+
+## Plugins
+
+(Note: Some plugins are old mods that have not yet been ported over to BetterGD)
+
+ * BetterEdit
+ * GDShare
+ * IconSave
+
 ## Note
 
 This is **not** a general modding library, nor a general mod loader. BetterGD does not handle hooking nor patching.

@@ -10,7 +10,8 @@ namespace bgd {
             kGmdTypeLvl,
         };
 
-        constexpr const char* GmdTypeToString(GmdType);
+        constexpr const char*    GmdTypeToString (GmdType);
+        constexpr const wchar_t* GmdTypeToWString(GmdType);
 
         bool isLevelFileName(std::string  const& fname);
         bool isLevelFileName(std::wstring const& fname);
@@ -24,30 +25,29 @@ namespace bgd {
         std::string convert_vs(byte_array  const& vector);
 
         namespace encoder {
-            BGD_DLL std::vector<uint8_t> XOR(const std::vector<uint8_t> & data, int key);
-            BGD_DLL std::vector<uint8_t> Base64(const std::vector<uint8_t> & data);
-            BGD_DLL std::vector<uint8_t> GZip(const std::vector<uint8_t> & data);
+            BGD_DLL byte_array XOR(   const byte_array & data, int key);
+            BGD_DLL byte_array Base64(const byte_array & data);
+            BGD_DLL byte_array GZip(  const byte_array & data);
         }
 
         namespace decoder {
-            BGD_DLL std::string XOR(const std::string & data, int key);
+            BGD_DLL std::string XOR(   const std::string & data, int key);
             BGD_DLL std::string Base64(const std::string & data);
-            BGD_DLL std::string GZip(const std::string & data);
+            BGD_DLL std::string GZip(  const std::string & data);
 
-            BGD_DLL std::vector<uint8_t> XORX(const std::vector<uint8_t> & data, int key);
-            BGD_DLL std::vector<uint8_t> Base64X(const std::vector<uint8_t> & data);
-            BGD_DLL std::vector<uint8_t> GZipX(const std::vector<uint8_t> & data);
+            BGD_DLL byte_array XORX(   const byte_array & data, int key);
+            BGD_DLL byte_array Base64X(const byte_array & data);
+            BGD_DLL byte_array GZipX(  const byte_array & data);
         };
 
         class BGD_DLL GmdFile {
             protected:
                 gd::GJGameLevel* m_pLevel = nullptr;
-                std::string m_sPath;
-                std::string m_sFullPath;
-                std::string m_sFileName;
+                std::filesystem::path m_sPath;
+                std::wstring m_sFileName;
                 int m_nFlags = kfExportFlag_None;
                 GmdType m_eFormat = kGmdTypeGmd;
-                std::string m_sSongPath;
+                std::wstring m_sSongPath;
                 byte_array m_vSongData;
 
                 void saveFileFormat();
@@ -56,13 +56,15 @@ namespace bgd {
 
             public:
                 GmdFile(gd::GJGameLevel*);
-                GmdFile(std::string const& path);
+                GmdFile(std::string  const& path);
+                GmdFile(std::wstring const& path);
 
                 Result<gd::GJGameLevel*> parseLevel();
                 Result<std::string> createString();
                 Result<> saveFile();
 
                 void setFileName(std::string const&);
+                void setFileName(std::wstring const&);
                 void setType(GmdType);
                 void setExportFlags(int);
                 void setExportFlag(ExportFlag);

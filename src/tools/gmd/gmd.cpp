@@ -21,6 +21,15 @@ constexpr const char* bgd::gmd::GmdTypeToString(GmdType type) {
     }
 }
 
+constexpr const wchar_t* bgd::gmd::GmdTypeToWString(GmdType type) {
+    switch (type) {
+        case kGmdTypeGmd:   return L"gmd";
+        case kGmdTypeGmd2:  return L"gmd2";
+        case kGmdTypeLvl:   return L"lvl";
+        default:            return L"gmd";
+    }
+}
+
 bool bgd::gmd::isLevelFileName(std::string const& fname) {
     return (
         bgd::string_ends_with(fname, GmdTypeToString(kGmdTypeGmd)) ||
@@ -31,9 +40,9 @@ bool bgd::gmd::isLevelFileName(std::string const& fname) {
 
 bool bgd::gmd::isLevelFileName(std::wstring const& fname) {
     return (
-        bgd::string_ends_with(fname, GmdTypeToString(kGmdTypeGmd)) ||
-        bgd::string_ends_with(fname, GmdTypeToString(kGmdTypeGmd2)) ||
-        bgd::string_ends_with(fname, GmdTypeToString(kGmdTypeLvl))
+        bgd::string_ends_with(fname, GmdTypeToWString(kGmdTypeGmd)) ||
+        bgd::string_ends_with(fname, GmdTypeToWString(kGmdTypeGmd2)) ||
+        bgd::string_ends_with(fname, GmdTypeToWString(kGmdTypeLvl))
     );
 }
 
@@ -47,18 +56,17 @@ std::string bgd::gmd::convert_vs(byte_array const& data) {
 
 GmdFile::GmdFile(GJGameLevel* lvl) {
     this->m_pLevel = lvl;
-    this->m_sFileName = lvl->m_sLevelName;
+    this->m_sFileName = string_convert(lvl->m_sLevelName);
 }
 
 GmdFile::GmdFile(std::string const& pathStr) {
     auto path = fs::path(pathStr);
     if (fs::is_directory(path)) {
-        this->m_sPath = pathStr;
+        this->m_sPath = path;
     } else {
-        this->m_sPath = path.parent_path().string();
+        this->m_sPath = path.parent_path();
     }
-    this->m_sFileName = path.stem().string();
-    this->m_sFullPath = pathStr;
+    this->m_sFileName = path.stem();
 
     switch (hash(path.extension().string().c_str())) {
         case ".gmd"_h:   this->m_eFormat = kGmdTypeGmd; break;
@@ -67,7 +75,27 @@ GmdFile::GmdFile(std::string const& pathStr) {
     }
 }
 
+GmdFile::GmdFile(std::wstring const& pathStr) {
+    auto path = fs::path(pathStr);
+    if (fs::is_directory(path)) {
+        this->m_sPath = path;
+    } else {
+        this->m_sPath = path.parent_path();
+    }
+    this->m_sFileName = path.stem();
+
+    switch (hash(path.extension().wstring().c_str())) {
+        case L".gmd"_h:  this->m_eFormat = kGmdTypeGmd; break;
+        case L".gmd2"_h: this->m_eFormat = kGmdTypeGmd2; break;
+        case L".lvl"_h:  this->m_eFormat = kGmdTypeLvl; break;
+    }
+}
+
 void GmdFile::setFileName(std::string const& name) {
+    this->m_sFileName = string_convert(name);
+}
+
+void GmdFile::setFileName(std::wstring const& name) {
     this->m_sFileName = name;
 }
 
@@ -174,8 +202,10 @@ Result<GJGameLevel*> GmdFile::createLevel(std::string const& data) {
 }
 
 Result<GJGameLevel*> GmdFile::parseLevel() {
-    if (!fs::exists(this->m_sFullPath)) {
-        return Result<GJGameLevel*>::err(
+    auto path = this->m_sPath / this->m_sFileName;
+
+    if (!fs::exists(path)) {
+        return Err<>(
             "File does not exist! (Likely reason is that the path or "
             "filename contains <co>unrecognized</c> characters; <cy>Move</c> "
             "the file to a different location and try again)"
@@ -184,7 +214,7 @@ Result<GJGameLevel*> GmdFile::parseLevel() {
 
     switch (this->m_eFormat) {
         case kGmdTypeGmd2: {
-            Unzipper zip (this->m_sFullPath);
+            Unzipper zip (path.string());
 
             std::vector<uint8_t> metaBuffer;
             std::vector<uint8_t> dataBuffer;
@@ -193,10 +223,10 @@ Result<GJGameLevel*> GmdFile::parseLevel() {
             zip.extractEntryToMemory("level.data", dataBuffer);
 
             if (!metaBuffer.size())
-                return Result<GJGameLevel*>::err("Unable to read level metadata!");
+                return Err<>("Unable to read level metadata!");
 
             if (!dataBuffer.size())
-                return Result<GJGameLevel*>::err("Unable to read level data!");
+                return Err<>("Unable to read level data!");
             
             std::string metadata = convert_vs(metaBuffer);
             std::string data = convert_vs(dataBuffer);
@@ -206,7 +236,7 @@ Result<GJGameLevel*> GmdFile::parseLevel() {
                 metaj = nlohmann::json::parse(metadata);
             } catch (...) {
                 zip.close();
-                return Result<GJGameLevel*>::err("Unable to parse metadata!");
+                return Err<>("Unable to parse metadata!");
             }
 
             try {
@@ -230,7 +260,7 @@ Result<GJGameLevel*> GmdFile::parseLevel() {
                             targetPath = "Resources/" + songfile;
                         }
 
-                        this->m_sSongPath = targetPath;
+                        this->m_sSongPath = string_convert(targetPath);
                     }
                 }
             } catch (...) {}
@@ -245,25 +275,25 @@ Result<GJGameLevel*> GmdFile::parseLevel() {
             data = decodeCompression(data, compr);
 
             if (!data.size())
-                return Result<GJGameLevel*>::err("Unable to decode compression!");
+                return Err<>("Unable to decode compression!");
 
             return this->createLevel(data);
         } break;
 
         case kGmdTypeGmd: {
-            auto res = file_read_string(this->m_sFullPath);
+            auto res = file_read_string(path);
 
             if (!res || !res.value().size())
-                return Result<GJGameLevel*>::err("File is empty");
+                return Err<>("File is empty");
 
             return this->createLevel(res.value());
         } break;
 
         case kGmdTypeLvl: {
-            auto res = file_read_string(this->m_sFullPath);
+            auto res = file_read_string(path);
 
             if (!res || !res.value().length())
-                return Result<GJGameLevel*>::err("File is empty");
+                return Err<>("File is empty");
             
             auto data = bgd::gmd::decoder::GZip(res.value());
             data = "<d>" + data + "</d>";
@@ -272,10 +302,10 @@ Result<GJGameLevel*> GmdFile::parseLevel() {
         } break;
 
         default:
-            return Result<GJGameLevel*>::err("Invalid Format");
+            return Err<>("Invalid Format");
     }
 
-    return Result<GJGameLevel*>::err("Unknown Error");
+    return Err<>("Unknown Error");
 }
 
 Result<std::string> GmdFile::createString() {
@@ -295,10 +325,8 @@ Result<std::string> GmdFile::createString() {
 Result<> GmdFile::saveFile() {
     auto str = this->createString();
 
-    fs::path path = this->m_sPath;
-    path /= this->m_sFileName;
+    auto path = this->m_sPath / this->m_sFileName;
     path.replace_extension(GmdTypeToString(this->m_eFormat));
-    this->m_sFullPath = path.string();
 
     if (str) {
         switch (this->m_eFormat) {
@@ -314,12 +342,12 @@ Result<> GmdFile::saveFile() {
 
                 std::string metadata = metajson.dump();
 
-                if (fs::exists(this->m_sFullPath)) {
-                    if (!fs::remove(this->m_sFullPath))
+                if (fs::exists(path)) {
+                    if (!fs::remove(path))
                         return Result<>::err("Unable to write file!");
                 }
 
-                Zipper zip (this->m_sFullPath);
+                Zipper zip (path.string());
 
                 std::istringstream dataStream (str.value());
                 std::istringstream metaStream (metadata);
@@ -327,8 +355,9 @@ Result<> GmdFile::saveFile() {
                 zip.add(dataStream, "level.data");
                 zip.add(metaStream, "level.meta");
 
-                if (this->m_sSongPath.size())
-                    zip.add(this->m_sSongPath);
+                if (this->m_sSongPath.size()) {
+                    zip.add(string_convert(this->m_sSongPath));
+                }
 
                 zip.close();
 
@@ -336,14 +365,14 @@ Result<> GmdFile::saveFile() {
             } break;
             
             case kGmdTypeGmd: {
-                return file_write_string(this->m_sFullPath, str.value());
+                return file_write_string(path, str.value());
             } break;
 
             case kGmdTypeLvl: {
                 std::string data = str.value().substr(3, str.value().length() - 7);
 
                 return file_write_binary(
-                    this->m_sFullPath,
+                    path,
                     gdcrypto::zlib::deflateBuffer(
                         convert_vs(data)
                     )

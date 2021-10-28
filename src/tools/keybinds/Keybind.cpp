@@ -2,7 +2,7 @@
 
 USE_BGD_NAMESPACE();
 
-std::string keyToStringFixed(enumKeyCodes code) {
+std::string bgd::keyToStringFixed(enumKeyCodes code) {
     switch (code) {
         case KEY_None:      return "";
         case KEY_C:         return "C";
