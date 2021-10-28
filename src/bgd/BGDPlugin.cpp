@@ -1,6 +1,8 @@
 #include <BGDPlugin.hpp>
 #include <BGDLoader.hpp>
+#include <BGDSaveManager.hpp>
 #include <iostream>
+#include <utils/other/ext.hpp>
 
 bgd::BGDPlugin::BGDPlugin() {
     this->setup();
@@ -17,8 +19,18 @@ std::ostream& bgd::BGDPlugin::log() {
 void bgd::BGDPlugin::setup() {}
 void bgd::BGDPlugin::enable() {}
 void bgd::BGDPlugin::disable() {}
-void bgd::BGDPlugin::saveData() {}
-void bgd::BGDPlugin::loadData() {}
+void bgd::BGDPlugin::saveData() {
+    auto path = "BetterGD/plugins/"_s + this->m_sName;
+    for (auto const& manager : this->m_vSaveManagers) {
+        manager->saveData(path);
+    }
+}
+void bgd::BGDPlugin::loadData() {
+    auto path = "BetterGD/plugins/"_s + this->m_sName;
+    for (auto const& manager : this->m_vSaveManagers) {
+        manager->loadData(path);
+    }
+}
 
 const char* bgd::BGDPlugin::getID()        const {
     return this->m_sID;
@@ -38,6 +50,14 @@ const char* bgd::BGDPlugin::getCredits()   const {
 
 const char* bgd::BGDPlugin::getPath()      const {
     return this->m_sPath;
+}
+
+void bgd::BGDPlugin::registerSaveManager(BGDSaveManager* manager) {
+    this->m_vSaveManagers.push_back(manager);
+}
+
+void bgd::BGDPlugin::unregisterSaveManager(BGDSaveManager* manager) {
+    vector_erase(this->m_vSaveManagers, manager);
 }
 
 void bgd::BGDPlugin::throwError(bgd::BGDError const& error) {

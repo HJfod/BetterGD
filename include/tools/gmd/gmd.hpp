@@ -12,7 +12,8 @@ namespace bgd {
 
         constexpr const char* GmdTypeToString(GmdType);
 
-        bool isLevelFileName(std::string const& fname);
+        bool isLevelFileName(std::string  const& fname);
+        bool isLevelFileName(std::wstring const& fname);
         
         const enum ExportFlag {
             kfExportFlag_None           = 0b0000000,

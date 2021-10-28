@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <functional>
+#include <algorithm>
 
 namespace bgd {
     /**
@@ -134,7 +135,7 @@ namespace bgd {
      * found, the return type is nullptr.
      */
     template<class T>
-        T vector_select(std::vector<T> const& vec, std::function<bool(T)> selectFunc) {
+    T vector_select(std::vector<T> const& vec, std::function<bool(T)> selectFunc) {
         for (auto const& v : vec) {
             if (selectFunc(v)) {
                 return v;
@@ -156,5 +157,17 @@ namespace bgd {
     template<class T>
     std::vector<T> vector_select_all(std::vector<T> const& vec, std::function<bool(T)> selectFunc) {
         return vector_filter<T>(vec, selectFunc);
+    }
+
+    template<class T>
+    std::vector<T> & vector_erase(std::vector<T> & vec, T element) {
+        vec.erase(std::remove(vec.begin(), vec.end(), element), vec.end());
+        return vec;
+    }
+
+    template<class T>
+    std::vector<T> & vector_erase(std::vector<T> & vec, std::function<bool(T)> eraseFunc) {
+        vec.erase(std::remove_if(vec.begin(), vec.end(), eraseFunc), vec.end());
+        return vec;
     }
 }

@@ -3,8 +3,10 @@
 #include "utils/gd/include_gd.hpp"
 
 #include "bgd/BGDMacros.hpp"
+#include "bgd/BGDError.hpp"
 #include "bgd/BGDPlugin.hpp"
 #include "bgd/BGDLoader.hpp"
+#include "bgd/BGDSaveManager.hpp"
 
 #include "utils/other/types.hpp"
 #include "utils/other/casts.hpp"
@@ -21,3 +23,5 @@
 #include "utils/gd/node.hpp"
 
 #include "matdash/hook.hpp"
+#undef snprintf
+#include "external/json.hpp"

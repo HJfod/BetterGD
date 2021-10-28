@@ -159,7 +159,7 @@ keybind_id keybind_id::operator=(std::string const& val) {
     if (value) {
         delete[] value;
     }
-    value = strdup(val.c_str());
+    value = _strdup(val.c_str());
     return *this;
 }
 bool keybind_id::operator==(keybind_id const& other) const {

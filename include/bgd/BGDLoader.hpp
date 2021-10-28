@@ -12,10 +12,6 @@ namespace bgd {
 
     class BGDPlugin;
 
-    #pragma warning(disable: 4251) // i will use unordered_map and
-                                   // no amount of compiler warnings
-                                   // can stop me >:)
-
     class BGD_DLL BGDLoader {
         protected:
             std::vector<BGDPlugin*> m_vLoadedPlugins;

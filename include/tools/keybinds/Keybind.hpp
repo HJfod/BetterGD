@@ -36,7 +36,7 @@ namespace bgd {
 
     using KeybindList = std::set<Keybind>;
 
-    struct keybind_id {
+    struct BGD_DLL keybind_id {
         const char* value;
 
         keybind_id();

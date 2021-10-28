@@ -4,7 +4,7 @@
 #include <unzipper.h>
 #undef snprintf
 #include "ZlibHelper.hpp"
-#include "json.hpp"
+#include <external/json.hpp>
 
 USE_BGD_NAMESPACE();
 
@@ -22,6 +22,14 @@ constexpr const char* bgd::gmd::GmdTypeToString(GmdType type) {
 }
 
 bool bgd::gmd::isLevelFileName(std::string const& fname) {
+    return (
+        bgd::string_ends_with(fname, GmdTypeToString(kGmdTypeGmd)) ||
+        bgd::string_ends_with(fname, GmdTypeToString(kGmdTypeGmd2)) ||
+        bgd::string_ends_with(fname, GmdTypeToString(kGmdTypeLvl))
+    );
+}
+
+bool bgd::gmd::isLevelFileName(std::wstring const& fname) {
     return (
         bgd::string_ends_with(fname, GmdTypeToString(kGmdTypeGmd)) ||
         bgd::string_ends_with(fname, GmdTypeToString(kGmdTypeGmd2)) ||

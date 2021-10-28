@@ -3,12 +3,18 @@
 #include "BGDMacros.hpp"
 #include "BGDError.hpp"
 #include <string>
+#include <vector>
 
 namespace bgd {
     class BGDLoader;
+    class BGDSaveManager;
 
     struct BGDPlatformInfo;
 
+    #pragma warning(disable: 4251) // i will use unordered_map and
+                                   // no amount of compiler warnings
+                                   // can stop me >:)
+                                   
     class BGD_DLL BGDPlugin {
         protected:
             const char* m_sName;
@@ -19,7 +25,8 @@ namespace bgd {
             // internal members; do NOT modify
             const char* m_sPath;
             BGDPlatformInfo* m_pInfo;
-            
+            std::vector<BGDSaveManager*> m_vSaveManagers;
+
             void platformCleanup();
 
             virtual void setup() = 0;
@@ -28,7 +35,11 @@ namespace bgd {
             virtual void saveData();
             virtual void loadData();
 
+            void registerSaveManager(BGDSaveManager*);
+            void unregisterSaveManager(BGDSaveManager*);
+
             friend class BGDLoader;
+            friend class BGDSaveManager;
 
         public:
             void throwError(BGDError const&);

@@ -8,7 +8,7 @@ bool CCMouseDispatcher_dispatchScrollMSG(
 
     return matdash::orig<&CCMouseDispatcher_dispatchScrollMSG>(self, y, x);
 }
-static CreateHook<&CCMouseDispatcher_dispatchScrollMSG>$cckddkm(
+static CreateHook<&CCMouseDispatcher_dispatchScrollMSG>$ccmddsm(
     "libcocos2d.dll",
     "?dispatchScrollMSG@CCMouseDispatcher@cocos2d@@QAE_NMM@Z"
 );
