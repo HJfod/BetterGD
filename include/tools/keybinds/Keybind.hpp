@@ -47,6 +47,7 @@ namespace bgd {
         const char* c_str() const;
         bool operator==(keybind_id const&) const;
         keybind_id operator=(std::string const&);
+        keybind_id operator=(std::nullptr_t const&);
     };
 }
 

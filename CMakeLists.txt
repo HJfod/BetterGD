@@ -3,11 +3,15 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(PROJECT_NAME BetterGD)
+set(CONFIG_DIR RelWithDebInfo)
+set(BUILD_SUBS True)
 
-set(COCOS2D_LOCATION submodules/Cocos2d)
-set(GD_H_LOCATION submodules/gd.h)
-set(MINHOOK_LOCATION submodules/MinHook)
-set(ZIPPER_LOCATION submodules/Zipper)
+set(COCOS2D_LOCATION        ${CMAKE_SOURCE_DIR}/submodules/Cocos2d)
+set(GD_H_LOCATION           ${CMAKE_SOURCE_DIR}/submodules/gd.h)
+set(MINHOOK_LOCATION        ${CMAKE_SOURCE_DIR}/submodules/MinHook)
+set(ZIPPER_LOCATION         ${CMAKE_SOURCE_DIR}/submodules/Zipper)
+set(MINHOOK_BUILD_LOCATION  ${CMAKE_BINARY_DIR}/submodules/MinHook)
+set(ZIPPER_BUILD_LOCATION   ${CMAKE_BINARY_DIR}/submodules/Zipper)
 
 set(BGD_PRODUCT_NUMBER 1)
 set(BGD_PRODUCT_VERSION 0)
@@ -38,6 +42,15 @@ configure_file(
 set(WIN32 ON)
 add_library(${PROJECT_NAME} SHARED ${SOURCES} ${CMAKE_CURRENT_BINARY_DIR}/version.rc)
 
+if (${BUILD_SUBS})
+  add_subdirectory(${MINHOOK_LOCATION})
+  target_link_libraries(${PROJECT_NAME} ${MINHOOK_BUILD_LOCATION}/${CONFIG_DIR}/minhook.x32.lib)
+
+  set(BUILD_TEST Off CACHE BOOL "Build the test program." FORCE)
+  add_subdirectory(${ZIPPER_LOCATION})
+  target_link_libraries(${PROJECT_NAME} ${ZIPPER_BUILD_LOCATION}/${CONFIG_DIR}/staticZipper.lib)
+endif()
+
 add_compile_definitions(_EXPORTING)
 
 include_directories(
@@ -62,8 +75,6 @@ target_link_libraries(
     ${PROJECT_NAME}
     "${COCOS2D_LOCATION}/cocos2dx/libcocos2d.lib"
     "${COCOS2D_LOCATION}/extensions/libExtensions.lib"
-    "${MINHOOK_LOCATION}/build/Release/minhook.x32.lib"
-    "${ZIPPER_LOCATION}/build/Release/staticZipper.lib"
     ZLIB
 )
 

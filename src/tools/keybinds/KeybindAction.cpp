@@ -2,22 +2,26 @@
 
 USE_BGD_NAMESPACE();
 
+bool KeybindAction::operator==(KeybindAction const& other) const {
+    return this->id == other.id;
+}
 KeybindAction::~KeybindAction() {}
-void KeybindAction::invoke(CCNode* node, bool down) const {
+
+KeybindModifier::~KeybindModifier() {}
+
+void TriggerableAction::invoke(CCNode* node, bool down) const {
     if (this->action) {
         this->action(node, down);
     }
 }
-void KeybindAction::invoke(CCNode* node, keybind_category_id const& id, bool down) const {
+void TriggerableAction::invoke(CCNode* node, keybind_category_id const& id, bool down) const {
     if (this->actionWithID) {
         this->actionWithID(node, id, down);
     } else if (this->action) {
         this->action(node, down);
     }
 }
-bool KeybindAction::operator==(KeybindAction const& other) const {
-    return this->id == other.id;
-}
+TriggerableAction::~TriggerableAction() {}
 
 RepeatableAction::~RepeatableAction() {}
 

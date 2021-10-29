@@ -7,6 +7,8 @@ bool KeybindManager::init() {
     this->m_sSaveFileName = "BGDKeybindManager.json";
     this->m_eSaveType = kBGDSaveTypeJSON;
 
+    this->loadDefaultKeybinds();
+    
     return true;
 }
 
@@ -26,5 +28,4 @@ void KeybindManager::saveJSON(nlohmann::json&) {
 }
 
 void KeybindManager::loadJSON(nlohmann::json&) {
-    
 }

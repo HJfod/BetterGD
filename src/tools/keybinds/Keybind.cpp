@@ -163,6 +163,13 @@ keybind_id keybind_id::operator=(std::string const& val) {
     value = _strdup(val.c_str());
     return *this;
 }
+keybind_id keybind_id::operator=(std::nullptr_t const&) {
+    if (value) {
+        delete[] value;
+    }
+    value = nullptr;
+    return *this;
+}
 bool keybind_id::operator==(keybind_id const& other) const {
     return
         string_to_lower(this->value) ==
