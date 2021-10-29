@@ -1,0 +1,12 @@
+[submodule "submodules/gd.h"]
+	path = submodules/gd.h
+	url = https://github.com/HJfod/gd.h
+[submodule "submodules/MinHook"]
+	path = submodules/MinHook
+	url = https://github.com/HJfod/MinHook
+[submodule "submodules/Zipper"]
+	path = submodules/Zipper
+	url = https://github.com/sebastiandev/zipper
+[submodule "submodules/Cocos2d"]
+	path = submodules/Cocos2d
+	url = https://github.com/HJfod/Cocos-headers
