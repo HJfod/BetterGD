@@ -32,4 +32,27 @@ namespace bgd {
         }
         return R();
     }
+
+    template<class T, class R>
+    std::vector<R> map_select_all(
+        std::unordered_map<T, R> map,
+        std::function<bool(R)> selectFunc
+    ) {
+        std::vector<R> res;
+        for (auto const& [_, r] : map) {
+            if (selectFunc(r)) {
+                res.push_back(r);
+            }
+        }
+        return res;
+    }
+
+    template<class T, class R>
+    std::vector<R> map_values(std::unordered_map<T, R> map) {
+        std::vector<R> res;
+        for (auto const& [_, r] : map) {
+            res.push_back(r);
+        }
+        return res;
+    }
 }

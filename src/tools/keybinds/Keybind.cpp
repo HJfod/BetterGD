@@ -170,6 +170,9 @@ keybind_id keybind_id::operator=(std::nullptr_t const&) {
     value = nullptr;
     return *this;
 }
+keybind_id::operator bool() const {
+    return this->value;
+}
 bool keybind_id::operator==(keybind_id const& other) const {
     return
         string_to_lower(this->value) ==

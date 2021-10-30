@@ -5,13 +5,13 @@
 namespace bgd {
     struct BGD_DLL keybind_category_id {
         const char* value;
-
         keybind_category_id();
         keybind_category_id(std::string const&);
         keybind_category_id(const char*);
         ~keybind_category_id();
         const char* c_str() const;
         bool operator==(keybind_category_id const&) const;
+        operator bool() const;
         keybind_category_id operator=(std::string const&);
     };
 

@@ -5,3 +5,4 @@
 #include "vector.hpp"
 #include "file.hpp"
 #include "map.hpp"
+#include "view.hpp"

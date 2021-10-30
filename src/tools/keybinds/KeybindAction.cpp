@@ -44,6 +44,9 @@ const char* keybind_category_id::c_str() const {
         return "";
     }
 }
+keybind_category_id::operator bool() const {
+    return this->value;
+}
 keybind_category_id keybind_category_id::operator=(std::string const& val) {
     if (value) {
         delete[] value;
