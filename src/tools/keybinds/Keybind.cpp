@@ -137,43 +137,43 @@ Keybind::Keybind(DS_Dictionary* dict, int version) {
 }
 
 
-keybind_id::keybind_id() {
+keybind_action_id::keybind_action_id() {
     value = nullptr;
 }
-keybind_id::keybind_id(const char* val) {
+keybind_action_id::keybind_action_id(const char* val) {
     value = val;
 }
-keybind_id::keybind_id(std::string const& val) {
+keybind_action_id::keybind_action_id(std::string const& val) {
     *this = val;
 }
-keybind_id::~keybind_id() {
+keybind_action_id::~keybind_action_id() {
     delete[] value;
 }
-const char* keybind_id::c_str() const {
+const char* keybind_action_id::c_str() const {
     if (value) {
         return value;
     } else {
         return "";
     }
 }
-keybind_id keybind_id::operator=(std::string const& val) {
+keybind_action_id keybind_action_id::operator=(std::string const& val) {
     if (value) {
         delete[] value;
     }
     value = _strdup(val.c_str());
     return *this;
 }
-keybind_id keybind_id::operator=(std::nullptr_t const&) {
+keybind_action_id keybind_action_id::operator=(std::nullptr_t const&) {
     if (value) {
         delete[] value;
     }
     value = nullptr;
     return *this;
 }
-keybind_id::operator bool() const {
-    return this->value;
+keybind_action_id::operator int() const {
+    return hash(this->value);
 }
-bool keybind_id::operator==(keybind_id const& other) const {
+bool keybind_action_id::operator==(keybind_action_id const& other) const {
     return
         string_to_lower(this->value) ==
         string_to_lower(other.value);
@@ -184,7 +184,7 @@ std::size_t std::hash<Keybind>::operator()(Keybind const& key) const {
     return (key.key << 8) + (key.modifiers << 4) + (key.mouse);
 }
 
-std::size_t std::hash<keybind_id>::operator()(keybind_id const& key) const {
+std::size_t std::hash<keybind_action_id>::operator()(keybind_action_id const& key) const {
     return std::hash<decltype(key.value)>()(key.value);
 }
 

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <BGDUtils.hpp>
+#include <unordered_set>
 #include "../keybinds/MouseButton.hpp"
 
 namespace bgd {
@@ -41,14 +42,16 @@ namespace bgd {
             cocos2d::CCPoint m_obLastPosition;
             SuperMouseDelegate* m_pCapturing = nullptr;
             SuperMouseDelegate* m_pWeakCapture = nullptr;
-            std::set<MouseButton> m_vButtonsDown;
+            std::unordered_set<MouseButton> m_vPressedButtons;
 
             bool init();
 
             bool delegateIsHovered(SuperMouseDelegate*, cocos2d::CCPoint const&);
+
+            SuperMouseManager();
+            ~SuperMouseManager();
         
         public:
-            static bool initGlobal();
             static SuperMouseManager* get();
 
             void pushDelegate(SuperMouseDelegate*);
@@ -61,6 +64,8 @@ namespace bgd {
             bool dispatchClickEvent(MouseButton, bool, cocos2d::CCPoint const&);
             void dispatchMoveEvent(cocos2d::CCPoint const&);
             bool dispatchScrollEvent(float, float, cocos2d::CCPoint const&);
+
+            bool isButtonPressed(MouseButton btn) const;
     };
 
 }

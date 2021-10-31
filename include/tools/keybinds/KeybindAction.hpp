@@ -11,12 +11,12 @@ namespace bgd {
         ~keybind_category_id();
         const char* c_str() const;
         bool operator==(keybind_category_id const&) const;
-        operator bool() const;
+        operator int()  const;
         keybind_category_id operator=(std::string const&);
     };
 
     struct BGD_DLL KeybindAction {
-        keybind_id id                   = "";
+        keybind_action_id id                   = "";
         keybind_category_id category    = "";
         std::string name;
         std::string subcategory         = "";
@@ -43,6 +43,42 @@ namespace bgd {
             bool down
         ) const;
 
+        TriggerableAction(
+            std::string         const& name,
+            keybind_action_id   const& id,
+            keybind_category_id const& category,
+            decltype(action)           action
+        );
+        TriggerableAction(
+            std::string         const& name,
+            keybind_action_id   const& id,
+            keybind_category_id const& category,
+            decltype(action)           action,
+            std::string         const& description
+        );
+        TriggerableAction(
+            std::string         const& name,
+            keybind_action_id   const& id,
+            keybind_category_id const& category,
+            decltype(actionWithID)     action,
+            std::string         const& description
+        );
+        TriggerableAction(
+            std::string         const& name,
+            keybind_action_id   const& id,
+            keybind_category_id const& category,
+            std::string         const& subcategory,
+            decltype(action)           action,
+            std::string         const& description
+        );
+        TriggerableAction(
+            std::string         const& name,
+            keybind_action_id   const& id,
+            keybind_category_id const& category,
+            std::string         const& subcategory,
+            decltype(actionWithID)     action,
+            std::string         const& description
+        );
         virtual ~TriggerableAction();
     };
 
@@ -56,4 +92,14 @@ namespace bgd {
     };
 
     using KeybindActionList = std::vector<KeybindAction*>;
+
+    constexpr const char* KB_PLAY_CATEGORY      = "gd.play";
+    constexpr const char* KB_EDITOR_CATEGORY    = "gd.editor";
+}
+
+namespace std {
+    template<>
+    struct hash<bgd::keybind_category_id> {
+        BGD_DLL std::size_t operator()(bgd::keybind_category_id const&) const;
+    };
 }

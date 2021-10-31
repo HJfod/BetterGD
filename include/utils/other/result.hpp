@@ -7,7 +7,7 @@ namespace bgd {
     // credit to matcool
     // https://github.com/matcool
 
-    using no_result = char;
+    struct no_result {};
 
     template <class T = no_result, class E = std::string_view>
     class Result {

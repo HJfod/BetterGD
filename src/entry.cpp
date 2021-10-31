@@ -3,6 +3,7 @@
 
 DWORD WINAPI load_thread(LPVOID hModule) {
     bgd::BGDLoader::get()->setup();
+    bgd::bufferConsoleInput();
     return 0;
 }
 

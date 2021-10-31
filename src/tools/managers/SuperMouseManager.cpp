@@ -2,8 +2,6 @@
 
 USE_BGD_NAMESPACE();
 
-SuperMouseManager* g_manager;
-
 void SuperMouseDelegate::mouseEnterSuper(CCPoint const&) {}
 void SuperMouseDelegate::mouseLeaveSuper(CCPoint const&) {}
 bool SuperMouseDelegate::mouseDownSuper(MouseButton, CCPoint const&) { return false; }
@@ -19,10 +17,10 @@ void SuperMouseDelegate::setSuperMouseHitOffset(CCPoint const& pos) {
     this->m_obSuperMouseHitOffset = pos;
 }
 void SuperMouseDelegate::superMousePushSelf() {
-    g_manager->pushDelegate(this);
+    SuperMouseManager::get()->pushDelegate(this);
 }
 void SuperMouseDelegate::superMousePopSelf() {
-    g_manager->popDelegate(this);
+    SuperMouseManager::get()->popDelegate(this);
 }
 
 SuperMouseDelegate::SuperMouseDelegate() {
@@ -50,18 +48,18 @@ bool SuperMouseManager::init() {
     return true;
 }
 
-bool SuperMouseManager::initGlobal() {
-    if (!g_manager) {
-        g_manager = new SuperMouseManager;
-        if (!g_manager || !g_manager->init()) {
-            CC_SAFE_DELETE(g_manager);
-            return false;
-        }
+SuperMouseManager::SuperMouseManager() {
+    this->init();
+}
+
+SuperMouseManager::~SuperMouseManager() {
+    for (auto const& delegate : this->m_vDelegates) {
+        this->popDelegate(delegate);
     }
-    return true;
 }
 
 SuperMouseManager* SuperMouseManager::get() {
+    static auto g_manager = new SuperMouseManager;
     return g_manager;
 }
 
@@ -105,9 +103,9 @@ bool SuperMouseManager::delegateIsHovered(SuperMouseDelegate* delegate, CCPoint 
 
 bool SuperMouseManager::dispatchClickEvent(MouseButton btn, bool down, CCPoint const& pos) {
     if (down) {
-        this->m_vButtonsDown.insert(btn);
+        this->m_vPressedButtons.insert(btn);
     } else {
-        this->m_vButtonsDown.erase(btn);
+        this->m_vPressedButtons.erase(btn);
     }
     if (m_pCapturing) {
         m_pCapturing->m_bSuperMouseDown = down;
@@ -165,7 +163,7 @@ void SuperMouseManager::dispatchMoveEvent(CCPoint const& pos) {
                 d->m_bSuperMouseHovered = hover;
 
                 if (hover) {
-                    for (auto const& btn : this->m_vButtonsDown) {
+                    if (this->m_vPressedButtons.size()) {
                         d->m_bSuperMouseDown = true;
                     }
                     d->mouseEnterSuper(pos);
@@ -206,4 +204,8 @@ void SuperMouseManager::releaseCapture(SuperMouseDelegate* delegate) {
 void SuperMouseManager::releaseCapture() {
     this->m_pCapturing = nullptr;
     this->m_pWeakCapture = nullptr;
+}
+
+bool SuperMouseManager::isButtonPressed(MouseButton btn) const {
+    return this->m_vPressedButtons.count(btn);
 }

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <BGDUtils.hpp>
+#include <unordered_set>
 
 namespace bgd {
     struct BGD_DLL SuperKeyboardDelegate {
@@ -18,16 +19,21 @@ namespace bgd {
     class BGD_DLL SuperKeyboardManager {
         protected:
             std::vector<SuperKeyboardDelegate*> m_vDelegates;
+            std::unordered_set<cocos2d::enumKeyCodes> m_vPressedKeys;
 
             bool init();
+
+            SuperKeyboardManager();
+            ~SuperKeyboardManager();
         
         public:
-            static bool initGlobal();
             static SuperKeyboardManager* get();
 
             void pushDelegate(SuperKeyboardDelegate*);
             void popDelegate(SuperKeyboardDelegate*);
 
             bool dispatchEvent(cocos2d::enumKeyCodes, bool keydown);
+
+            bool isKeyDown(cocos2d::enumKeyCodes key) const;
     };
 }

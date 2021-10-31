@@ -13,4 +13,8 @@
 #include "tools/managers/SuperMouseManager.hpp"
 #include "tools/managers/SuperKeyboardManager.hpp"
 
+#include "tools/keybinds/Keybind.hpp"
+#include "tools/keybinds/KeybindAction.hpp"
+#include "tools/keybinds/KeybindManager.hpp"
+
 #include "tools/gmd/gmd.hpp"

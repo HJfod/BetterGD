@@ -1,7 +1,9 @@
+#include "../hooks/bgd_hook.hpp"
 #include <BGDLoader.hpp>
 #include <utils/other/ext.hpp>
 #include <utils/other/platform.hpp>
 #include <iostream>
+#include <thread>
 
 using namespace bgd;
 
@@ -71,11 +73,12 @@ bool bgd::BGDLoader::setup() {
     this->createDirectories();
     this->updatePlugins();
 
-    bgd::bufferConsoleInput();
+    bgd::loadHooks();
 
     this->loadData();
 
     this->m_bIsSetup = true;
+
     return true;
 }
 

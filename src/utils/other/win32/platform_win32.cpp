@@ -77,7 +77,6 @@ bool bgd::loadConsole() {
     // redirect console output
     freopen_s(reinterpret_cast<FILE**>(stdout), "CONOUT$", "w", stdout);
     freopen_s(reinterpret_cast<FILE**>(stdin), "CONIN$", "r", stdin);
-    freopen_s(reinterpret_cast<FILE**>(stdout),"CONERR$", "w", stderr);
 
     return true;
 }
@@ -85,7 +84,6 @@ bool bgd::loadConsole() {
 bool bgd::unloadConsole() {
     fclose(stdin);
     fclose(stdout);
-    fclose(stderr);
     return FreeConsole();
 }
 

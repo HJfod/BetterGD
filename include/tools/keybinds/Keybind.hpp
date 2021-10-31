@@ -3,11 +3,12 @@
 #include <BGDUtils.hpp>
 #include "MouseButton.hpp"
 #include <set>
+#include <unordered_set>
 
 namespace bgd {
     BGD_DLL std::string keyToStringFixed(cocos2d::enumKeyCodes code);
 
-    struct Keybind {
+    struct BGD_DLL Keybind {
         cocos2d::enumKeyCodes key = cocos2d::KEY_None;
         enum Modifiers : int {
             kmNone      = 0,
@@ -22,8 +23,8 @@ namespace bgd {
         bool operator==(Keybind const&) const;
         bool operator<(Keybind const&) const;
 
-        BGD_DLL std::string toString() const;
-        BGD_DLL void save(DS_Dictionary*) const;
+        std::string toString() const;
+        void save(DS_Dictionary*) const;
 
         Keybind();
         Keybind(cocos2d::enumKeyCodes);
@@ -32,23 +33,23 @@ namespace bgd {
         Keybind(MouseButton);
         Keybind(MouseButton, int);
         Keybind(MouseButton, Modifiers);
-        BGD_DLL Keybind(DS_Dictionary*, int version);
+        Keybind(DS_Dictionary*, int version);
     };
 
-    using KeybindList = std::set<Keybind>;
+    using KeybindList = std::unordered_set<Keybind>;
 
-    struct BGD_DLL keybind_id {
+    struct BGD_DLL keybind_action_id {
         const char* value;
 
-        keybind_id();
-        keybind_id(std::string const&);
-        keybind_id(const char*);
-        ~keybind_id();
+        keybind_action_id();
+        keybind_action_id(std::string const&);
+        keybind_action_id(const char*);
+        ~keybind_action_id();
         const char* c_str() const;
-        bool operator==(keybind_id const&) const;
-        operator bool() const;
-        keybind_id operator=(std::string const&);
-        keybind_id operator=(std::nullptr_t const&);
+        bool operator==(keybind_action_id const&) const;
+        operator int()  const;
+        keybind_action_id operator=(std::string const&);
+        keybind_action_id operator=(std::nullptr_t const&);
     };
 }
 
@@ -58,7 +59,7 @@ namespace std {
         BGD_DLL std::size_t operator()(bgd::Keybind const&) const;
     };
     template<>
-    struct hash<bgd::keybind_id> {
-        BGD_DLL std::size_t operator()(bgd::keybind_id const&) const;
+    struct hash<bgd::keybind_action_id> {
+        BGD_DLL std::size_t operator()(bgd::keybind_action_id const&) const;
     };
 }

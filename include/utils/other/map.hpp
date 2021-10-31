@@ -55,4 +55,13 @@ namespace bgd {
         }
         return res;
     }
+
+    template<class T, class R>
+    std::vector<T> map_keys(std::unordered_map<T, R> map) {
+        std::vector<T> res;
+        for (auto const& [t, _] : map) {
+            res.push_back(t);
+        }
+        return res;
+    }
 }

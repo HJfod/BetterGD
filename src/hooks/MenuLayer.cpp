@@ -5,13 +5,6 @@ bool MenuLayer_init(MenuLayer* self) {
     if (!matdash::orig<&MenuLayer_init>(self))
         return false;
     
-    FLAlertLayer::create(
-        nullptr,
-        "wow",
-        "ok", nullptr,
-        "yeah"
-    )->show();
-    
     return true;
 }
 static CreateHook<&MenuLayer_init>$mli(base + 0x1907b0);

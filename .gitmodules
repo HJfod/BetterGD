@@ -10,3 +10,6 @@
 [submodule "submodules/Cocos2d"]
 	path = submodules/Cocos2d
 	url = https://github.com/HJfod/Cocos-headers
+[submodule "submodules/lilac"]
+	path = submodules/lilac
+	url = https://github.com/lilac-sdk/core

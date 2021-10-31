@@ -3,15 +3,13 @@
 
 USE_BGD_NAMESPACE();
 
-SuperKeyboardManager* g_manager;
-
 bool SuperKeyboardDelegate::keyDownSuper(enumKeyCodes) { return false; }
 bool SuperKeyboardDelegate::keyUpSuper(enumKeyCodes) { return false; }
 void SuperKeyboardDelegate::superKeyPushSelf() {
-    g_manager->pushDelegate(this);
+    SuperKeyboardManager::get()->pushDelegate(this);
 }
 void SuperKeyboardDelegate::superKeyPopSelf() {
-    g_manager->popDelegate(this);
+    SuperKeyboardManager::get()->popDelegate(this);
 }
 
 SuperKeyboardDelegate::SuperKeyboardDelegate() {
@@ -26,18 +24,18 @@ bool SuperKeyboardManager::init() {
     return true;
 }
 
-bool SuperKeyboardManager::initGlobal() {
-    if (!g_manager) {
-        g_manager = new SuperKeyboardManager;
-        if (!g_manager || !g_manager->init()) {
-            CC_SAFE_DELETE(g_manager);
-            return false;
-        }
+SuperKeyboardManager::SuperKeyboardManager() {
+    this->init();
+}
+
+SuperKeyboardManager::~SuperKeyboardManager() {
+    for (auto const& delegate : this->m_vDelegates) {
+        this->popDelegate(delegate);
     }
-    return true;
 }
 
 SuperKeyboardManager* SuperKeyboardManager::get() {
+    static auto g_manager = new SuperKeyboardManager;
     return g_manager;
 }
 
@@ -52,6 +50,11 @@ void SuperKeyboardManager::popDelegate(SuperKeyboardDelegate* delegate) {
 }
 
 bool SuperKeyboardManager::dispatchEvent(enumKeyCodes key, bool keydown) {
+    if (keydown) {
+        this->m_vPressedKeys.insert(key);
+    } else {
+        this->m_vPressedKeys.erase(key);
+    }
     if (this->m_vDelegates.size()) {
         if (keydown) {
             if (this->m_vDelegates.at(0)->keyDownSuper(key))
@@ -62,4 +65,8 @@ bool SuperKeyboardManager::dispatchEvent(enumKeyCodes key, bool keydown) {
         }
     }
     return false;
+}
+
+bool SuperKeyboardManager::isKeyDown(enumKeyCodes key) const {
+    return this->m_vPressedKeys.count(key);
 }
