@@ -51,6 +51,9 @@ namespace bgd {
         keybind_action_id operator=(std::string const&);
         keybind_action_id operator=(std::nullptr_t const&);
     };
+
+    BGD_DLL std::ostream& operator<<(std::ostream& stream, Keybind const& bind);
+    BGD_DLL std::ostream& operator<<(std::ostream& stream, keybind_action_id const& id);
 }
 
 namespace std {

@@ -136,6 +136,14 @@ Keybind::Keybind(DS_Dictionary* dict, int version) {
         );
 }
 
+std::ostream& bgd::operator<<(std::ostream& stream, Keybind const& bind) {
+    return stream << bind.toString();
+}
+
+std::ostream& bgd::operator<<(std::ostream& stream, keybind_action_id const& id) {
+    return stream << id.value;
+}
+
 
 keybind_action_id::keybind_action_id() {
     value = nullptr;

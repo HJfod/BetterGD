@@ -14,3 +14,20 @@ void UILayer_keyUp(UILayer* self, enumKeyCodes key) {
 }
 static CreateHook<&UILayer_keyUp>$uilku(base + 0x25fa10);
 
+
+void EditorUI_keyDown(EditorUI* self_, enumKeyCodes key) {
+    auto self = cast::offset_cast<EditorUI*>(self_, -0xf8);
+    KeybindManager::get()->handleKeyEvent(
+        KB_EDITOR_CATEGORY, Keybind(key), self, true
+    );
+}
+static CreateHook<&EditorUI_keyDown>$euikd(base + 0x91a30);
+
+void EditorUI_keyUp(EditorUI* self_, enumKeyCodes key) {
+    auto self = cast::offset_cast<EditorUI*>(self_, -0xf8);
+    KeybindManager::get()->handleKeyEvent(
+        KB_EDITOR_CATEGORY, Keybind(key), self, false
+    );
+}
+static CreateHook<&EditorUI_keyUp>$euiku(base + 0x92180);
+

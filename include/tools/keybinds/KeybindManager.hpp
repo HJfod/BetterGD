@@ -78,6 +78,8 @@ namespace bgd {
             );
             void invokeAction(keybind_action_id const& id, cocos2d::CCNode* context, bool down = true);
             void invokeAction(keybind_action_id const& id, keybind_category_id const& category, cocos2d::CCNode* context, bool down = true);
+            void invokeAction(KeybindAction* action, cocos2d::CCNode* context, bool down = true);
+            void invokeAction(KeybindAction* action, keybind_category_id const& category, cocos2d::CCNode* context, bool down = true);
             bool isModifierPressed(keybind_action_id const& id);
 
             RepeatableAction* isRepeatableAction(keybind_action_id const& id);

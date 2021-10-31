@@ -6,7 +6,7 @@ void KeybindManager::loadDefaultKeybinds() {
     this->addKeybindAction(TriggerableAction {
         "Pause",
         "gd.play.pause",
-        KB_PLAY_CATEGORY,
+        { KB_PLAY_CATEGORY, KB_EDITOR_CATEGORY },
         [](CCNode* context, keybind_category_id const& category, bool push) -> bool {
             if (!push) return false;
             switch (category) {
@@ -25,7 +25,7 @@ void KeybindManager::loadDefaultKeybinds() {
     this->addKeybindAction(TriggerableAction {
         "Jump P1",
         "gd.play.jump_p1",
-        KB_PLAY_CATEGORY,
+        { KB_PLAY_CATEGORY, KB_EDITOR_CATEGORY },
         [](CCNode* context, keybind_category_id const& category, bool push) -> bool {
             GJBaseGameLayer* layer = nullptr;
             switch (category) {
@@ -51,7 +51,7 @@ void KeybindManager::loadDefaultKeybinds() {
     this->addKeybindAction(TriggerableAction {
         "Jump P2",
         "gd.play.jump_p2",
-        KB_PLAY_CATEGORY,
+        { KB_PLAY_CATEGORY, KB_EDITOR_CATEGORY },
         [](CCNode* context, keybind_category_id const& category, bool push) -> bool {
             GJBaseGameLayer* layer = nullptr;
             switch (category) {
@@ -88,7 +88,7 @@ void KeybindManager::loadDefaultKeybinds() {
             return false;
         },
         "Place a Checkpoint in Practice Mode"_s
-    }, {{ KEY_Z, 0 }, { KEY_U, 0 }});
+    }, {{ KEY_Z, 0 }});
 
     this->addKeybindAction(TriggerableAction {
         "Delete Checkpoint",

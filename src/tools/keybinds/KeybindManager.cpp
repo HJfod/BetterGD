@@ -36,7 +36,7 @@ bool KeybindManager::addKeybindAction(
     KeybindList   const& defaults,
     keybind_action_id    const& insertAfter
 ) {
-    auto action = new KeybindAction(ogAction);
+    auto action = ogAction.copy();
     if (!action) return false;
     if (this->m_mActions.count(action->id)) {
         delete action;
@@ -44,10 +44,12 @@ bool KeybindManager::addKeybindAction(
     }
     action->defaults = defaults;
     m_mActions.insert({ action->id, action });
-    if (!this->m_mCategoryInfo.count(action->category)) {
-        this->m_mCategoryInfo.insert({ action->category, 1 });
-    } else {
-        this->m_mCategoryInfo[action->category]++;
+    for (auto const& category : action->categories) {
+        if (!this->m_mCategoryInfo.count(category)) {
+            this->m_mCategoryInfo.insert({ category, 1 });
+        } else {
+            this->m_mCategoryInfo[category]++;
+        }
     }
     if (this->m_mLoadedBinds.count(action->id)) {
         for (auto const& bind : this->m_mLoadedBinds[action->id]) {
@@ -67,11 +69,13 @@ bool KeybindManager::removeKeybindAction(
     if (this->m_mActions.count(actionID)) {
         auto action = this->m_mActions[actionID];
         this->clearKeybinds(actionID);
-        this->m_mCategoryInfo[action->category]--;
-        if (this->m_mCategoryInfo[action->category] <= 0) {
-            this->m_mCategoryInfo.erase(action->category);
+        for (auto const& category : action->categories) {
+            this->m_mCategoryInfo[category]--;
+            if (this->m_mCategoryInfo[category] <= 0) {
+                this->m_mCategoryInfo.erase(category);
+            }
+            this->m_mActions.erase(actionID);
         }
-        this->m_mActions.erase(actionID);
         delete action;
         return true;
     }
@@ -185,7 +189,7 @@ KeybindActionList KeybindManager::getAllActions(
     return map_select_all<keybind_action_id, KeybindAction*>(
         this->m_mActions,
         [categoryFilter](KeybindAction* action) -> bool {
-            return action->category == categoryFilter;
+            return action->inCategory(categoryFilter);
         }
     );
 }
@@ -200,7 +204,7 @@ KeybindActionList KeybindManager::getAllActionsForKeybind(
     KeybindActionList res;
     for (auto & actionID : m_mKeybinds[bind]) {
         auto action = this->m_mActions[actionID];
-        if (action->category == category) {
+        if (action->inCategory(category)) {
             res.push_back(action);
         }
     }
@@ -230,15 +234,15 @@ void KeybindManager::handleKeyEvent(
     }
     for (auto const& id : this->m_mKeybinds[bind]) {
         auto action = this->m_mActions[id];
-        if (action->category == category) {
+        if (action->inCategory(category)) {
             if (down) {
                 if (dynamic_cast<RepeatableAction*>(action)) {
                     this->m_mRepeat.insert({ id, { 0.f, context, category }});
                 }
-                this->invokeAction(id, category, context, down);
             } else {
                 this->m_mRepeat.erase(id);
             }
+            this->invokeAction(action, category, context, down);
         }
     }
 }
@@ -254,7 +258,7 @@ int KeybindManager::getActionCountInCategory(keybind_category_id const& id) {
 KeybindActionList KeybindManager::getAllActionsInCategory(keybind_category_id const& id) const {
     KeybindActionList res;
     for (auto const& [_, action] : this->m_mActions) {
-        if (action->category == id) {
+        if (action->inCategory(id)) {
             res.push_back(action);
         }
     }
@@ -276,6 +280,20 @@ void KeybindManager::invokeAction(keybind_action_id const& id, keybind_category_
         if (action) {
             action->invoke(context, category, down);
         }
+    }
+}
+
+void KeybindManager::invokeAction(KeybindAction* action, CCNode* context, bool down) {
+    auto trigger = dynamic_cast<TriggerableAction*>(action);
+    if (trigger) {
+        trigger->invoke(context, down);
+    }
+}
+
+void KeybindManager::invokeAction(KeybindAction* action, keybind_category_id const& category, CCNode* context, bool down) {
+    auto trigger = dynamic_cast<TriggerableAction*>(action);
+    if (trigger) {
+        trigger->invoke(context, category, down);
     }
 }
 
