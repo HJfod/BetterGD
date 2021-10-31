@@ -18,8 +18,7 @@ git push origin master
 
 rem one of these will fail and the other'll work for me lol
 
-pushd K:\gdmake\bin\Debug\net5.0\win10-x64\submodules
-pushd C:\Users\HJfod\Documents\github\GDMake\bin\Debug\net5.0\win10-x64\submodules
+cd submodules
 
 echo.
 echo ==== gd.h ====
@@ -36,16 +35,6 @@ echo ==== Cocos2d ====
 echo.
 
 cd ..\cocos2d
-
-git add --all
-git commit -a
-git push origin master
-
-echo.
-echo ==== GDNodes ====
-echo.
-
-cd ..\nodes
 
 git add --all
 git commit -a

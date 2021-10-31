@@ -5,10 +5,9 @@ bool CCMouseDispatcher_dispatchScrollMSG(
 ) {
     if (SuperMouseManager::get()->dispatchScrollEvent(y, x, getMousePos()))
         return true;
-
-    return matdash::orig<&CCMouseDispatcher_dispatchScrollMSG>(self, y, x);
+    return matdash::orig<&CCMouseDispatcher_dispatchScrollMSG, matdash::Thiscall>(self, y, x);
 }
-static CreateHook<&CCMouseDispatcher_dispatchScrollMSG>$ccmddsm(
+static CreateHook<&CCMouseDispatcher_dispatchScrollMSG, matdash::Thiscall>$ccmddsm(
     "libcocos2d.dll",
     "?dispatchScrollMSG@CCMouseDispatcher@cocos2d@@QAE_NMM@Z"
 );
