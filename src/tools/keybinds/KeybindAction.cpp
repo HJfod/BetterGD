@@ -15,6 +15,34 @@ bool KeybindAction::inCategory(keybind_category_id const& category) const {
 
 KeybindModifier::~KeybindModifier() {}
 
+KeybindModifier::KeybindModifier(
+    std::string         const& name,
+    keybind_action_id   const& id,
+    keybind_category_id const& category,
+    std::string         const& subcategory,
+    std::string         const& description
+) {
+    this->name = name;
+    this->id = id;
+    this->categories = { category };
+    this->subcategory = subcategory;
+    this->description = description;
+}
+
+KeybindModifier::KeybindModifier(
+    std::string         const& name,
+    keybind_action_id   const& id,
+    decltype(KeybindAction::categories) const& categories,
+    std::string         const& subcategory,
+    std::string         const& description
+) {
+    this->name = name;
+    this->id = id;
+    this->categories = categories;
+    this->subcategory = subcategory;
+    this->description = description;
+}
+
 void TriggerableAction::invoke(CCNode* node, bool down) const {
     if (this->action) {
         this->action(node, down);

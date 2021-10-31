@@ -42,6 +42,21 @@ namespace bgd {
     };
 
     struct BGD_DLL KeybindModifier : public KeybindAction {
+        KeybindModifier() = delete;
+        KeybindModifier(
+            std::string         const& name,
+            keybind_action_id   const& id,
+            keybind_category_id const& category,
+            std::string         const& subcategory = "",
+            std::string         const& description = ""
+        );
+        KeybindModifier(
+            std::string         const& name,
+            keybind_action_id   const& id,
+            decltype(categories)const& categories,
+            std::string         const& subcategory = "",
+            std::string         const& description = ""
+        );
         virtual ~KeybindModifier();
     };
 
@@ -56,6 +71,7 @@ namespace bgd {
             bool down
         ) const;
 
+        TriggerableAction() = delete;
         TriggerableAction(
             std::string         const& name,
             keybind_action_id   const& id,
@@ -117,6 +133,12 @@ namespace bgd {
 
     constexpr const char* KB_PLAY_CATEGORY      = "gd.play";
     constexpr const char* KB_EDITOR_CATEGORY    = "gd.editor";
+
+    constexpr const char* KB_SUBCATEGORY_MOVE   = "move";
+    constexpr const char* KB_SUBCATEGORY_GLOBAL = "global";
+    constexpr const char* KB_SUBCATEGORY_SELECT = "select";
+    constexpr const char* KB_SUBCATEGORY_UI     = "ui";
+    constexpr const char* KB_SUBCATEGORY_MODIFY = "modify";
 
     BGD_DLL std::ostream& operator<<(std::ostream& stream, keybind_category_id const& id);
 }

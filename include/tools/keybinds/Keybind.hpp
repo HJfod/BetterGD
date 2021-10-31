@@ -30,6 +30,8 @@ namespace bgd {
         Keybind(cocos2d::enumKeyCodes);
         Keybind(cocos2d::enumKeyCodes, Modifiers);
         Keybind(cocos2d::enumKeyCodes, int);
+        Keybind(Modifiers);
+        Keybind(int);
         Keybind(MouseButton);
         Keybind(MouseButton, int);
         Keybind(MouseButton, Modifiers);

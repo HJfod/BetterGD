@@ -101,6 +101,14 @@ Keybind::Keybind(enumKeyCodes key, int mods) {
     this->modifiers = static_cast<Modifiers>(mods);
 }
 
+Keybind::Keybind(Modifiers mods) {
+    this->modifiers = mods;
+}
+
+Keybind::Keybind(int mods) {
+    this->modifiers = static_cast<Modifiers>(mods);
+}
+
 Keybind::Keybind(MouseButton btn) {
     this->mouse = btn;
 
