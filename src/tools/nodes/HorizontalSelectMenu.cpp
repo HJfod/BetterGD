@@ -1,9 +1,10 @@
 #include <HorizontalSelectMenu.hpp>
 
-using namespace bgd;
+USE_BGD_NAMESPACE();
+
 using namespace bgd::cast;
 
-void HorizontalSelectMenu::onSelect(cocos2d::CCObject* pSender) {
+void HorizontalSelectMenu::onSelect(CCObject* pSender) {
     for (auto i = 0u; i < this->m_vToggles.size(); i++)
         if (pSender != this->m_vToggles.at(i))
             this->m_vToggles.at(i)->toggle(true);
@@ -17,7 +18,7 @@ void HorizontalSelectMenu::onSelect(cocos2d::CCObject* pSender) {
         this->m_pCallback(this->m_nSelIndex, true);
 }
 
-void HorizontalSelectMenu::onMultiSelect(cocos2d::CCObject* pSender) {
+void HorizontalSelectMenu::onMultiSelect(CCObject* pSender) {
     for (auto i = 0u; i < this->m_vToggles.size(); i++) {
         this->m_vMultiStates.at(i) = this->m_vToggles.at(i)->isOn();
 
@@ -46,10 +47,10 @@ void HorizontalSelectMenu::setCallback(Callback const& _cb) {
 }
 
 bool HorizontalSelectMenu::init(std::vector<const char*> const& _opts) {
-    if (!cocos2d::CCNode::init())
+    if (!CCNode::init())
         return false;
 
-    this->m_pBGLayer = cocos2d::extension::CCScale9Sprite::create(
+    this->m_pBGLayer = CCScale9Sprite::create(
         "square02b_001.png", { 0.0f, 0.0f, 80.0f, 80.0f }
     );
 
@@ -57,24 +58,24 @@ bool HorizontalSelectMenu::init(std::vector<const char*> const& _opts) {
     this->m_pBGLayer->setColor({ 0, 0, 0 });
     this->m_pBGLayer->setOpacity(75);
 
-    auto menu = cocos2d::CCMenu::create();
+    auto menu = CCMenu::create();
     float fMenuWidth = 0.0f;
     float fMenuPadding = 5.0f;
 
     for (auto const& opt : _opts) {
-        auto pToggleOnSpr = cocos2d::CCSprite::createWithSpriteFrameName("GJ_checkOn_001.png");
-        auto pToggleOffSpr = cocos2d::CCSprite::createWithSpriteFrameName("GJ_checkOff_001.png");
+        auto pToggleOnSpr = CCSprite::createWithSpriteFrameName("GJ_checkOn_001.png");
+        auto pToggleOffSpr = CCSprite::createWithSpriteFrameName("GJ_checkOff_001.png");
 
         pToggleOnSpr->setScale(.8f);
         pToggleOffSpr->setScale(.8f);
 
-        auto pToggle = gd::CCMenuItemToggler::create(
+        auto pToggle = CCMenuItemToggler::create(
             pToggleOnSpr,
             pToggleOffSpr,
             this,
             this->m_bIsMulti ?
-                (cocos2d::SEL_MenuHandler)&HorizontalSelectMenu::onMultiSelect :
-                (cocos2d::SEL_MenuHandler)&HorizontalSelectMenu::onSelect
+                (SEL_MenuHandler)&HorizontalSelectMenu::onMultiSelect :
+                (SEL_MenuHandler)&HorizontalSelectMenu::onSelect
         );
 
         if (this->m_bIsMulti) {
@@ -86,7 +87,7 @@ bool HorizontalSelectMenu::init(std::vector<const char*> const& _opts) {
         this->m_vToggles.push_back(pToggle);
         menu->addChild(pToggle);
 
-        auto pLabel = cocos2d::CCLabelBMFont::create(opt, "bigFont.fnt");
+        auto pLabel = CCLabelBMFont::create(opt, "bigFont.fnt");
         pLabel->setScale(.6f);
 
         menu->addChild(pLabel);

@@ -170,4 +170,13 @@ namespace bgd {
         vec.erase(std::remove_if(vec.begin(), vec.end(), eraseFunc), vec.end());
         return vec;
     }
+
+    template<class R, class T>
+    R vector_reduce(std::vector<T> const& vec, std::function<void(R&, T)> reduceFunc) {
+        R res;
+        for (auto const& item : vec) {
+            reduceFunc(res, item);
+        }
+        return res;
+    }
 }

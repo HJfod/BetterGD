@@ -1,6 +1,7 @@
 #include <InputNode.hpp>
 
-using namespace bgd;
+USE_BGD_NAMESPACE();
+
 using namespace bgd::cast;
 
 const char* InputNode::getString() {
@@ -13,11 +14,11 @@ void InputNode::setString(const char* _str) {
     this->m_pInput->refreshLabel();
 }
 
-gd::CCTextInputNode* InputNode::getInputNode() {
+CCTextInputNode* InputNode::getInputNode() {
     return this->m_pInput;
 }
 
-cocos2d::extension::CCScale9Sprite* InputNode::getBG() {
+CCScale9Sprite* InputNode::getBG() {
     return this->m_pBG;
 }
 
@@ -27,7 +28,7 @@ void InputNode::setEnabled(bool enabled) {
 }
 
 bool InputNode::init(float _w, float _h, const char* _phtxt, const char* _fnt, const std::string & _awc, int _cc) {
-    this->m_pBG = cocos2d::extension::CCScale9Sprite::create(
+    this->m_pBG = CCScale9Sprite::create(
         "square02b_001.png", { 0.0f, 0.0f, 80.0f, 80.0f }
     );
 
@@ -38,7 +39,7 @@ bool InputNode::init(float _w, float _h, const char* _phtxt, const char* _fnt, c
 
     this->addChild(this->m_pBG);
 
-    this->m_pInput = gd::CCTextInputNode::create(
+    this->m_pInput = CCTextInputNode::create(
         _phtxt, this, _fnt, _w - 10.0f, 60.0f
     );
 

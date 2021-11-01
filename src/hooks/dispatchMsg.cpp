@@ -27,6 +27,17 @@ static CreateHook<&CCKeyboardDispatcher_dispatchKeyboardMSG>$cckddkm(
     "?dispatchKeyboardMSG@CCKeyboardDispatcher@cocos2d@@QAE_NW4enumKeyCodes@2@_N@Z"
 );
 
+void CCScheduler_update(CCScheduler* self, float dt) {
+    SuperMouseManager::get()->dispatchMoveEvent(getMousePos());
+    KeybindManager::get()->handleRepeats(dt);
+
+    return matdash::orig<&CCScheduler_update, matdash::Thiscall>(self, dt);
+}
+static CreateHook<&CCScheduler_update, matdash::Thiscall>$ccsu(
+    "libcocos2d.dll",
+    "?update@CCScheduler@cocos2d@@UAEXM@Z"
+);
+
 void CCEGLView_onGLFWMouseCallBack(
     CCEGLView* self,
     GLFWwindow* wnd,

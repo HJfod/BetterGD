@@ -9,7 +9,32 @@ namespace bgd {
     cocos2d::ccColor3B to3B(cocos2d::ccColor4B const& color);
     cocos2d::ccColor4B to4B(cocos2d::ccColor3B const& color);
     cocos2d::ccColor4F to4F(cocos2d::ccColor4B const& color);
-    constexpr cocos2d::ccColor3B cc3x(int hexValue);
+    constexpr cocos2d::ccColor3B cc3x(int hexValue) {
+        if (hexValue <= 0xf)
+            return cocos2d::ccColor3B {
+                static_cast<GLubyte>(hexValue * 17),
+                static_cast<GLubyte>(hexValue * 17),
+                static_cast<GLubyte>(hexValue * 17)
+            };
+        if (hexValue <= 0xff)
+            return cocos2d::ccColor3B {
+                static_cast<GLubyte>(hexValue),
+                static_cast<GLubyte>(hexValue),
+                static_cast<GLubyte>(hexValue)
+            };
+        if (hexValue <= 0xfff)
+            return cocos2d::ccColor3B {
+                static_cast<GLubyte>((hexValue >> 8 & 0xf) * 17),
+                static_cast<GLubyte>((hexValue >> 4 & 0xf) * 17),
+                static_cast<GLubyte>((hexValue >> 0 & 0xf) * 17)
+            };
+        else
+            return cocos2d::ccColor3B {
+                static_cast<GLubyte>(hexValue >> 16 & 0xff),
+                static_cast<GLubyte>(hexValue >> 8  & 0xff),
+                static_cast<GLubyte>(hexValue >> 0  & 0xff)
+            };
+    }
 
     template<typename T>
     static cocos2d::CCArray* vectorToCCArray(std::vector<T> const& vec) {

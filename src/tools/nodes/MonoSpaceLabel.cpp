@@ -1,7 +1,7 @@
 #include <MonoSpaceLabel.hpp>
 
-using namespace cocos2d;
-using namespace bgd;
+USE_BGD_NAMESPACE();
+
 using namespace bgd::cast;
 
 bool MonoSpaceLabel::init(
@@ -65,7 +65,7 @@ MonoSpaceLabel* MonoSpaceLabel::create(
     const char* text,
     const char* bmFile,
     float charWidth,
-    cocos2d::CCTextAlignment alignment,
+    CCTextAlignment alignment,
     float labelWidth
 ) {
     auto pRet = new MonoSpaceLabel;
@@ -85,7 +85,7 @@ MonoSpaceLabel* MonoSpaceLabel::create(
     const char* text,
     const char* bmFile,
     float charWidth,
-    cocos2d::CCTextAlignment alignment
+    CCTextAlignment alignment
 ) {
     return create(text, bmFile, charWidth, alignment, kCCLabelAutomaticWidth);
 }

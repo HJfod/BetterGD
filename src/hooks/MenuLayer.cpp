@@ -1,5 +1,5 @@
 #include "bgd_hook.hpp"
-#include "../gui/PluginLayer.hpp"
+#include "../gui/plugins/PluginLayer.hpp"
 
 bool MenuLayer_init(MenuLayer* self) {
     if (!matdash::orig<&MenuLayer_init>(self))

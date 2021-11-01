@@ -1,13 +1,14 @@
 #include <BGCheckbox.hpp>
 
-using namespace bgd;
+USE_BGD_NAMESPACE();
+
 using namespace bgd::cast;
 
 bool BGCheckbox::init(const char* _text) {
-    if (!cocos2d::CCNode::init())
+    if (!CCNode::init())
         return false;
 
-    this->m_pBGLayer = cocos2d::extension::CCScale9Sprite::create(
+    this->m_pBGLayer = CCScale9Sprite::create(
         "square02b_001.png", { 0.0f, 0.0f, 80.0f, 80.0f }
     );
 
@@ -15,17 +16,17 @@ bool BGCheckbox::init(const char* _text) {
     this->m_pBGLayer->setColor({ 0, 0, 0 });
     this->m_pBGLayer->setOpacity(75);
 
-    auto menu = cocos2d::CCMenu::create();
+    auto menu = CCMenu::create();
 
     float fMenuPadding = 5.0f;
 
-    auto pToggleOnSpr = cocos2d::CCSprite::createWithSpriteFrameName("GJ_checkOn_001.png");
-    auto pToggleOffSpr = cocos2d::CCSprite::createWithSpriteFrameName("GJ_checkOff_001.png");
+    auto pToggleOnSpr = CCSprite::createWithSpriteFrameName("GJ_checkOn_001.png");
+    auto pToggleOffSpr = CCSprite::createWithSpriteFrameName("GJ_checkOff_001.png");
 
     pToggleOnSpr->setScale(.8f);
     pToggleOffSpr->setScale(.8f);
 
-    this->m_pToggler = gd::CCMenuItemToggler::create(
+    this->m_pToggler = CCMenuItemToggler::create(
         pToggleOffSpr,
         pToggleOnSpr,
         this,
@@ -34,7 +35,7 @@ bool BGCheckbox::init(const char* _text) {
 
     menu->addChild(this->m_pToggler);
 
-    this->m_pLabel = cocos2d::CCLabelBMFont::create(_text, "bigFont.fnt");
+    this->m_pLabel = CCLabelBMFont::create(_text, "bigFont.fnt");
     this->m_pLabel->setScale(.6f);
 
     menu->addChild(this->m_pLabel);
@@ -59,8 +60,8 @@ bool BGCheckbox::init(const char* _text) {
 void BGCheckbox::setEnabled(bool _e) {
     this->m_pToggler->setEnabled(_e);
     this->m_pLabel->setColor(
-        _e ? cocos2d::ccColor3B { 255, 255, 255 } :
-        cocos2d::ccColor3B { 130, 130, 130 }
+        _e ? ccColor3B { 255, 255, 255 } :
+        ccColor3B { 130, 130, 130 }
     );
 }
 

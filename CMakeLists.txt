@@ -60,13 +60,10 @@ endif()
 
 add_compile_definitions(_EXPORTING)
 
+add_subdirectory(${COCOS2D_LOCATION})
+
 include_directories(
-  "${COCOS2D_LOCATION}/cocos2dx"
-  "${COCOS2D_LOCATION}/cocos2dx/include"
-  "${COCOS2D_LOCATION}/cocos2dx/kazmath/include"
-  "${COCOS2D_LOCATION}/cocos2dx/platform/third_party/win32/OGLES"
-  "${COCOS2D_LOCATION}/cocos2dx/platform/win32"
-  "${COCOS2D_LOCATION}/extensions"
+  cocos2d
   "${GD_H_LOCATION}/include"
   "${GD_H_LOCATION}"
   "${MINHOOK_LOCATION}/include"
@@ -81,11 +78,10 @@ include_directories(
 
 target_link_libraries(
   ${PROJECT_NAME}
-  "${COCOS2D_LOCATION}/cocos2dx/libcocos2d.lib"
-  "${COCOS2D_LOCATION}/extensions/libExtensions.lib"
+  cocos2d
   ${ZLIB_LIBRARIES}
 )
 
 set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "")
 
-add_subdirectory(example)
+add_subdirectory(plugins)
