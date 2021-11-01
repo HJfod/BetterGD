@@ -356,3 +356,18 @@ void KeybindManager::handleRepeats(float deltaTime) {
 RepeatableAction* KeybindManager::isRepeatableAction(keybind_action_id const& id) {
     return dynamic_cast<RepeatableAction*>(this->m_mActions[id]);
 }
+
+void KeybindManager::addCategory(keybind_category_id const& id, std::string const& name) {
+    this->m_mCategoryNames.insert({ id, name });
+}
+
+void KeybindManager::removeCategory(keybind_category_id const& id) {
+    this->m_mCategoryNames.erase(id);
+}
+
+std::string KeybindManager::getCategoryName(keybind_category_id const& id) {
+    if (this->m_mCategoryNames.count(id)) {
+        return this->m_mCategoryNames[id];
+    }
+    return id;
+}

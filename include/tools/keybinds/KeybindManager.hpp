@@ -25,6 +25,7 @@ namespace bgd {
             std::unordered_map<keybind_action_id, KeybindList> m_mLoadedBinds;
             std::unordered_map<keybind_action_id, repeat_info> m_mRepeat;
             std::unordered_map<keybind_category_id, int>       m_mCategoryInfo;
+            std::unordered_map<keybind_category_id, std::string> m_mCategoryNames;
             static constexpr int s_nVersion = 3;
 
             bool init();
@@ -69,6 +70,10 @@ namespace bgd {
                     kfKeybindResetAll |
                     kfKeybindResetModifierSettings
             );
+
+            void addCategory(   keybind_category_id const& id, std::string const& name);
+            void removeCategory(keybind_category_id const& id);
+            std::string getCategoryName(keybind_category_id const& id);
     
             void handleKeyEvent(
                 keybind_category_id const& category,

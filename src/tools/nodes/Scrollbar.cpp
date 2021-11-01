@@ -3,6 +3,9 @@
 USE_BGD_NAMESPACE();
 
 bool Scrollbar::mouseDownSuper(MouseButton, cocos2d::CCPoint const& mpos) {
+    if (!this->m_pList)
+        return false;
+
     SuperMouseManager::get()->captureMouse(this);
 
     auto pos = this->convertToNodeSpace(mpos);
@@ -45,6 +48,9 @@ bool Scrollbar::mouseUpSuper(MouseButton, cocos2d::CCPoint const&) {
 }
 
 void Scrollbar::mouseMoveSuper(cocos2d::CCPoint const& mpos) {
+    if (!this->m_pList)
+        return;
+
     if (this->m_bSuperMouseDown) {
         auto pos = this->convertToNodeSpace(mpos);
 
@@ -73,6 +79,8 @@ void Scrollbar::mouseMoveSuper(cocos2d::CCPoint const& mpos) {
 }
 
 bool Scrollbar::mouseScrollSuper(float y, float x) {
+    if (!this->m_pList)
+        return false;
     this->m_pList->scrollWheel(x, y);
     return true;
 }

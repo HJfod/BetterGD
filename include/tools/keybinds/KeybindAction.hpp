@@ -11,7 +11,8 @@ namespace bgd {
         ~keybind_category_id();
         const char* c_str() const;
         bool operator==(keybind_category_id const&) const;
-        operator int()  const;
+        operator int() const;
+        operator std::string() const;
         keybind_category_id operator=(std::string const&);
     };
 }

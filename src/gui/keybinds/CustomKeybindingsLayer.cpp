@@ -1,6 +1,53 @@
 #include "CustomKeybindingsLayer.hpp"
 
-void CustomKeybindingsLayer::reloadList() {}
+bool matchSearchQuery(KeybindAction* action, std::string const& searchQuery) {
+    if (string_contains(string_to_lower(action->name), string_to_lower(searchQuery)))
+        return true;
+    
+    std::string keyStr = "";
+    for (auto const& key : KeybindManager::get()->getKeybindsForAction(action->id)) {
+        keyStr += key.toString() + ", ";
+    }
+
+    return string_contains(string_to_lower(keyStr), string_to_lower(searchQuery));
+}
+
+void CustomKeybindingsLayer::reloadList() {
+    auto y = 0.0f;
+
+    if (this->m_pList) {
+        y = this->m_pList->m_pTableView->getMinY() -
+            this->m_pList->m_pTableView->m_pContentLayer->getPositionY();
+
+        this->m_pList->removeFromParent();
+    }
+
+    auto winSize = CCDirector::sharedDirector()->getWinSize();
+    auto arr = CCArray::create();
+
+    for (auto const& category : KeybindManager::get()->getAllCategories()) {
+        arr->addObject(new KeybindItem(KeybindManager::get()->getCategoryName(category)));
+
+        for (auto const& action : KeybindManager::get()->getAllActionsInCategory(category)) {
+            if (
+                !this->m_sSearchQuery.size() ||
+                matchSearchQuery(action, this->m_sSearchQuery)
+            ) {
+                arr->addObject(new KeybindItem(action));
+            }
+        }
+    }
+
+    this->m_pList = KeybindListView::create(arr, 340.0f, 180.0f);
+    this->m_pList->setPosition(winSize / 2 - CCPoint { 170.0f, 120.0f });
+    y = this->m_pList->m_pTableView->getMinY() - y;
+    if (y > this->m_pList->m_pTableView->getMaxY())
+        y = this->m_pList->m_pTableView->getMaxY();
+    this->m_pList->m_pTableView->m_pContentLayer->setPositionY(y);
+    this->m_pLayer->addChild(this->m_pList);
+        
+    this->m_pScrollbar->setList(this->m_pList);
+}
 
 void CustomKeybindingsLayer::onKeymap(CCObject*) {}
 void CustomKeybindingsLayer::onFinishSelect(CCObject*) {}

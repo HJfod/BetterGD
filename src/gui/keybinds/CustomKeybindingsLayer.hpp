@@ -11,7 +11,7 @@ class CustomKeybindingsLayer :
     public FLAlertLayerProtocol
 {
     protected:
-        KeybindListView* m_pList;
+        KeybindListView* m_pList = nullptr;
         std::string m_sSearchQuery = "";
         InputNode* m_pSearchBar;
         Scrollbar* m_pScrollbar;

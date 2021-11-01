@@ -173,6 +173,9 @@ const char* keybind_category_id::c_str() const {
 keybind_category_id::operator int() const {
     return hash(this->value);
 }
+keybind_category_id::operator std::string() const {
+    return this->value;
+}
 keybind_category_id keybind_category_id::operator=(std::string const& val) {
     if (value) {
         delete[] value;
