@@ -17,4 +17,6 @@
 #include "tools/keybinds/KeybindAction.hpp"
 #include "tools/keybinds/KeybindManager.hpp"
 
+#include "tools/other/EditCommand.hpp"
+
 #include "tools/gmd/gmd.hpp"
