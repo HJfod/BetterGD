@@ -291,4 +291,235 @@ void KeybindManager::loadDefaultKeybinds() {
         BIND( KEY_D, Keybind::kmControl )
     ); }
 
+    { ADD_EDITOR_KB( "Rotate",
+        "gd.edit.toggle_rotate",
+        KB_SUBCATEGORY_MODIFY,
+        EDIT_ACTION(
+            ui->toggleEnableRotate(nullptr);
+        ),
+        "Toggle Rotate Control",
+        BIND( KEY_R, 0 )
+    ); }
+
+    { ADD_EDITOR_KB( "Free Move",
+        "gd.edit.toggle_free_move",
+        KB_SUBCATEGORY_MODIFY,
+        EDIT_ACTION(
+            ui->toggleFreeMove(nullptr);
+        ),
+        "Toggle Free Move",
+        BIND( KEY_F, 0 )
+    ); }
+
+    { ADD_EDITOR_KB( "Swipe",
+        "gd.edit.toggle_swipe",
+        KB_SUBCATEGORY_MODIFY,
+        EDIT_ACTION(
+            ui->toggleSwipe(nullptr);
+        ),
+        "Toggle Swipe",
+        BIND( KEY_T, 0 )
+    ); }
+
+    { ADD_EDITOR_KB( "Snap",
+        "gd.edit.toggle_snap",
+        KB_SUBCATEGORY_MODIFY,
+        EDIT_ACTION(
+            ui->toggleSnap(nullptr);
+        ),
+        "Toggle Snap",
+        BIND( KEY_G, 0 )
+    ); }
+
+    { ADD_EDITOR_KB( "Playtest",
+        "gd.edit.playtest",
+        KB_SUBCATEGORY_MODIFY,
+        CLICKED(UI(
+            if (ui->m_pEditorLayer->m_ePlaybackMode == kPlaybackModePlaying) {
+                ui->onStopPlaytest(nullptr);
+            } else {
+                ui->onPlaytest(nullptr);
+            }
+        )),
+        "Begin / Stop Playtest",
+        BIND( KEY_Enter, 0 )
+    ); }
+
+    { ADD_EDITOR_KB( "Playback Music",
+        "gd.edit.playback_music",
+        KB_SUBCATEGORY_MODIFY,
+        CLICKED(UI(
+            if (ui->m_pEditorLayer->m_ePlaybackMode == kPlaybackModePlaying) {
+                ui->onPlayback(nullptr);
+            }
+        )),
+        "Begin / Stop Playing the Level's Music",
+        BIND( KEY_Enter, Keybind::kmControl )
+    ); }
+
+    { ADD_EDITOR_KB( "Previous Build Tab",
+        "gd.edit.prev_build_tab",
+        KB_SUBCATEGORY_UI,
+        EDIT_ACTION(
+            auto t = ui->m_nSelectedTab - 1;
+            if (t < 0)
+                t = ui->m_pTabsArray->count() - 1;
+            ui->selectBuildTab(t);
+        ),
+        "Previous Build Tab",
+        BIND( KEY_F1, 0 )
+    ); }
+
+    { ADD_EDITOR_KB( "Next Build Tab",
+        "gd.edit.next_build_tab",
+        KB_SUBCATEGORY_UI,
+        EDIT_ACTION(
+            auto t = ui->m_nSelectedTab + 1;
+            if (t > static_cast<int>(ui->m_pTabsArray->count() - 1))
+                t = 0;
+            ui->selectBuildTab(t);
+        ),
+        "Next Build Tab",
+        BIND( KEY_F2, 0 )
+    ); }
+
+    { ADD_EDITOR_KB( "Next Layer",
+        "gd.edit.next_layer",
+        KB_SUBCATEGORY_UI,
+        EDIT_ACTION(
+            ui->onGroupUp(nullptr);
+        ),
+        "Go to Next Editor Layer (Named \"Next Group\" in Vanilla GD)",
+        BIND( KEY_Right, 0 )
+    ); }
+
+    { ADD_EDITOR_KB( "Previous Layer",
+        "gd.edit.prev_layer",
+        KB_SUBCATEGORY_UI,
+        EDIT_ACTION(
+            ui->onGroupDown(nullptr);
+        ),
+        "Go to Next Previous Layer (Named \"Previous Group\" in Vanilla GD)",
+        BIND( KEY_Left, 0 )
+    ); }
+
+    { ADD_EDITOR_KB( "Scroll Up",
+        "gd.edit.scroll_up",
+        KB_SUBCATEGORY_UI,
+        EDIT_ACTION(
+            ui->moveGameLayer({ 0.0f, 10.0f });
+        ),
+        "Scroll the Editor Up",
+        BIND( KEY_OEMPlus, 0 )
+    ); }
+
+    { ADD_EDITOR_KB( "Scroll Down",
+        "gd.edit.scroll_down",
+        KB_SUBCATEGORY_UI,
+        EDIT_ACTION(
+            ui->moveGameLayer({ 0.0f, -10.0f });
+        ),
+        "Scroll the Editor Down",
+        BIND( KEY_OEMMinus, 0 )
+    ); }
+
+    { ADD_EDITOR_KB( "Zoom In",
+        "gd.edit.zoom_in",
+        KB_SUBCATEGORY_UI,
+        EDIT_ACTION(
+            ui->zoomIn(nullptr);
+        ),
+        "Zoom In",
+        BIND( KEY_OEMPlus, Keybind::kmShift )
+    ); }
+
+    { ADD_EDITOR_KB( "Zoom Out",
+        "gd.edit.zoom_out",
+        KB_SUBCATEGORY_UI,
+        EDIT_ACTION(
+            ui->zoomOut(nullptr);
+        ),
+        "Zoom Out",
+        BIND( KEY_OEMMinus, Keybind::kmShift )
+    ); }
+
+    { ADD_EDITOR_KB( "Object Left",
+        "gd.edit.move_obj_left",
+        KB_SUBCATEGORY_MOVE,
+        EDIT_ACTION(
+            ui->moveObjectCall(kEditCommandLeft);
+        ),
+        "Move Object Left 1 Block (30 Units)",
+        BIND( KEY_A, 0 )
+    ); }
+
+    { ADD_EDITOR_KB( "Object Right",
+        "gd.edit.move_obj_right",
+        KB_SUBCATEGORY_MOVE,
+        EDIT_ACTION(
+            ui->moveObjectCall(kEditCommandRight);
+        ),
+        "Move Object Right 1 Block (30 Units)",
+        BIND( KEY_D, 0 )
+    ); }
+
+    { ADD_EDITOR_KB( "Object Up",
+        "gd.edit.move_obj_up",
+        KB_SUBCATEGORY_MOVE,
+        EDIT_ACTION(
+            ui->moveObjectCall(kEditCommandUp);
+        ),
+        "Move Object Up 1 Block (30 Units)",
+        BIND( KEY_W, 0 )
+    ); }
+
+    { ADD_EDITOR_KB( "Object Down",
+        "gd.edit.move_obj_down",
+        KB_SUBCATEGORY_MOVE,
+        EDIT_ACTION(
+            ui->moveObjectCall(kEditCommandDown);
+        ),
+        "Move Object Down 1 Block (30 Units)",
+        BIND( KEY_S, 0 )
+    ); }
+
+    { ADD_EDITOR_KB( "Object Left Small",
+        "gd.edit.move_obj_left_small",
+        KB_SUBCATEGORY_MOVE,
+        EDIT_ACTION(
+            ui->moveObjectCall(kEditCommandSmallLeft);
+        ),
+        "Move Object Left 2 Units",
+        BIND( KEY_A, Keybind::kmShift )
+    ); }
+
+    { ADD_EDITOR_KB( "Object Right Small",
+        "gd.edit.move_obj_right_small",
+        KB_SUBCATEGORY_MOVE,
+        EDIT_ACTION(
+            ui->moveObjectCall(kEditCommandSmallRight);
+        ),
+        "Move Object Right 2 Units",
+        BIND( KEY_D, Keybind::kmShift )
+    ); }
+
+    { ADD_EDITOR_KB( "Object Up Small",
+        "gd.edit.move_obj_up_small",
+        KB_SUBCATEGORY_MOVE,
+        EDIT_ACTION(
+            ui->moveObjectCall(kEditCommandSmallUp);
+        ),
+        "Move Object Up 2 Units",
+        BIND( KEY_W, Keybind::kmShift )
+    ); }
+
+    { ADD_EDITOR_KB( "Object Down Small",
+        "gd.edit.move_obj_down_small",
+        KB_SUBCATEGORY_MOVE,
+        EDIT_ACTION(
+            ui->moveObjectCall(kEditCommandSmallDown);
+        ),
+        "Move Object Down 2 Units",
+        BIND( KEY_S, Keybind::kmShift )
+    ); }
 }

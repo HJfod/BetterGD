@@ -23,8 +23,10 @@ project(${PROJECT_NAME} VERSION 1.0.0)
 
 find_package(ZLIB REQUIRED)
 
+message(info ${ZLIB_DEPS})
+
 file(GLOB_RECURSE SOURCES 
-    src/*.cpp
+  src/*.cpp
 )
 
 if(CMake_MSVC_PARALLEL)
@@ -36,9 +38,9 @@ if(CMake_MSVC_PARALLEL)
 endif()
 
 configure_file(
-    ${CMAKE_CURRENT_SOURCE_DIR}/version.rc.in
-    ${CMAKE_CURRENT_BINARY_DIR}/version.rc
-    @ONLY
+  ${CMAKE_CURRENT_SOURCE_DIR}/version.rc.in
+  ${CMAKE_CURRENT_BINARY_DIR}/version.rc
+  @ONLY
 )
 
 set(WIN32 ON)
@@ -59,32 +61,31 @@ endif()
 add_compile_definitions(_EXPORTING)
 
 include_directories(
-    "${COCOS2D_LOCATION}/cocos2dx"
-    "${COCOS2D_LOCATION}/cocos2dx/include"
-    "${COCOS2D_LOCATION}/cocos2dx/kazmath/include"
-    "${COCOS2D_LOCATION}/cocos2dx/platform/third_party/win32/OGLES"
-    "${COCOS2D_LOCATION}/cocos2dx/platform/win32"
-    "${COCOS2D_LOCATION}/extensions"
-    "${GD_H_LOCATION}/include"
-    "${GD_H_LOCATION}"
-    "${MINHOOK_LOCATION}/include"
-    "${ZIPPER_LOCATION}/zipper"
-    "${CMAKE_SOURCE_DIR}/include"
-    "${CMAKE_SOURCE_DIR}/include/bgd"
-    "${CMAKE_SOURCE_DIR}/include/tools/nodes"
-    "${CMAKE_SOURCE_DIR}/include/tools/managers"
-    "${CMAKE_SOURCE_DIR}/submodules/lilac/include"
-    ${ZLIB_DEPS}
+  "${COCOS2D_LOCATION}/cocos2dx"
+  "${COCOS2D_LOCATION}/cocos2dx/include"
+  "${COCOS2D_LOCATION}/cocos2dx/kazmath/include"
+  "${COCOS2D_LOCATION}/cocos2dx/platform/third_party/win32/OGLES"
+  "${COCOS2D_LOCATION}/cocos2dx/platform/win32"
+  "${COCOS2D_LOCATION}/extensions"
+  "${GD_H_LOCATION}/include"
+  "${GD_H_LOCATION}"
+  "${MINHOOK_LOCATION}/include"
+  "${ZIPPER_LOCATION}/zipper"
+  "${CMAKE_SOURCE_DIR}/include"
+  "${CMAKE_SOURCE_DIR}/include/bgd"
+  "${CMAKE_SOURCE_DIR}/include/tools/nodes"
+  "${CMAKE_SOURCE_DIR}/include/tools/managers"
+  "${CMAKE_SOURCE_DIR}/submodules/lilac/include"
+  ${ZLIB_INCLUDE_DIRS}
 )
 
 target_link_libraries(
-    ${PROJECT_NAME}
-    "${COCOS2D_LOCATION}/cocos2dx/libcocos2d.lib"
-    "${COCOS2D_LOCATION}/extensions/libExtensions.lib"
-    ZLIB
+  ${PROJECT_NAME}
+  "${COCOS2D_LOCATION}/cocos2dx/libcocos2d.lib"
+  "${COCOS2D_LOCATION}/extensions/libExtensions.lib"
+  ${ZLIB_LIBRARIES}
 )
 
 set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "")
 
 add_subdirectory(example)
-
