@@ -43,6 +43,11 @@ configure_file(
   @ONLY
 )
 
+configure_file(
+  ${CMAKE_SOURCE_DIR}/src/config.h.in
+  ${CMAKE_SOURCE_DIR}/src/config.h
+)
+
 set(WIN32 ON)
 add_library(${PROJECT_NAME} SHARED ${SOURCES} ${CMAKE_CURRENT_BINARY_DIR}/version.rc)
 

@@ -1,13 +1,26 @@
 #include "bgd_hook.hpp"
 #include "../gui/plugins/PluginLayer.hpp"
+#include "../config.h"
 
 bool MenuLayer_init(MenuLayer* self) {
     if (!matdash::orig<&MenuLayer_init>(self))
         return false;
-    
-    auto label = CCLabelBMFont::create("C++", "goldFont.fnt");
-    label->setPosition(350.f, 230.f);
-    self->addChild(label);
+
+    auto title = as<CCSprite*>(self->getChildren()->objectAtIndex(0));
+    auto label = CCLabelBMFont::create("Better", "goldFont.fnt");
+    label->setPosition(
+        title->getContentSize().height + 20.f,
+        title->getContentSize().height + 5.f
+    );
+    label->setScale(1.f);
+    title->addChild(label);
+    auto verLabel = CCLabelBMFont::create("v" BGD_VERSION, "goldFont.fnt");
+    verLabel->setPosition(
+        title->getContentSize().width - title->getContentSize().height,
+        5.0f
+    );
+    verLabel->setScale(.5f);
+    title->addChild(verLabel);
     
     return true;
 }
