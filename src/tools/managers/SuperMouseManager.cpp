@@ -109,10 +109,12 @@ bool SuperMouseManager::dispatchClickEvent(MouseButton btn, bool down, CCPoint c
     }
     if (m_pCapturing) {
         m_pCapturing->m_bSuperMouseDown = down;
-        if (down)
+        if (down) {
             return m_pCapturing->mouseDownSuper(btn, pos);
-        else
+        } else {
+            m_pCapturing->m_bSuperMouseHovered = delegateIsHovered(m_pCapturing, pos);
             return m_pCapturing->mouseUpSuper(btn, pos);
+        }
     }
     for (auto const& d : m_vDelegates) {
         if (!down) d->m_bSuperMouseDown = false;

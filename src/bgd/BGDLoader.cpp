@@ -4,6 +4,7 @@
 #include <utils/other/platform.hpp>
 #include <iostream>
 #include <thread>
+#include "BGDInternal.hpp"
 
 using namespace bgd;
 
@@ -13,8 +14,9 @@ BGDLoader* bgd::BGDLoader::get() {
 }
 
 void bgd::BGDLoader::createDirectories() {
-    directory_create(bgd_directory);
-    directory_create(bgd_directory + "/"_s + bgd_plugin_directory);
+    directory_create(const_join_path_c_str<bgd_directory>);
+    directory_create(const_join_path_c_str<bgd_directory, bgd_resource_directory>);
+    directory_create(const_join_path_c_str<bgd_directory, bgd_plugin_directory>);
 }
 
 size_t bgd::BGDLoader::updatePlugins() {
@@ -69,12 +71,10 @@ bool bgd::BGDLoader::setup() {
         return true;
 
     bgd::loadConsole();
-
     this->createDirectories();
+    BGDInternal::get()->setup();
     this->updatePlugins();
-
     bgd::loadHooks();
-
     this->loadData();
 
     this->m_bIsSetup = true;

@@ -42,22 +42,6 @@ void LevelBrowserLayer_setupLevelBrowser(LevelBrowserLayer* self, CCArray* level
 }
 static CreateHook<&LevelBrowserLayer_setupLevelBrowser>$lblslb(base + 0x15bb40, CoolScrollbarsPlugin::get());
 
-class GJCommentListLayer : public cocos2d::CCLayerColor {
-    public:
-        BoomListView* m_pList; // 0x198
-};
-
-class InfoLayer :
-    public FLAlertLayer,
-    public LevelCommentDelegate,
-    public CommentUploadDelegate,
-    public FLAlertLayerProtocol /* 0x1d8 */
-{
-    public:
-        PAD(44)
-        GJCommentListLayer* m_pList; // 0x204
-};
-
 bool InfoLayer_init(InfoLayer* self, GJGameLevel* level, GJUserScore* score) {
     self->m_pList = nullptr;
 

@@ -6,9 +6,10 @@
 #include <unordered_map>
 
 namespace bgd {
-    static constexpr const char* bgd_directory          = "BetterGD";
-    static constexpr const char* bgd_plugin_directory   = "plugins";
-    static constexpr const char* bgd_plugin_extension   = ".bgd";
+    static constexpr const std::string_view bgd_directory          = "BetterGD";
+    static constexpr const std::string_view bgd_plugin_directory   = "plugins";
+    static constexpr const std::string_view bgd_resource_directory = "resources";
+    static constexpr const std::string_view bgd_plugin_extension   = ".bgd";
 
     class BGDPlugin;
 
