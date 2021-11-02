@@ -11,14 +11,20 @@ namespace bgd {
     #define CREATE_HOOK_GD(func, addr) \
         static bgd::CreateHook<&func> __STR_CAT__($,__LINE__) (gd::base + addr);
 
-    template<auto Func, typename CallConv = matdash::Optcall>
+    template<auto Func, typename CallConv = bgd::hook::Optcall>
     struct CreateHook {
         private:
             static inline std::unordered_map<std::string, HMODULE> m_mods = {};
             
         public:
-            CreateHook(uintptr_t addr, bgd::BGDPlugin* plugin = nullptr) {
-                auto res = matdash::add_hook<Func, CallConv>(addr);
+            CreateHook(uintptr_t addr, bgd::BGDPlugin* plugin) {
+                static_assert(
+                    !std::is_null_pointer<plugin>::value,
+                    "You have to provide your plugin instance for hooks. "
+                    "Do not call bgd::hook::add_hook manually to bypass this – "
+                    "it will make the mod unable to properly unload."
+                );
+                auto res = bgd::hook::add_hook<Func, CallConv>(addr, plugin);
                 if (!res) {
                     BGDLoader::get()->throwError(BGDError {
                         "Error Creating Hook",
@@ -30,10 +36,16 @@ namespace bgd {
                 }
             }
             template<typename HookFunc>
-            CreateHook(HookFunc addr, bgd::BGDPlugin* plugin = nullptr) {
+            CreateHook(HookFunc addr, bgd::BGDPlugin* plugin) {
+                static_assert(
+                    !std::is_null_pointer<plugin>::value,
+                    "You have to provide your plugin instance for hooks. "
+                    "Do not call bgd::hook::add_hook manually to bypass this – "
+                    "it will make the mod unable to properly unload."
+                );
                 // cringe++ wont let me convert addr directly to uintptr_t
                 auto addr_ = &addr; 
-                auto res = matdash::add_hook<Func, CallConv>(addr_);
+                auto res = bgd::hook::add_hook<Func, CallConv>(addr_, plugin);
                 if (!res) {
                     BGDLoader::get()->throwError(BGDError {
                         "Error Creating Hook",
@@ -44,7 +56,13 @@ namespace bgd {
                     });
                 }
             }
-            CreateHook(const char* module, uintptr_t addr, bgd::BGDPlugin* plugin = nullptr) {
+            CreateHook(const char* module, uintptr_t addr, bgd::BGDPlugin* plugin) {
+                static_assert(
+                    !std::is_null_pointer<plugin>::value,
+                    "You have to provide your plugin instance for hooks. "
+                    "Do not call bgd::hook::add_hook manually to bypass this – "
+                    "it will make the mod unable to properly unload."
+                );
                 HMODULE mod;
                 if (m_mods.count(module)) {
                     mod = m_mods[module];
@@ -61,7 +79,7 @@ namespace bgd {
                         plugin
                     });
                 }
-                auto res = matdash::add_hook<Func, CallConv>(as<uintptr_t>(mod) + addr);
+                auto res = bgd::hook::add_hook<Func, CallConv>(as<uintptr_t>(mod) + addr, plugin);
                 if (!res) {
                     BGDLoader::get()->throwError(BGDError {
                         "Error Creating Hook",
@@ -73,7 +91,13 @@ namespace bgd {
                 }
             }
             template<typename HookFunc>
-            CreateHook(const char* module, HookFunc addr, bgd::BGDPlugin* plugin = nullptr) {
+            CreateHook(const char* module, HookFunc addr, bgd::BGDPlugin* plugin) {
+                static_assert(
+                    !std::is_null_pointer<plugin>::value,
+                    "You have to provide your plugin instance for hooks. "
+                    "Do not call bgd::hook::add_hook manually to bypass this – "
+                    "it will make the mod unable to properly unload."
+                );
                 HMODULE mod;
                 if (m_mods.count(module)) {
                     mod = m_mods[module];
@@ -92,7 +116,7 @@ namespace bgd {
                 }
                 // cringe++ wont let me convert addr directly to uintptr_t
                 auto addr_ = &addr; 
-                auto res = matdash::add_hook<Func, CallConv>(as<uintptr_t>(mod) + as<uintptr_t>(addr_));
+                auto res = bgd::hook::add_hook<Func, CallConv>(as<uintptr_t>(mod) + as<uintptr_t>(addr_), plugin);
                 if (!res) {
                     BGDLoader::get()->throwError(BGDError {
                         "Error Creating Hook",
@@ -103,7 +127,13 @@ namespace bgd {
                     });
                 }
             }
-            CreateHook(const char* module, const char* symbol, bgd::BGDPlugin* plugin = nullptr) {
+            CreateHook(const char* module, const char* symbol, bgd::BGDPlugin* plugin) {
+                static_assert(
+                    !std::is_null_pointer<plugin>::value,
+                    "You have to provide your plugin instance for hooks. "
+                    "Do not call bgd::hook::add_hook manually to bypass this – "
+                    "it will make the mod unable to properly unload."
+                );
                 HMODULE mod;
                 if (m_mods.count(module)) {
                     mod = m_mods[module];
@@ -130,7 +160,7 @@ namespace bgd {
                         plugin
                     });
                 }
-                auto res = matdash::add_hook<Func, CallConv>(addr);
+                auto res = bgd::hook::add_hook<Func, CallConv>(addr, plugin);
                 if (!res) {
                     BGDLoader::get()->throwError(BGDError {
                         "Error Creating Hook",

@@ -3,7 +3,7 @@
 #include "../config.h"
 
 bool MenuLayer_init(MenuLayer* self) {
-    if (!matdash::orig<&MenuLayer_init>(self))
+    if (!bgd::hook::orig<&MenuLayer_init>(self))
         return false;
 
     auto title = as<CCSprite*>(self->getChildren()->objectAtIndex(0));
@@ -24,7 +24,7 @@ bool MenuLayer_init(MenuLayer* self) {
     
     return true;
 }
-static CreateHook<&MenuLayer_init>$mli(base + 0x1907b0);
+static InternalCreateHook<&MenuLayer_init>$mli(base + 0x1907b0);
 
 void MenuLayer_onMoreGames(MenuLayer* self, CCObject* pSender) {
     auto layer = PluginLayer::create();
@@ -33,5 +33,5 @@ void MenuLayer_onMoreGames(MenuLayer* self, CCObject* pSender) {
         ->addChild(layer);
     layer->showLayer(false);
 }
-static CreateHook<&MenuLayer_onMoreGames>$mlomg(base + 0x1919c0);
+static InternalCreateHook<&MenuLayer_onMoreGames>$mlomg(base + 0x1919c0);
 

@@ -1,4 +1,5 @@
 #include <Scrollbar.hpp>
+#include <BGDInternal.hpp>
 
 USE_BGD_NAMESPACE();
 
@@ -163,24 +164,14 @@ bool Scrollbar::init(BoomListView* list) {
     this->setList(list);
     this->m_fWidth = 8.0f;
 
-    for (auto const& path : CCFileUtils::sharedFileUtils()->getSearchPaths()) {
-        std::cout << "search path: " << path << "\n";
-    }
-
-    static constexpr const std::string_view bar = "BGD_scrollbar.png";
-    if (std::filesystem::exists(
-        const_join_path_c_str<bgd_directory,
-            const_join_path<bgd_resource_directory, bar>>
-    )) {
-        std::cout << "scrollbar exist\n";
+    if (BGDInternal::isFileInSearchPaths("BGD_scrollbar.png")) {
         this->m_pBG = CCScale9Sprite::create(
-            "BGD_scrollbar.png", { 0.0f, 5.0f, 10.0f, 10.0f }
+            "BGD_scrollbar.png"
         );
         this->m_pTrack = CCScale9Sprite::create(
-            "BGD_scrollbar.png", { 0.0f, 5.0f, 10.0f, 10.0f }
+            "BGD_scrollbar.png"
         );
     } else {
-        std::cout << "scrollbar not exist\n";
         this->m_pBG = CCScale9Sprite::create(
             "square02_small.png", { 0.0f, 0.0f, 40.0f, 40.0f }
         );

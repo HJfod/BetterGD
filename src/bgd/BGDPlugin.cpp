@@ -10,6 +10,13 @@ bgd::BGDPlugin::BGDPlugin() {
 
 bgd::BGDPlugin::~BGDPlugin() {
     this->platformCleanup();
+    for (auto const& hook : this->m_vHooks) {
+        delete hook;
+    }
+}
+
+void bgd::BGDPlugin::addHook(bgd::BGDHook* hook) {
+    this->m_vHooks.push_back(hook);
 }
 
 std::ostream& bgd::BGDPlugin::log() {

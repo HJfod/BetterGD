@@ -2,8 +2,11 @@
 
 #include "BGDMacros.hpp"
 #include "BGDError.hpp"
+#include "BGDHook.hpp"
 #include <string>
 #include <vector>
+
+class BGDInternal;
 
 namespace bgd {
     class BGDLoader;
@@ -15,17 +18,21 @@ namespace bgd {
                                    // no amount of compiler warnings
                                    // can stop me >:)
                                    
-    class BGD_DLL BGDPlugin {
+    class BGD_DLL BGDPluginBase {
         protected:
+            const char* m_sPath;
+            BGDPlatformInfo* m_pInfo;
+            std::vector<BGDSaveManager*> m_vSaveManagers;
+            std::vector<BGDHook*> m_vHooks;
+    };
+
+    class BGD_DLL BGDPlugin : BGDPluginBase {
+        protected:
+            const char* m_sID;
             const char* m_sName;
             const char* m_sDeveloper;
             const char* m_sDescription = nullptr;
             const char* m_sCredits = nullptr;
-            const char* m_sID;
-            // internal members; do NOT modify
-            const char* m_sPath;
-            BGDPlatformInfo* m_pInfo;
-            std::vector<BGDSaveManager*> m_vSaveManagers;
 
             void platformCleanup();
 
@@ -40,9 +47,12 @@ namespace bgd {
 
             friend class BGDLoader;
             friend class BGDSaveManager;
+            friend class BGDInternal;
+
+            void addHook(BGDHook* hook);
 
         public:
-            void throwError(BGDError const&);
+            void throwError(BGDError const& error);
 
             const char* getID()         const;
             const char* getName()       const;

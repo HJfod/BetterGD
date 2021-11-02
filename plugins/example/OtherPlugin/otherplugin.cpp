@@ -17,7 +17,7 @@ class OtherPlugin : public bgd::BGDPlugin {
 };
 
 bool GJGarageLayer_init(GJGarageLayer* self) {
-    if (!matdash::orig<&GJGarageLayer_init>(self))
+    if (!bgd::hook::orig<&GJGarageLayer_init>(self))
         return false;
     
     if (BGDLoader::get()->isPluginLoaded("hjfod.my_awesome_plugin")) {

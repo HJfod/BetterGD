@@ -1,7 +1,7 @@
 #include <BetterGD.hpp>
 
 USE_BGD_NAMESPACE();
-using namespace matdash;
+using namespace bgd::hook;
 
                                            // i am incredibly mature
 static constexpr const int SCROLLBAR_TAG = 0xB00B1E5;

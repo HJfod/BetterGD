@@ -1,7 +1,5 @@
-#include <BGDUtils.hpp>
+#include "bgd_hook.hpp"
 #include <tools/other/EditCommand.hpp>
-
-USE_BGD_NAMESPACE();
 
 CCPoint* EditorUI_moveForCommand(EditorUI* self, CCPoint* pos, EditCommand com) {
     switch (com) {
@@ -70,7 +68,7 @@ CCPoint* EditorUI_moveForCommand(EditorUI* self, CCPoint* pos, EditCommand com) 
             return pos;
     }
 
-    return matdash::orig<&EditorUI_moveForCommand>(self, pos, com);
+    return bgd::hook::orig<&EditorUI_moveForCommand>(self, pos, com);
 }
-static CreateHook<&EditorUI_moveForCommand>$eiomfc(base + 0x8d890);
+static InternalCreateHook<&EditorUI_moveForCommand>$eiomfc(base + 0x8d890);
 

@@ -2,9 +2,10 @@
 
 if "%1"=="pull" (
     git pull origin master
-    gdmake submodules update gd.h
-    gdmake submodules update Cocos2d
-    gdmake submodules update nodes
+    cd submodules/gd.h
+    git pull origin main
+    cd ../../submodules/cocos2d
+    git pull origin master
 
     goto done
 )

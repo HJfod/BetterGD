@@ -73,6 +73,7 @@ include_directories(
   "${GD_H_LOCATION}"
   "${MINHOOK_LOCATION}/include"
   "${ZIPPER_LOCATION}/zipper"
+  "${CMAKE_SOURCE_DIR}/src/bgd"
   "${CMAKE_SOURCE_DIR}/include"
   "${CMAKE_SOURCE_DIR}/include/bgd"
   "${CMAKE_SOURCE_DIR}/include/tools/nodes"

@@ -4,20 +4,34 @@
 struct hook_info {
     void* address;
     void* detour;
+    BGDPlugin* plugin;
 };
 
 static std::vector<hook_info> g_hooks;
+static bool g_bReadyToHook = false;
+
+Result<> BGDInternal::addHook(void* addr, void* detour, BGDPlugin* owner) {
+    if (lilac::Hooks::add(addr, detour)) {
+        owner->addHook(new BGDHook(as<address_t>(addr), true));
+    } else {
+        return Err<>(
+            "Unable to create hook at " + std::to_string(as<uintptr_t>(addr))
+        );
+    }
+    return Ok<>();
+}
 
 bool bgd::loadHooks() {
     auto thereWereErrors = false;
     for (auto const& hook : g_hooks) {
-        if (!lilac::Hooks::add(hook.address, hook.detour)) {
+        auto res = BGDInternal::get()->addHook(hook.address, hook.detour, hook.plugin);
+        if (!res) {
             BGDLoader::get()->throwError(BGDError {
                 "Error Creating Hook",
-                "Unable to create hook at " + std::to_string(as<int>(hook.address)),
+                res.error(),
                 kBGDSeverityError,
                 kBGDErrorTypeHook,
-                nullptr
+                hook.plugin
             });
             thereWereErrors = true;
         }
@@ -25,14 +39,18 @@ bool bgd::loadHooks() {
     return thereWereErrors;
 }
 
-bgd::Result<> matdash::__mat_dash_add_hook(void* addr, void* detour, void** trampoline) {
+Result<> hook::__mat_dash_add_hook(void* addr, void* detour, void** trampoline, BGDPlugin* owner) {
     *trampoline = addr;
-    g_hooks.push_back({ addr, detour });
+    if (g_bReadyToHook) {
+        return BGDInternal::get()->addHook(addr, detour, owner);
+    } else {
+        g_hooks.push_back({ addr, detour, owner });
+    }
     return Ok<>();
 }
 
 /*
-bgd::Result<> matdash::__mat_dash_add_hook(void* addr, void* detour, void** trampoline) {
+bgd::Result<> bgd::hook::__mat_dash_add_hook(void* addr, void* detour, void** trampoline) {
     static bool initialized = false;
     if (!initialized) {
         auto init = MH_Initialize();
