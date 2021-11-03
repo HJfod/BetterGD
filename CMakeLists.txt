@@ -91,3 +91,5 @@ target_link_libraries(
 set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "")
 
 add_subdirectory(plugins)
+
+add_subdirectory(installer/move)

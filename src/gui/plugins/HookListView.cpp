@@ -11,7 +11,7 @@ void HookCell::draw() {
 
 void HookCell::onEnable(CCObject* pSender) {
     auto toggle = as<CCMenuItemToggler*>(pSender);
-    if (toggle->isToggled()) {
+    if (!toggle->isToggled()) {
         auto res = this->m_pPlugin->enableHook(this->m_pHook);
         if (!res) {
             FLAlertLayer::create(
@@ -32,7 +32,7 @@ void HookCell::onEnable(CCObject* pSender) {
             )->show();
         }
     }
-    toggle->toggle(this->m_pHook->isEnabled());
+    toggle->toggle(!this->m_pHook->isEnabled());
 }
 
 void HookCell::loadFromHook(BGDHook* hook, BGDPlugin* plugin) {
