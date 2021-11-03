@@ -2,36 +2,84 @@
 #include <lilac_hook.hpp>
 
 struct hook_info {
-    void* address;
-    void* detour;
+    BGDHook* hook;
     BGDPlugin* plugin;
 };
 
 static std::vector<hook_info> g_hooks;
 static bool g_bReadyToHook = false;
 
-Result<> BGDInternal::addHook(void* addr, void* detour, BGDPlugin* owner) {
-    if (lilac::Hooks::add(addr, detour)) {
-        owner->addHook(new BGDHook(as<address_t>(addr), true));
+Result<BGDHook*> BGDPluginBase::addHookBase(void* addr, void* detour, BGDHook* hook) {
+    if (!hook) {
+        hook = new BGDHook(addr);
+    }
+    if ((hook->m_pHandle = const_cast<void*>(lilac::Hooks::add(addr, detour)))) {
+        this->m_vHooks.push_back(hook);
+        return Ok<BGDHook*>(hook);
     } else {
+        delete hook;
         return Err<>(
             "Unable to create hook at " + std::to_string(as<uintptr_t>(addr))
         );
     }
+}
+
+Result<BGDHook*> BGDPluginBase::addHookBase(BGDHook* hook) {
+    return this->addHookBase(
+        hook->m_nAddress,
+        hook->m_pDetour,
+        hook
+    );
+}
+
+bgd::Result<> BGDPlugin::enableHook(BGDHook* hook) {
+    if (!hook->isEnabled()) {
+        if (!hook->m_pHandle) {
+            if ((hook->m_pHandle = const_cast<void*>(lilac::Hooks::add(hook->m_nAddress, hook->m_pDetour)))) {
+                hook->m_bEnabled = true;
+                return Ok<>();
+            }
+            return Err<>("Unable to create hook");
+        }
+        return Err<>("Hook already has a handle");
+    }
     return Ok<>();
 }
 
-bool bgd::loadHooks() {
+bgd::Result<> BGDPlugin::disableHook(BGDHook* hook) {
+    if (hook->isEnabled()) {
+        if (hook->m_pHandle) {
+            if (lilac::Hooks::remove(hook->m_pHandle)) {
+                hook->m_bEnabled = false;
+                hook->m_pHandle = nullptr;
+                return Ok<>();
+            }
+            return Err<>("Unable to remove hook");
+        }
+        return Err<>("Hook lacks a handle");
+    }
+    return Ok<>();
+}
+
+bgd::Result<> BGDPlugin::removeHook(BGDHook* hook) {
+    auto res = this->disableHook(hook);
+    if (res) {
+        vector_erase<BGDHook*>(this->m_vHooks, hook);
+        delete hook;
+    }
+    return res;
+}
+
+bool BGDInternal::loadHooks() {
     auto thereWereErrors = false;
     for (auto const& hook : g_hooks) {
-        auto res = BGDInternal::get()->addHook(hook.address, hook.detour, hook.plugin);
+        auto res = hook.plugin->addHookBase(hook.hook);
         if (!res) {
-            BGDLoader::get()->throwError(BGDError {
+            hook.plugin->throwError(BGDError {
                 "Error Creating Hook",
                 res.error(),
                 kBGDSeverityError,
-                kBGDErrorTypeHook,
-                hook.plugin
+                kBGDErrorTypeHook
             });
             thereWereErrors = true;
         }
@@ -39,46 +87,14 @@ bool bgd::loadHooks() {
     return thereWereErrors;
 }
 
-Result<> hook::__mat_dash_add_hook(void* addr, void* detour, void** trampoline, BGDPlugin* owner) {
+Result<BGDHook*> BGDPlugin::addHookInternal(void* addr, void* detour, void** trampoline) {
     *trampoline = addr;
     if (g_bReadyToHook) {
-        return BGDInternal::get()->addHook(addr, detour, owner);
+        return this->addHookBase(addr, detour);
     } else {
-        g_hooks.push_back({ addr, detour, owner });
+        auto hook = new BGDHook(addr);
+        hook->m_pDetour = detour;
+        g_hooks.push_back({ hook, this });
+        return Ok<BGDHook*>(hook);
     }
-    return Ok<>();
 }
-
-/*
-bgd::Result<> bgd::hook::__mat_dash_add_hook(void* addr, void* detour, void** trampoline) {
-    static bool initialized = false;
-    if (!initialized) {
-        auto init = MH_Initialize();
-        if (
-            init != MH_OK &&
-            init != MH_ERROR_ALREADY_INITIALIZED
-        ) return Err<>(
-            "Unable to initialize MinHook: "_s + MH_StatusToString(init)
-        );
-        initialized = true;
-    }
-    auto hook = MH_CreateHook(addr, detour, trampoline);
-    if (
-        hook != MH_OK
-    ) return Err<>(
-        "Unable to create hook at " +
-        std::to_string(as<uintptr_t>(addr)) + ": " +
-        MH_StatusToString(hook)
-    );
-
-    auto enable = MH_EnableHook(addr);
-    if (
-        enable != MH_OK
-    ) return Err<>(
-        "Unable to enable hook at " + std::to_string(as<uintptr_t>(addr)) + ": " +
-        MH_StatusToString(enable)
-    );
-
-    return Ok<>();
-}
-*/

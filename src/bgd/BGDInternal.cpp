@@ -27,13 +27,13 @@ BGDInternal* BGDInternal::get() {
     return g_int;
 }
 
-void BGDInteralPlugin::setup() {
+void BGDInternalPlugin::setup() {
     this->m_sID = "hjfod.bettergd";
     this->m_sName = "BetterGD";
     this->m_sDeveloper = "HJfod";
 }
 
-BGDInteralPlugin* BGDInteralPlugin::get() {
-    static auto g_plugin = new BGDInteralPlugin;
+BGDInternalPlugin* BGDInternalPlugin::get() {
+    static auto g_plugin = new BGDInternalPlugin;
     return g_plugin;
 }

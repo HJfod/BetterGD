@@ -4,7 +4,3 @@
 #include <BGDInternal.hpp>
 
 USE_BGD_NAMESPACE();
-
-namespace bgd {
-    bool loadHooks();
-}

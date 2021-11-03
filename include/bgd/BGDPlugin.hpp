@@ -3,6 +3,8 @@
 #include "BGDMacros.hpp"
 #include "BGDError.hpp"
 #include "BGDHook.hpp"
+#include "../utils/other/ext.hpp"
+#include "../matdash/matdash.hpp"
 #include <string>
 #include <vector>
 
@@ -24,6 +26,9 @@ namespace bgd {
             BGDPlatformInfo* m_pInfo;
             std::vector<BGDSaveManager*> m_vSaveManagers;
             std::vector<BGDHook*> m_vHooks;
+
+            bgd::Result<BGDHook*> addHookBase(void* addr, void* detour, BGDHook* hook = nullptr);
+            bgd::Result<BGDHook*> addHookBase(BGDHook* hook);
     };
 
     class BGD_DLL BGDPlugin : BGDPluginBase {
@@ -49,7 +54,7 @@ namespace bgd {
             friend class BGDSaveManager;
             friend class BGDInternal;
 
-            void addHook(BGDHook* hook);
+            bgd::Result<BGDHook*> addHookInternal(void* addr, void* detour, void** trampoline);
 
         public:
             void throwError(BGDError const& error);
@@ -64,6 +69,52 @@ namespace bgd {
 
             BGDPlugin();
             virtual ~BGDPlugin();
+
+            template <auto Func, typename CallConv = bgd::hook::Optcall>
+            bgd::Result<BGDHook*> addHook(uintptr_t address) {
+                using namespace bgd::hook;
+                const auto addr = reinterpret_cast<void*>(address);
+                if constexpr (std::is_same_v<CallConv, Optcall>) {
+                    if constexpr (std::is_member_function_pointer_v<decltype(Func)>) {
+                        return this->addHookInternal(
+                            addr,
+                            &optcall<RemoveThiscall<MemberToFn<decltype(Func)>::type>::type>::wrap<WrapMemberCall<Func>::wrap>,
+                            reinterpret_cast<void**>(&Orig<Func, Optcall>::orig)
+                        );
+                    } else {
+                        return this->addHookInternal(
+                            addr,
+                            &optcall<decltype(Func)>::wrap<Func>,
+                            reinterpret_cast<void**>(&Orig<Func, Optcall>::orig)
+                        );
+                    }
+                } else if constexpr (std::is_same_v<CallConv, Thiscall>) {
+                    return this->addHookInternal(
+                        addr,
+                        &thiscall<decltype(Func)>::wrap<Func>,
+                        reinterpret_cast<void**>(&Orig<Func, Thiscall>::orig)
+                    );
+                } else if constexpr (std::is_same_v<CallConv, Optfastcall>) {
+                    return this->addHookInternal(
+                        addr,
+                        &optfastcall<decltype(Func)>::wrap<Func>,
+                        reinterpret_cast<void**>(&Orig<Func, CallConv>::orig)
+                    );
+                } else {
+                    static_assert(std::false_type::value, "Invalid calling convention");
+                    return bgd::Err<>("Invalid calling convention");
+                }
+                return bgd::Err<>("Unknown Error");
+            }
+
+            template <auto Func, typename CallConv = bgd::hook::Optcall>
+            bgd::Result<BGDHook*> addHook(void* address) {
+                return this->addHook<Func, CallConv>(reinterpret_cast<uintptr_t>(address));
+            }
+    
+            bgd::Result<> enableHook(BGDHook* hook);
+            bgd::Result<> disableHook(BGDHook* hook);
+            bgd::Result<> removeHook(BGDHook* hook);
     };
 
     typedef bgd::BGDPlugin* (__stdcall* bgd_load_type)();

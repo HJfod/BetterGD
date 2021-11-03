@@ -74,7 +74,7 @@ bool bgd::BGDLoader::setup() {
     this->createDirectories();
     BGDInternal::get()->setup();
     this->updatePlugins();
-    bgd::loadHooks();
+    BGDInternal::get()->loadHooks();
     this->loadData();
 
     this->m_bIsSetup = true;

@@ -17,13 +17,15 @@ A Geometry Dash modpack & utility library. Still WIP, but once finished, will co
  * GDShare
  * IconSave
 
-## Note
+## About
 
-This is **not** a general modding library, nor a general mod loader. BetterGD does not handle hooking nor patching.
+BetterGD is a specialized mod loader & modding API, meant for creating mods that work together and have strong customizability for the end user.
+
+The BetterGD hooking system is based on the back-end on [lilac](https://github.com/lilac-sdk/core) and the API on [matdash](https://github.com/matcool/mat-dash). Syntactically, it is meant to provide an easy & fun to use syntax that allows creating hooks in a single .cpp-file.
 
 The BetterGD plugin API is designed to enable interoperability between plugins by making it easy for plugins to share their interfaces through inheriting the `BGDPlugin` base class.
 
-However, the main goal of BetterGD is to simply provide a large set of shared utilities between mods so each mod doesn't have their own instance of things like SuperMouseManager, and to minimize the amount of hooks on common stuff.
+The main goal of BetterGD is to simply provide a large set of shared utilities between mods so each mod doesn't have their own instance of things like `SuperMouseManager`, and to minimize the amount of hooks on common targets.
 
 ## Example
 
@@ -39,6 +41,8 @@ class MyPlugin : public bgd::BGDPlugin {
             this->m_sID = "hjfod.my_awesome_plugin";
             // Plugin Name
             this->m_sName = "My Awesome Plugin";
+            // Plugin description
+            this->m_sDescription = "An Awesome Plugin by Me!";
         }
         // A `get` method is required for the
         // `BGD_LOAD` macro, and is useful in
@@ -60,4 +64,6 @@ BGD_LOAD(MyPlugin);
 
 ## Credits
 
-[mat-dash](https://github.com/matcool/mat-dash) by [mat](https://github.com/matcool)
+ * Hooking backend from [lilac](https://github.com/lilac-sdk/core) by the lilac team
+ * Hooking API based on [mat-dash](https://github.com/matcool/mat-dash) by [mat](https://github.com/matcool)
+ * Zipping utilities based on [Zipper](https://github.com/sebastiandev/zipper)
