@@ -15,6 +15,7 @@ Result<BGDHook*> BGDPluginBase::addHookBase(void* addr, void* detour, BGDHook* h
     }
     if ((hook->m_pHandle = const_cast<void*>(lilac::Hooks::add(addr, detour)))) {
         this->m_vHooks.push_back(hook);
+        hook->m_bEnabled = true;
         return Ok<BGDHook*>(hook);
     } else {
         delete hook;

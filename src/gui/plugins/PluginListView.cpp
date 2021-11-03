@@ -1,4 +1,5 @@
 #include "PluginListView.hpp"
+#include "PluginInfoLayer.hpp"
 
 PluginCell::PluginCell(const char* name, CCSize size) :
     TableViewCell(name, size.width, size.height) {}
@@ -40,18 +41,20 @@ void PluginCell::loadFromPlugin(PluginObject* plugin) {
     viewSpr->setScale(.65f);
 
     auto viewBtn = CCMenuItemSpriteExtra::create(
-        viewSpr, this, nullptr
+        viewSpr, this, menu_selector(PluginCell::onInfo)
     );
     menu->addChild(viewBtn);
 }
 
+void PluginCell::onInfo(CCObject*) {
+    PluginInfoLayer::create(this->m_pPlugin)->show();
+}
+
 PluginCell* PluginCell::create(const char* key, CCSize size) {
     auto pRet = new PluginCell(key, size);
-
     if (pRet) {
         return pRet;
     }
-
     CC_SAFE_DELETE(pRet);
     return nullptr;
 }

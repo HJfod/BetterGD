@@ -22,7 +22,8 @@ class PluginCell : public TableViewCell {
 		PluginCell(const char* name, CCSize size);
 
         void draw() override;
-	
+        void onInfo(CCObject*);
+
 	public:
         void loadFromPlugin(PluginObject*);
 

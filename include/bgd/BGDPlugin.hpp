@@ -27,7 +27,11 @@ namespace bgd {
             std::vector<BGDSaveManager*> m_vSaveManagers;
             std::vector<BGDHook*> m_vHooks;
 
-            bgd::Result<BGDHook*> addHookBase(void* addr, void* detour, BGDHook* hook = nullptr);
+            bgd::Result<BGDHook*> addHookBase(
+                void* addr,
+                void* detour,
+                BGDHook* hook = nullptr
+            );
             bgd::Result<BGDHook*> addHookBase(BGDHook* hook);
     };
 
@@ -54,7 +58,11 @@ namespace bgd {
             friend class BGDSaveManager;
             friend class BGDInternal;
 
-            bgd::Result<BGDHook*> addHookInternal(void* addr, void* detour, void** trampoline);
+            bgd::Result<BGDHook*> addHookInternal(
+                void* addr,
+                void* detour,
+                void** trampoline
+            );
 
         public:
             void throwError(BGDError const& error);
@@ -69,6 +77,8 @@ namespace bgd {
 
             BGDPlugin();
             virtual ~BGDPlugin();
+
+            std::vector<BGDHook*> getHooks() const;
 
             template <auto Func, typename CallConv = bgd::hook::Optcall>
             bgd::Result<BGDHook*> addHook(uintptr_t address) {

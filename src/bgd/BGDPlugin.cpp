@@ -55,6 +55,10 @@ const char* bgd::BGDPlugin::getPath()      const {
     return this->m_sPath;
 }
 
+std::vector<bgd::BGDHook*> bgd::BGDPlugin::getHooks() const {
+    return this->m_vHooks;
+}
+
 void bgd::BGDPlugin::registerSaveManager(BGDSaveManager* manager) {
     this->m_vSaveManagers.push_back(manager);
 }
