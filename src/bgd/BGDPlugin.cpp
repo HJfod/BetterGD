@@ -51,6 +51,10 @@ const char* bgd::BGDPlugin::getCredits()   const {
     return this->m_sCredits;
 }
 
+const char* bgd::BGDPlugin::getDescription()   const {
+    return this->m_sDescription;
+}
+
 const char* bgd::BGDPlugin::getPath()      const {
     return this->m_sPath;
 }

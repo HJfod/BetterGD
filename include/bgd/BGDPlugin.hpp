@@ -72,6 +72,7 @@ namespace bgd {
             const char* getDeveloper()  const;
             const char* getCredits()    const;
             const char* getPath()       const;
+            const char* getDescription()const;
 
             std::ostream& log();
 
