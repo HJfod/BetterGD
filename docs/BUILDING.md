@@ -1,5 +1,11 @@
 # Building Instructions
 
+If you get errors while building, it's either because:
+ 
+ 1) You forgot to do the `iowin32.h` thing
+
+ 2) The repo is literally not in a buildable state lol
+
 ## For fresh dummies
 
  * Install [Git](https://git-scm.com/downloads), [Visual Studio](https://visualstudio.microsoft.com/downloads/) (just the Build Tools are enough) and [VS Code](https://code.visualstudio.com/).
