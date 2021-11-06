@@ -17,6 +17,11 @@ void CCKeyboardDispatcher_dispatchKeyboardMSG(
     enumKeyCodes key,
     bool down
 ) {
+    if (!keyIsModifier(key)) {
+        if (KeybindManager::get()->handleGlobalKeyEvent(Keybind(key), down))
+            return;
+    }
+
     if (SuperKeyboardManager::get()->dispatchEvent(key, down))
         return;
     

@@ -43,17 +43,20 @@ KeybindModifier::KeybindModifier(
     this->description = description;
 }
 
-void TriggerableAction::invoke(CCNode* node, bool down) const {
+bool TriggerableAction::invoke(CCNode* node, bool down) const {
     if (this->action) {
-        this->action(node, down);
+        return this->action(node, down);
     }
+    return false;
 }
-void TriggerableAction::invoke(CCNode* node, keybind_category_id const& id, bool down) const {
+bool TriggerableAction::invoke(CCNode* node, keybind_category_id const& id, bool down) const {
     if (this->actionWithID) {
-        this->actionWithID(node, id, down);
-    } else if (this->action) {
-        this->action(node, down);
+        return this->actionWithID(node, id, down);
     }
+    if (this->action) {
+        return this->action(node, down);
+    }
+    return false;
 }
 TriggerableAction::~TriggerableAction() {}
 KeybindAction* TriggerableAction::copy() const {

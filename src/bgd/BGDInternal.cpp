@@ -1,5 +1,7 @@
 #include "BGDInternal.hpp"
 #include <BGDLoader.hpp>
+#include <tools/keybinds/KeybindManager.hpp>
+#include "../devtools/DevTools.hpp"
 
 using namespace std::string_view_literals;
 
@@ -13,12 +15,27 @@ void BGDInternal::addResourceSearchPaths() {
     }
 }
 
+void BGDInternal::loadKeybinds() {
+    KeybindManager::get()->addGlobalKeybindAction(TriggerableAction {
+        "Toggle Dev Tools",
+        "bgd.toggle_dev_tools",
+        "bgd.dev",
+        [](CCNode* scene, bool down) -> bool {
+            if (down) {
+                DevTools::get()->toggle();
+            }
+            return false;
+        }
+    }, {{ KEY_I, Keybind::kmControl | Keybind::kmShift }});
+}
+
 bool BGDInternal::isFileInSearchPaths(const char* file) {
     auto utils = CCFileUtils::sharedFileUtils();
     return utils->isFileExist(utils->fullPathForFilename(file, false));
 }
 
 void BGDInternal::setup() {
+    this->loadKeybinds();
     this->addResourceSearchPaths();
 }
 

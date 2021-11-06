@@ -7,6 +7,8 @@ USE_BGD_NAMESPACE();
 
 class BGDInternal {
     private:
+        void loadKeybinds();
+        
     public:
         void addResourceSearchPaths();
         void setup();

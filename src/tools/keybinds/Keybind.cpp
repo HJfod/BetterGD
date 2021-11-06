@@ -21,6 +21,13 @@ std::string bgd::keyToStringFixed(enumKeyCodes code) {
     }
 }
 
+bool bgd::keyIsModifier(cocos2d::enumKeyCodes code) {
+    return
+        code == KEY_Control ||
+        code == KEY_Shift   ||
+        code == KEY_Alt;
+}
+
 bool Keybind::operator==(Keybind const& other) const {
     return
         other.key == this->key &&

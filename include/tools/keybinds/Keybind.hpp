@@ -8,6 +8,8 @@
 namespace bgd {
     BGD_DLL std::string keyToStringFixed(cocos2d::enumKeyCodes code);
 
+    BGD_DLL bool keyIsModifier(cocos2d::enumKeyCodes code);
+
     struct BGD_DLL Keybind {
         cocos2d::enumKeyCodes key = cocos2d::KEY_None;
         enum Modifiers : int {
@@ -17,7 +19,8 @@ namespace bgd {
             kmAlt       = 4,
             kmCommand   = 8,
         };
-        int modifiers;
+        using ModifierFlags = int;
+        ModifierFlags modifiers;
         MouseButton mouse = kMouseButtonNone;
 
         bool operator==(Keybind const&) const;

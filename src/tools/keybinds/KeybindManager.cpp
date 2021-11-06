@@ -63,9 +63,23 @@ bool KeybindManager::addKeybindAction(
     return true;
 }
 
+bool KeybindManager::addGlobalKeybindAction(
+    KeybindAction const& ogAction,
+    KeybindList   const& defaults,
+    keybind_action_id    const& insertAfter
+) {
+    if (!this->addKeybindAction(ogAction, defaults, insertAfter)) {
+        return false;
+    }
+    this->m_mActions[ogAction.id]->global = true;
+    this->m_vGlobalActions.push_back(ogAction.id);
+    return true;
+}
+
 bool KeybindManager::removeKeybindAction(
     keybind_action_id const& actionID
 ) {
+    vector_erase<keybind_action_id>(this->m_vGlobalActions, actionID);
     if (this->m_mActions.count(actionID)) {
         auto action = this->m_mActions[actionID];
         this->clearKeybinds(actionID);
@@ -225,10 +239,15 @@ KeybindList KeybindManager::getKeybindsForAction(keybind_action_id const& action
 
 void KeybindManager::handleKeyEvent(
     keybind_category_id const& category,
-    Keybind             const& bind,
+    Keybind             const& rbind,
     CCNode*                    context,
     bool                       down
 ) {
+    auto bind = rbind;
+    if (!down) {
+        bind.modifiers = this->m_nPreviousModifiers;
+    }
+    this->m_nPreviousModifiers = bind.modifiers;
     if (!this->m_mKeybinds.count(bind)) {
         return;
     }
@@ -242,9 +261,41 @@ void KeybindManager::handleKeyEvent(
             } else {
                 this->m_mRepeat.erase(id);
             }
-            this->invokeAction(action, category, context, down);
+            if (this->invokeAction(action, category, context, down)) {
+                break;
+            }
         }
     }
+}
+
+bool KeybindManager::handleGlobalKeyEvent(
+    Keybind const& rbind, bool down
+) {
+    auto bind = rbind;
+    if (!down) {
+        bind.modifiers = this->m_nPreviousModifiers;
+    }
+    this->m_nPreviousModifiers = bind.modifiers;
+    if (!this->m_mKeybinds.count(bind)) {
+        return false;
+    }
+    for (auto const& id : this->m_mKeybinds[bind]) {
+        auto action = this->m_mActions[id];
+        if (action->global) {
+            auto scene = CCDirector::sharedDirector()->getRunningScene();
+            if (down) {
+                if (dynamic_cast<RepeatableAction*>(action)) {
+                    this->m_mRepeat.insert({ id, { 0.f, scene, "global" }});
+                }
+            } else {
+                this->m_mRepeat.erase(id);
+            }
+            if (this->invokeAction(action, scene, down)) {
+                return true;
+            }
+        }
+    }
+    return false;
 }
 
 std::vector<keybind_category_id> KeybindManager::getAllCategories() const {
@@ -265,36 +316,40 @@ KeybindActionList KeybindManager::getAllActionsInCategory(keybind_category_id co
     return res;
 }
 
-void KeybindManager::invokeAction(keybind_action_id const& id, CCNode* context, bool down) {
+bool KeybindManager::invokeAction(keybind_action_id const& id, CCNode* context, bool down) {
     if (this->m_mActions.count(id)) {
         auto action = dynamic_cast<TriggerableAction*>(this->m_mActions[id]);
         if (action) {
-            action->invoke(context, down);
+            return action->invoke(context, down);
         }
     }
+    return false;
 }
 
-void KeybindManager::invokeAction(keybind_action_id const& id, keybind_category_id const& category, CCNode* context, bool down) {
+bool KeybindManager::invokeAction(keybind_action_id const& id, keybind_category_id const& category, CCNode* context, bool down) {
     if (this->m_mActions.count(id)) {
         auto action = dynamic_cast<TriggerableAction*>(this->m_mActions[id]);
         if (action) {
-            action->invoke(context, category, down);
+            return action->invoke(context, category, down);
         }
     }
+    return false;
 }
 
-void KeybindManager::invokeAction(KeybindAction* action, CCNode* context, bool down) {
+bool KeybindManager::invokeAction(KeybindAction* action, CCNode* context, bool down) {
     auto trigger = dynamic_cast<TriggerableAction*>(action);
     if (trigger) {
-        trigger->invoke(context, down);
+        return trigger->invoke(context, down);
     }
+    return false;
 }
 
-void KeybindManager::invokeAction(KeybindAction* action, keybind_category_id const& category, CCNode* context, bool down) {
+bool KeybindManager::invokeAction(KeybindAction* action, keybind_category_id const& category, CCNode* context, bool down) {
     auto trigger = dynamic_cast<TriggerableAction*>(action);
     if (trigger) {
-        trigger->invoke(context, category, down);
+        return trigger->invoke(context, category, down);
     }
+    return false;
 }
 
 bool KeybindManager::isModifierPressed(keybind_action_id const& id) {

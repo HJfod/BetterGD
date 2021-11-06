@@ -25,6 +25,7 @@ namespace std {
 }
 
 namespace bgd {
+    using stop_propagation = bool;
 
     struct BGD_DLL KeybindAction {
         keybind_action_id id                                = "";
@@ -33,6 +34,7 @@ namespace bgd {
         std::string subcategory                             = "";
         std::string description                             = "";
         KeybindList defaults;
+        bool global = false;
 
         bool operator==(KeybindAction const&) const;
 
@@ -65,8 +67,8 @@ namespace bgd {
         std::function<bool(cocos2d::CCNode*, bool)> action = nullptr;
         std::function<bool(cocos2d::CCNode*, keybind_category_id const&, bool)> actionWithID = nullptr;
 
-        virtual void invoke(cocos2d::CCNode* node, bool down) const;
-        virtual void invoke(
+        virtual stop_propagation invoke(cocos2d::CCNode* node, bool down) const;
+        virtual stop_propagation invoke(
             cocos2d::CCNode* node,
             keybind_category_id const& id,
             bool down
@@ -122,9 +124,11 @@ namespace bgd {
 
     struct BGD_DLL RepeatableAction : public TriggerableAction {
         bool repeatChanged  = false;
-        bool repeat         = false;
+        bool repeat         = true ;
         int  repeatInterval = 100  ;
         int  repeatStart    = 300  ;
+
+        using TriggerableAction::TriggerableAction;
 
         virtual ~RepeatableAction();
         virtual KeybindAction* copy() const override;
