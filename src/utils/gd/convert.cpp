@@ -27,8 +27,8 @@ ccColor3B bgd::to3B(ccColor4B const& c) {
     return { c.r, c.g, c.b };
 }
 
-ccColor4B bgd::to4B(ccColor3B const& c) {
-    return { c.r, c.g, c.b, 255 };
+ccColor4B bgd::to4B(ccColor3B const& c, GLubyte alpha) {
+    return { c.r, c.g, c.b, alpha };
 }
 
 ccColor4F bgd::to4F(ccColor4B const& c) {

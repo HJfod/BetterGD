@@ -1,14 +1,30 @@
 #include "DevTools.hpp"
 
-DevTools* DevTools::create() {
-    auto res = new DevTools;
-    res->retain();
-    return res;
+DevTools::DevTools() {
+    this->loadColorScheme();
+
+    this->m_ui = new NativeUI();
+
+    auto btn = new NativeUIButton(this->m_ui);
+    btn->pos(40, 10);
+    btn->size(100, 40);
+    btn->text("awesome");
+    btn->callback([](auto btn) -> void {
+        std::cout << "clickety click\n";
+    });
+}
+
+DevTools::~DevTools() {
+    delete this->m_ui;
 }
 
 DevTools* DevTools::get() {
-    static auto g_dev = DevTools::create();
+    static auto g_dev = new DevTools;
     return g_dev;
+}
+
+NativeUI* DevTools::ui() {
+    return this->m_ui;
 }
 
 class AccessSpecifiersAreForNerds : public CCTransitionScene {
@@ -17,8 +33,30 @@ class AccessSpecifiersAreForNerds : public CCTransitionScene {
         CCScene* getOut() { return this->m_pOutScene; }
 };
 
-void DevTools::setSceneScale(CCScene* scene, bool transition) {
-    auto scale = this->m_bVisible ? .7f : 1.f;
+void DevTools::loadColorScheme() {
+    this->m_obBGColor       = to4B(cc3x(0xf));
+    this->m_obTextColor     = to4B(cc3x(0x0));
+    this->m_obHoverColor    = to4B(cc3x(0x0), 85);
+}
+
+void DevTools::draw() {
+    if (this->m_bVisible) {
+        this->m_ui->show();
+        this->m_ui->render();
+    } else {
+        this->m_ui->hide();
+    }
+}
+
+void DevTools::recurseUpdateList(CCNode* parent) {
+
+}
+
+void DevTools::showAnimation(CCScene* scene, bool transition) {
+    auto winSize = CCDirector::sharedDirector()->getWinSize();
+    auto scale = this->m_bVisible ?
+        winSize.width / (winSize.width + this->m_fWidth) :
+        1.f;
     scene->setAnchorPoint({ 1.f, .5f });
     if (transition) {
         scene->runAction(CCEaseInOut::create(
@@ -35,22 +73,20 @@ void DevTools::fixSceneScale(CCScene* scene) {
     );
     if (t) {
         scene = t->getIn();
-        this->setSceneScale(t->getOut(), false);
+        this->showAnimation(t->getOut(), false);
     }
-    this->setSceneScale(scene, false);
+    this->showAnimation(scene, false);
 }
 
 void DevTools::willSwitchToScene(CCScene* scene) {
     this->fixSceneScale(scene);
-    this->removeFromParent();
-    scene->addChild(this);
 }
 
 void DevTools::show() {
     if (!this->m_bVisible) {
         auto scene = CCDirector::sharedDirector()->getRunningScene();
         this->m_bVisible = true;
-        this->setSceneScale(scene, true);
+        this->showAnimation(scene, true);
     }
 }
 
@@ -58,7 +94,7 @@ void DevTools::hide() {
     if (this->m_bVisible) {
         auto scene = CCDirector::sharedDirector()->getRunningScene();
         this->m_bVisible = false;
-        this->setSceneScale(scene, true);
+        this->showAnimation(scene, true);
     }
 }
 

@@ -79,6 +79,7 @@ include_directories(
   "${CMAKE_SOURCE_DIR}/include/tools/nodes"
   "${CMAKE_SOURCE_DIR}/include/tools/managers"
   "${CMAKE_SOURCE_DIR}/submodules/lilac/include"
+  "${CMAKE_SOURCE_DIR}/submodules/Nuklear"
   ${ZLIB_INCLUDE_DIRS}
 )
  
