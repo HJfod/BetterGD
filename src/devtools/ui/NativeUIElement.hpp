@@ -62,7 +62,18 @@ class NativeUIElementBase {
         virtual ~NativeUIElementBase();
 };
 
-class INativeUITextable {
+class INativeUIColorableBase {
+    protected:
+        ccColor3B m_color;
+    
+        virtual void update_color(ccColor3B const& color) {}
+    
+    public:
+        void color(ccColor3B const& color);
+        ccColor3B color() const;
+};
+
+class INativeUITextableBase {
     protected:
         std::string m_text;
 
@@ -70,7 +81,7 @@ class INativeUITextable {
     
     public:
         void text(std::string const& text);
-        std::string text();
+        std::string text() const;
 };
 
 #include "NativeUIElementWin32.hpp"

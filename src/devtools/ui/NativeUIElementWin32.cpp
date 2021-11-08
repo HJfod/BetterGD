@@ -3,14 +3,15 @@
 
 #ifdef BGD_IS_WIN32
 
+#pragma comment(linker,"\"/manifestdependency:type='win32' \
+name='Microsoft.Windows.Common-Controls' version='6.0.0.0' \
+processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
+
 HWND NativeUIElementWin32::hwnd() const {
     return this->m_hwnd;
 }
 
-NativeUIElementWin32::NativeUIElementWin32(NativeUIElementWin32* parent)
-    : NativeUIElementBase(parent) {}
-
-void NativeUIButton::update_pos(int x, int y) {
+void NativeUIElementWin32::update_pos(int x, int y) {
     SetWindowPos(
         this->m_hwnd,
         reinterpret_cast<HWND>(HWND_TOP),
@@ -20,7 +21,7 @@ void NativeUIButton::update_pos(int x, int y) {
     );
 }
 
-void NativeUIButton::update_size(int w, int h) {
+void NativeUIElementWin32::update_size(int w, int h) {
     SetWindowPos(
         this->m_hwnd,
         reinterpret_cast<HWND>(HWND_TOP),
@@ -30,10 +31,20 @@ void NativeUIButton::update_size(int w, int h) {
     );
 }
 
-void NativeUIButton::update_text(std::string const& text) {
+NativeUIElementWin32::NativeUIElementWin32(NativeUIElementWin32* parent)
+    : NativeUIElementBase(parent) {}
+
+void INativeUITextableWin32::update_text(std::string const& text) {
     SetWindowTextA(
-        this->m_hwnd,
+        dynamic_cast<NativeUIElementWin32*>(this)->hwnd(),
         text.c_str()
+    );
+}
+
+void INativeUIColorableWin32::update_color(ccColor3B const& color) {
+    SetTextColor(
+        reinterpret_cast<HDC>(dynamic_cast<NativeUIElementWin32*>(this)->hwnd()),
+        RGB(color.r, color.g, color.b)
     );
 }
 
@@ -58,7 +69,23 @@ NativeUIButton::NativeUIButton(NativeUIElement* parent) : NativeUIElement(parent
         this->m_size.width,
         this->m_size.height,
         parent->hwnd(),
-        nullptr,
+        reinterpret_cast<HMENU>(this->m_uniqueID),
+        (HINSTANCE)GetWindowLongPtr(parent->hwnd(), GWLP_HINSTANCE), 
+        nullptr
+    );
+}
+
+NativeUIText::NativeUIText(NativeUIElement* parent) : NativeUIElement(parent) {
+    this->m_hwnd = CreateWindowA( 
+        "STATIC",
+        this->m_text.c_str(),
+        WS_TABSTOP | WS_VISIBLE | WS_CHILD,
+        this->m_pos.x,
+        this->m_pos.y,
+        this->m_size.width,
+        this->m_size.height,
+        parent->hwnd(),
+        reinterpret_cast<HMENU>(this->m_uniqueID),
         (HINSTANCE)GetWindowLongPtr(parent->hwnd(), GWLP_HINSTANCE), 
         nullptr
     );

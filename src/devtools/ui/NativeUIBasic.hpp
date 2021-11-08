@@ -10,14 +10,15 @@ class NativeUIButton : public NativeUIElement, public INativeUITextable {
     protected:
         NativeUICallback m_callback = nullptr;
 
-        void update_pos (int x, int y) override;
-        void update_size(int w, int h) override;
-        void update_text(std::string const& text) override;
-
     public:
         NativeUIButton(NativeUIElement* parent);
 
         void callback(NativeUICallback callback);
 
         void invoke();
+};
+
+class NativeUIText : public NativeUIElement, public INativeUITextable, public INativeUIColorable {
+    public:
+        NativeUIText(NativeUIElement* parent);
 };

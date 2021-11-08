@@ -12,6 +12,12 @@ DevTools::DevTools() {
     btn->callback([](auto btn) -> void {
         std::cout << "clickety click\n";
     });
+    
+    auto txt = new NativeUIText(this->m_ui);
+    txt->pos(20, 60);
+    txt->size(200, 50);
+    txt->text("hey epic");
+    txt->color({ 255, 150, 0 });
 }
 
 DevTools::~DevTools() {

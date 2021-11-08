@@ -101,11 +101,20 @@ NativeUIElementBase::~NativeUIElementBase() {
     }
 }
 
-void INativeUITextable::text(std::string const& text) {
+void INativeUIColorableBase::color(ccColor3B const& color) {
+    this->m_color = color;
+    this->update_color(color);
+}
+
+ccColor3B INativeUIColorableBase::color() const {
+    return this->m_color;
+}
+
+void INativeUITextableBase::text(std::string const& text) {
     this->m_text = text;
     this->update_text(text);
 }
 
-std::string INativeUITextable::text() {
+std::string INativeUITextableBase::text() const {
     return this->m_text;
 }
