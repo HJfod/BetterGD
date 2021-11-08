@@ -14,11 +14,12 @@ class DevTools {
         ccColor4B m_obBGColor;
         ccColor4B m_obTextColor;
         ccColor4B m_obHoverColor;
-        NativeUI* m_ui;
+        NativeUI* m_ui = nullptr;
 
         void showAnimation(CCScene*, bool transition);
         void loadColorScheme();
         void recurseUpdateList(CCNode* parent);
+        void constructUI();
 
         void draw();
 

@@ -66,9 +66,9 @@ class INativeUIColorableBase {
     protected:
         ccColor3B m_color;
     
-        virtual void update_color(ccColor3B const& color) {}
-    
     public:
+        virtual void update_color(ccColor3B const& color) {}
+
         void color(ccColor3B const& color);
         ccColor3B color() const;
 };

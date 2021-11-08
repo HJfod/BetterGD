@@ -81,7 +81,10 @@ NativeUIElementBase* NativeUIElementBase::element_by_unique_id(unsigned int id) 
         if (child->m_uniqueID == id) {
             return child;
         } else {
-            return child->element_by_unique_id(id);
+            auto res = child->element_by_unique_id(id);
+            if (res) {
+                return res;
+            }
         }
     }
     return nullptr;

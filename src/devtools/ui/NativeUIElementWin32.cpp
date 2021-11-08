@@ -42,10 +42,9 @@ void INativeUITextableWin32::update_text(std::string const& text) {
 }
 
 void INativeUIColorableWin32::update_color(ccColor3B const& color) {
-    SetTextColor(
-        reinterpret_cast<HDC>(dynamic_cast<NativeUIElementWin32*>(this)->hwnd()),
-        RGB(color.r, color.g, color.b)
-    );
+    auto hdc = reinterpret_cast<HDC>(dynamic_cast<NativeUIElementWin32*>(this)->hwnd());
+    SetBkMode(hdc, TRANSPARENT);
+    SetTextColor(hdc, RGB(color.r, color.g, color.b));
 }
 
 void NativeUIButton::invoke() {

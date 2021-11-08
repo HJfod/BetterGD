@@ -2,9 +2,31 @@
 
 DevTools::DevTools() {
     this->loadColorScheme();
+}
+
+DevTools::~DevTools() {
+    delete this->m_ui;
+}
+
+DevTools* DevTools::get() {
+    static auto g_dev = new DevTools;
+    return g_dev;
+}
+
+NativeUI* DevTools::ui() {
+    if (!this->m_ui) {
+        this->constructUI();
+    }
+    return this->m_ui;
+}
+
+void DevTools::constructUI() {
+    if (this->m_ui) {
+        return;
+    }
 
     this->m_ui = new NativeUI();
-
+    
     auto btn = new NativeUIButton(this->m_ui);
     btn->pos(40, 10);
     btn->size(100, 40);
@@ -18,19 +40,6 @@ DevTools::DevTools() {
     txt->size(200, 50);
     txt->text("hey epic");
     txt->color({ 255, 150, 0 });
-}
-
-DevTools::~DevTools() {
-    delete this->m_ui;
-}
-
-DevTools* DevTools::get() {
-    static auto g_dev = new DevTools;
-    return g_dev;
-}
-
-NativeUI* DevTools::ui() {
-    return this->m_ui;
 }
 
 class AccessSpecifiersAreForNerds : public CCTransitionScene {
@@ -92,6 +101,7 @@ void DevTools::show() {
     if (!this->m_bVisible) {
         auto scene = CCDirector::sharedDirector()->getRunningScene();
         this->m_bVisible = true;
+        this->constructUI();
         this->showAnimation(scene, true);
     }
 }
