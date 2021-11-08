@@ -1,12 +1,10 @@
 
-if [ $1 = "pull" ]; then
+if [ $1 == "pull" ]; then
     git pull origin master
     cd submodules/gd.h
     git pull origin main
     cd ../../submodules/cocos2d
     git pull origin master
-
-    goto done
 else
 
     echo "==== BetterGD ===="
