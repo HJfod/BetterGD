@@ -32,7 +32,7 @@ else
     echo "==== Cocos2d ===="
     echo ""
 
-    cd ..\cocos2d
+    cd ../cocos2d
 
     git add --all
     git commit -a
