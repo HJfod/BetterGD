@@ -82,7 +82,7 @@ include_directories(
   "${CMAKE_SOURCE_DIR}/submodules/Nuklear"
   ${ZLIB_INCLUDE_DIRS}
 )
- 
+
 target_link_libraries(
   ${PROJECT_NAME}
   cocos2d

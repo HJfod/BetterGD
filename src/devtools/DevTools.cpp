@@ -4,42 +4,11 @@ DevTools::DevTools() {
     this->loadColorScheme();
 }
 
-DevTools::~DevTools() {
-    delete this->m_ui;
-}
+DevTools::~DevTools() {}
 
 DevTools* DevTools::get() {
     static auto g_dev = new DevTools;
     return g_dev;
-}
-
-NativeUI* DevTools::ui() {
-    if (!this->m_ui) {
-        this->constructUI();
-    }
-    return this->m_ui;
-}
-
-void DevTools::constructUI() {
-    if (this->m_ui) {
-        return;
-    }
-
-    this->m_ui = new NativeUI();
-    
-    auto btn = new NativeUIButton(this->m_ui);
-    btn->pos(40, 10);
-    btn->size(100, 40);
-    btn->text("awesome");
-    btn->callback([](auto btn) -> void {
-        std::cout << "clickety click\n";
-    });
-    
-    auto txt = new NativeUIText(this->m_ui);
-    txt->pos(20, 60);
-    txt->size(200, 50);
-    txt->text("hey epic");
-    txt->color({ 255, 150, 0 });
 }
 
 class AccessSpecifiersAreForNerds : public CCTransitionScene {
@@ -56,10 +25,9 @@ void DevTools::loadColorScheme() {
 
 void DevTools::draw() {
     if (this->m_bVisible) {
-        this->m_ui->show();
-        this->m_ui->render();
-    } else {
-        this->m_ui->hide();
+        std::cout << "draw\n";
+        glColor3b(255, 0, 0);
+        glRecti(0, 0, 10, 40);
     }
 }
 
@@ -101,7 +69,6 @@ void DevTools::show() {
     if (!this->m_bVisible) {
         auto scene = CCDirector::sharedDirector()->getRunningScene();
         this->m_bVisible = true;
-        this->constructUI();
         this->showAnimation(scene, true);
     }
 }

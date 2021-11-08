@@ -1,7 +1,6 @@
 #pragma once
 
 #include <BGDUtils.hpp>
-#include "ui/NativeUI.hpp"
 
 USE_BGD_NAMESPACE();
 
@@ -14,14 +13,10 @@ class DevTools {
         ccColor4B m_obBGColor;
         ccColor4B m_obTextColor;
         ccColor4B m_obHoverColor;
-        NativeUI* m_ui = nullptr;
 
         void showAnimation(CCScene*, bool transition);
         void loadColorScheme();
         void recurseUpdateList(CCNode* parent);
-        void constructUI();
-
-        void draw();
 
         DevTools();
         ~DevTools();
@@ -29,10 +24,10 @@ class DevTools {
     public:
         static DevTools* get();
 
-        NativeUI* ui();
-
         void fixSceneScale(CCScene* scene);
         void willSwitchToScene(CCScene* scene);
+
+        void draw();
 
         void show();
         void hide();

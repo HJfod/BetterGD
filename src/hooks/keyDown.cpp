@@ -14,7 +14,6 @@ void UILayer_keyUp(UILayer* self, enumKeyCodes key) {
 }
 static InternalCreateHook<&UILayer_keyUp>$uilku(base + 0x25fa10);
 
-
 void EditorUI_keyDown(EditorUI* self_, enumKeyCodes key) {
     auto self = cast::offset_cast<EditorUI*>(self_, -0xf8);
     KeybindManager::get()->handleKeyEvent(

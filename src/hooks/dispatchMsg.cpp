@@ -1,13 +1,14 @@
 #include "bgd_hook.hpp"
+#include "../devtools/DevTools.hpp"
 
 bool CCMouseDispatcher_dispatchScrollMSG(
     CCMouseDispatcher* self, float y, float x
 ) {
     if (SuperMouseManager::get()->dispatchScrollEvent(y, x, getMousePos()))
         return true;
-    return bgd::hook::orig<&CCMouseDispatcher_dispatchScrollMSG, bgd::hook::Thiscall>(self, y, x);
+    return hook::orig<&CCMouseDispatcher_dispatchScrollMSG, hook::Thiscall>(self, y, x);
 }
-static InternalCreateHook<&CCMouseDispatcher_dispatchScrollMSG, bgd::hook::Thiscall>$ccmddsm(
+static InternalCreateHook<&CCMouseDispatcher_dispatchScrollMSG, hook::Thiscall>$ccmddsm(
     "libcocos2d.dll",
     "?dispatchScrollMSG@CCMouseDispatcher@cocos2d@@QAE_NMM@Z"
 );
@@ -25,7 +26,7 @@ void CCKeyboardDispatcher_dispatchKeyboardMSG(
     if (SuperKeyboardManager::get()->dispatchEvent(key, down))
         return;
     
-    return bgd::hook::orig<&CCKeyboardDispatcher_dispatchKeyboardMSG>(self, key, down);
+    return hook::orig<&CCKeyboardDispatcher_dispatchKeyboardMSG>(self, key, down);
 }
 static InternalCreateHook<&CCKeyboardDispatcher_dispatchKeyboardMSG>$cckddkm(
     "libcocos2d.dll",
@@ -36,11 +37,20 @@ void CCScheduler_update(CCScheduler* self, float dt) {
     SuperMouseManager::get()->dispatchMoveEvent(getMousePos());
     KeybindManager::get()->handleRepeats(dt);
 
-    return bgd::hook::orig<&CCScheduler_update, bgd::hook::Thiscall>(self, dt);
+    return hook::orig<&CCScheduler_update, hook::Thiscall>(self, dt);
 }
-static InternalCreateHook<&CCScheduler_update, bgd::hook::Thiscall>$ccsu(
+static InternalCreateHook<&CCScheduler_update, hook::Thiscall>$ccsu(
     "libcocos2d.dll",
     "?update@CCScheduler@cocos2d@@UAEXM@Z"
+);
+
+void CCDirector_drawScene(CCDirector* self) {
+    hook::orig<&CCDirector_drawScene>(self);
+    DevTools::get()->draw();
+}
+static InternalCreateHook<&CCDirector_drawScene>$ccdds(
+    "libcocos2d.dll",
+    "?drawScene@CCDirector@cocos2d@@QAEXXZ"
 );
 
 void CCEGLView_onGLFWMouseCallBack(
@@ -55,7 +65,7 @@ void CCEGLView_onGLFWMouseCallBack(
     ))
         return;
 
-    return bgd::hook::orig<&CCEGLView_onGLFWMouseCallBack>(self, wnd, btn, pressed, z);
+    return hook::orig<&CCEGLView_onGLFWMouseCallBack>(self, wnd, btn, pressed, z);
 }
 static InternalCreateHook<&CCEGLView_onGLFWMouseCallBack>$ccevogmc(
     "libcocos2d.dll",
