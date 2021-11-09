@@ -11,7 +11,7 @@ class OtherPlugin : public bgd::BGDPlugin {
             this->m_sDeveloper = "HJfod";
             this->m_sCredits = "Various different chords in Onnanoko ni Naritai";
 
-            std::cout << "hey from other plugin\n";
+            this->log() << "hey from other plugin" << bgd::endl;
         }
         BGD_PLUGIN_GET(OtherPlugin);
 };
@@ -23,7 +23,7 @@ bool GJGarageLayer_init(GJGarageLayer* self) {
     if (BGDLoader::get()->isPluginLoaded("hjfod.my_awesome_plugin")) {
         MyPlugin::get()->logText("Hello from other plugin!");
     } else {
-        std::cout << "MyPlugin is not loaded :( T: other plugin\n";
+        OtherPlugin::get()->log() << "MyPlugin is not loaded :(" << bgd::endl;
     }
 
     return true;

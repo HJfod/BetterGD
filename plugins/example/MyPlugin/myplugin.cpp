@@ -12,7 +12,7 @@ void MyPlugin::setup() {
 }
 
 void MyPlugin::logText(std::string const& text) {
-    std::cout << "Logged by MyPlugin: " << text << "\n";
+    this->log() << "Logged by MyPlugin: " << text << bgd::endl;
 }
 
 MyPlugin* MyPlugin::get() {

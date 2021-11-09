@@ -8,9 +8,14 @@ using namespace cocos2d;
 void _stub() {}
 std::function<void()> g_drawFunc = _stub;
 std::function<void()> g_toggleCallback = _stub;
+std::function<void()> g_initFunc = _stub;
 
 void ImGuiHook::setRenderFunction(std::function<void()> func) {
     g_drawFunc = func;
+}
+
+void ImGuiHook::setInitFunction(std::function<void()> func) {
+    g_initFunc = func;
 }
 
 void ImGuiHook::setToggleCallback(std::function<void()> func) {
@@ -27,6 +32,7 @@ void __fastcall CCEGLView_swapBuffers_H(CCEGLView* self) {
         g_inited = true;
         IMGUI_CHECKVERSION();
         ImGui::CreateContext();
+        g_initFunc();
         ImGui::GetIO();
         auto hwnd = WindowFromDC(*reinterpret_cast<HDC*>(reinterpret_cast<uintptr_t>(window) + 0x244));
         ImGui_ImplWin32_Init(hwnd);

@@ -27,9 +27,9 @@ void PluginLayer::onViewErrors(CCObject*) {
     auto errors = BGDLoader::get()->getErrors();
     std::string err = "";
     for (auto const& error : errors) {
-        err += error.info;
+        err += error->info;
         err += "; ";
-        err += error.description;
+        err += error->description;
         err += "\n ";
     }
     FLAlertLayer::create(

@@ -16,7 +16,7 @@ namespace bgd {
     class BGD_DLL BGDLoader {
         protected:
             std::vector<BGDPlugin*> m_vLoadedPlugins;
-            std::vector<BGDError> m_vErrors;
+            std::vector<BGDError*> m_vErrors;
             bool m_bIsSetup = false;
 
             BGDLoader();
@@ -34,7 +34,7 @@ namespace bgd {
             void loadData();
 
             void throwError(BGDError const&);
-            std::vector<BGDError> getErrors(
+            std::vector<BGDError*> getErrors(
                 std::initializer_list<BGDErrorType> typeFilter     = {},
                 std::initializer_list<BGDSeverity>  severityFilter = {}
             );

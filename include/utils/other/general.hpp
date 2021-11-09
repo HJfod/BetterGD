@@ -1,5 +1,9 @@
 #pragma once
 
+#include <string>
+#include <chrono>
+#include <BGDMacros.hpp>
+
 namespace bgd {
     constexpr unsigned int hash(const char* str, int h = 0) {
         return !str[h] ? 5381 : (hash(str, h+1) * 33) ^ str[h];
@@ -26,4 +30,6 @@ namespace bgd {
     constexpr size_t offsetOf(U T::*member) {
         return (char*)&((T*)nullptr->*member) - (char*)nullptr;
     }
+
+    BGD_DLL std::string timePointAsString(const std::chrono::system_clock::time_point& tp);
 }

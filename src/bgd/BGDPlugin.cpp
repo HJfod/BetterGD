@@ -1,6 +1,8 @@
 #include <BGDPlugin.hpp>
 #include <BGDLoader.hpp>
 #include <BGDSaveManager.hpp>
+#include <BGDLogStream.hpp>
+#include <BGDInternal.hpp>
 #include <iostream>
 #include <utils/other/ext.hpp>
 
@@ -15,8 +17,8 @@ bgd::BGDPlugin::~BGDPlugin() {
     }
 }
 
-std::ostream& bgd::BGDPlugin::log() {
-    return std::cout << " [ " << this->m_sName << " ]: ";
+BGDLogStream& bgd::BGDPlugin::log() {
+    return BGDInternal::get()->logStream() << this;
 }
 
 void bgd::BGDPlugin::setup() {}

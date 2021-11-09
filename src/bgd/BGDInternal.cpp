@@ -7,6 +7,14 @@ using namespace std::string_view_literals;
 
 USE_BGD_NAMESPACE();
 
+void BGDInternal::log(BGDLogMessage const& msg) {
+    this->m_logMsgs.push_back(msg);
+}
+
+std::vector<BGDLogMessage> const& BGDInternal::getLogs() const {
+    return this->m_logMsgs;
+}
+
 void BGDInternal::addResourceSearchPaths() {
     auto utils = CCFileUtils::sharedFileUtils();
     auto path = utils->fullPathForFilename(const_join_path_c_str<bgd_directory, bgd_resource_directory>, false);
@@ -27,6 +35,28 @@ void BGDInternal::loadKeybinds() {
             return false;
         }
     }, {{ KEY_I, Keybind::kmControl | Keybind::kmShift }});
+
+    KeybindManager::get()->addGlobalKeybindAction(TriggerableAction {
+        "Reload Plugins",
+        "bgd.reload_plugins",
+        "bgd.dev",
+        [](CCNode*, bool down) -> bool {
+            if (down) {
+                auto u = BGDLoader::get()->updatePlugins();
+                FLAlertLayer::create(
+                    nullptr,
+                    "Plugins Updated",
+                    "OK", nullptr,
+                    std::to_string(u) + " plugins loaded"
+                )->show();
+            }
+            return false;
+        }
+    }, {{ KEY_R, Keybind::kmControl | Keybind::kmShift }});
+
+    BGDInternalPlugin::get()->throwError(BGDError {
+        "test", "test error", kBGDSeverityAlert, kBGDErrorTypeGeneral
+    });
 }
 
 bool BGDInternal::isFileInSearchPaths(const char* file) {
@@ -35,6 +65,8 @@ bool BGDInternal::isFileInSearchPaths(const char* file) {
 }
 
 void BGDInternal::setup() {
+    this->m_log = new BGDLogStream;
+
     this->loadKeybinds();
     this->addResourceSearchPaths();
 }

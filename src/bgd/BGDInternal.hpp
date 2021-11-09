@@ -2,17 +2,31 @@
 
 #include <BGDUtils.hpp>
 #include <BGDPlugin.hpp>
+#include <BGDLogStream.hpp>
 
 USE_BGD_NAMESPACE();
 
+inline const char* getNodeName(CCObject* node) {
+    return typeid(*node).name() + 6;
+}
+
 class BGDInternal {
-    private:
+    protected:
+        BGDLogStream* m_log;
+        std::vector<BGDLogMessage> m_logMsgs;
+
         void loadKeybinds();
         
     public:
         void addResourceSearchPaths();
         void setup();
         static bool isFileInSearchPaths(const char*);
+
+        inline BGDLogStream& logStream() {
+            return *this->m_log;
+        }
+        std::vector<BGDLogMessage> const& getLogs() const;
+        void log(BGDLogMessage const& msg);
 
         bool loadHooks();
 

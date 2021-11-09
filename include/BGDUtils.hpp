@@ -5,6 +5,7 @@
 #include "bgd/BGDMacros.hpp"
 #include "bgd/BGDError.hpp"
 #include "bgd/BGDPlugin.hpp"
+#include "bgd/BGDLogStream.hpp"
 #include "bgd/BGDLoader.hpp"
 #include "bgd/BGDSaveManager.hpp"
 

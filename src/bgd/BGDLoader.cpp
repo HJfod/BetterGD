@@ -100,13 +100,18 @@ bgd::BGDLoader::~BGDLoader() {
     for (auto const& plugin : this->m_vLoadedPlugins) {
         delete plugin;
     }
+    for (auto const& error : this->m_vErrors) {
+        delete error;
+    }
 }
 
 void bgd::BGDLoader::throwError(BGDError const& error) {
-    this->m_vErrors.push_back(error);
+    auto ne = new BGDError(error);
+    this->m_vErrors.push_back(ne);
+    BGDInternal::get()->log(ne);
 }
 
-std::vector<BGDError> bgd::BGDLoader::getErrors(
+std::vector<BGDError*> bgd::BGDLoader::getErrors(
     std::initializer_list<BGDErrorType> typeFilter,
     std::initializer_list<BGDSeverity>  severityFilter
 ) {
@@ -114,17 +119,17 @@ std::vector<BGDError> bgd::BGDLoader::getErrors(
         !typeFilter.size() && !severityFilter.size()
     ) return this->m_vErrors;
 
-    std::vector<BGDError> errs;
+    std::vector<BGDError*> errs;
 
     for (auto const& err : this->m_vErrors) {
         for (auto const& type : typeFilter) {
-            if (err.type == type) {
+            if (err->type == type) {
                 errs.push_back(err);
                 break;
             }
         }
         for (auto const& severity : severityFilter) {
-            if (err.severity == severity) {
+            if (err->severity == severity) {
                 errs.push_back(err);
                 break;
             }

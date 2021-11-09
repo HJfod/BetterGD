@@ -14,6 +14,7 @@ class DevTools;
 namespace bgd {
     class BGDLoader;
     class BGDSaveManager;
+    class BGDLogStream;
 
     struct BGDPlatformInfo;
 
@@ -76,7 +77,7 @@ namespace bgd {
             const char* getPath()       const;
             const char* getDescription()const;
 
-            std::ostream& log();
+            BGDLogStream& log();
 
             BGDPlugin();
             virtual ~BGDPlugin();
