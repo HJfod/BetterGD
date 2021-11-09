@@ -1,5 +1,4 @@
 #include "bgd_hook.hpp"
-#include "../devtools/DevTools.hpp"
 
 bool CCMouseDispatcher_dispatchScrollMSG(
     CCMouseDispatcher* self, float y, float x
@@ -42,15 +41,6 @@ void CCScheduler_update(CCScheduler* self, float dt) {
 static InternalCreateHook<&CCScheduler_update, hook::Thiscall>$ccsu(
     "libcocos2d.dll",
     "?update@CCScheduler@cocos2d@@UAEXM@Z"
-);
-
-void CCDirector_drawScene(CCDirector* self) {
-    hook::orig<&CCDirector_drawScene>(self);
-    DevTools::get()->draw();
-}
-static InternalCreateHook<&CCDirector_drawScene>$ccdds(
-    "libcocos2d.dll",
-    "?drawScene@CCDirector@cocos2d@@QAEXXZ"
 );
 
 void CCEGLView_onGLFWMouseCallBack(

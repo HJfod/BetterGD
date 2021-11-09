@@ -34,12 +34,6 @@ struct InternalCreateHook {
         
     public:
         InternalCreateHook(uintptr_t addr) {
-            BGDInternalPlugin::get()->throwError(BGDError {
-                "creating hook addr",
-                "hoo addr",
-                kBGDSeverityError,
-                kBGDErrorTypeHook
-            });
             auto res = BGDInternalPlugin::get()->addHook<Func, CallConv>(addr);
             if (!res) {
                 BGDInternalPlugin::get()->throwError(BGDError {
@@ -65,12 +59,6 @@ struct InternalCreateHook {
             }
         }
         InternalCreateHook(const char* module, int addr) {
-            BGDInternalPlugin::get()->throwError(BGDError {
-                "creating hook mod + addr",
-                "hoo mod + addr",
-                kBGDSeverityError,
-                kBGDErrorTypeHook
-            });
             HMODULE mod;
             if (m_mods.count(module)) {
                 mod = m_mods[module];

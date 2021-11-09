@@ -85,6 +85,7 @@ bool BGDInternal::loadHooks() {
             thereWereErrors = true;
         }
     }
+    g_bReadyToHook = true;
     return thereWereErrors;
 }
 

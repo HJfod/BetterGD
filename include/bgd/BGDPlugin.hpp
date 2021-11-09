@@ -9,6 +9,7 @@
 #include <vector>
 
 class BGDInternal;
+class DevTools;
 
 namespace bgd {
     class BGDLoader;
@@ -57,6 +58,7 @@ namespace bgd {
             friend class BGDLoader;
             friend class BGDSaveManager;
             friend class BGDInternal;
+            friend class DevTools;
 
             bgd::Result<BGDHook*> addHookInternal(
                 void* addr,

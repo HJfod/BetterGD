@@ -80,12 +80,16 @@ include_directories(
   "${CMAKE_SOURCE_DIR}/include/tools/managers"
   "${CMAKE_SOURCE_DIR}/submodules/lilac/include"
   "${CMAKE_SOURCE_DIR}/submodules/Nuklear"
+  "${CMAKE_SOURCE_DIR}/submodules/imgui-hook"
   ${ZLIB_INCLUDE_DIRS}
 )
+
+add_subdirectory(submodules/imgui-hook)
 
 target_link_libraries(
   ${PROJECT_NAME}
   cocos2d
+  imgui-hook
   ${ZLIB_LIBRARIES}
 )
 
