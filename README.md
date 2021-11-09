@@ -2,20 +2,47 @@
 
 A Geometry Dash modpack & utility library. Still WIP, but once finished, will contain tons of awesome features & default installed mods that improve the GD experience.
 
-## Features
+## Status
 
-(Note: Some features have not yet been implemented)
+Once the features listed below (aside from core plugin library) are finished, a private beta will be released on my Discord server :)
 
- * Customizable Keybinds
- * Load BGD Plugins
+## Done
 
-## Plugins
+ * Customizable Keybinds (aside from the UI for customizing, but backend is done)
+ * Load plugins
+ * Plugin interop
+ * Non-conflicting hooks + Enable / disable hooks at runtime
 
-(Note: Some plugins are old mods that have not yet been ported over to BetterGD)
+## WIP
 
- * BetterEdit
+ * Developer Tools
+ * Plugin info & settings
+
+## To-do
+
+ * UI for customizing keybinds
+ * Reroute MinHook to BetterGD so external mods can be managed as a single plugin
+ * Core plugins library
+ * Install plugins through an in-game UI
+ * Automatic updates
+ * Notifications
+
+## Core Plugins
+
+(note: the finished version may not match up with previous independent releases of the plugin)
+
  * GDShare
  * IconSave
+ * Cool Scrollbars
+ * BetterEdit
+ * GPMods
+ * Volume Scroll Wheel
+ * Scroll Any Input
+ * Caret Position[1]
+ * Scene Switcher
+ * Local Backups
+
+[1] This would be awesome to do, but I'm not entirely sure how possible it is. I will try to do it though!
 
 ## About
 
