@@ -2,7 +2,7 @@
 
 #include <BGDUtils.hpp>
 #include <BGDPlugin.hpp>
-#include <BGDLogStream.hpp>
+#include <BGDLog.hpp>
 
 USE_BGD_NAMESPACE();
 
@@ -12,21 +12,12 @@ inline const char* getNodeName(CCObject* node) {
 
 class BGDInternal {
     protected:
-        BGDLogStream* m_log;
-        std::vector<BGDLogMessage> m_logMsgs;
-
         void loadKeybinds();
         
     public:
         void addResourceSearchPaths();
         void setup();
         static bool isFileInSearchPaths(const char*);
-
-        inline BGDLogStream& logStream() {
-            return *this->m_log;
-        }
-        std::vector<BGDLogMessage> const& getLogs() const;
-        void log(BGDLogMessage const& msg);
 
         bool loadHooks();
 
@@ -50,12 +41,12 @@ struct InternalCreateHook {
         InternalCreateHook(uintptr_t addr) {
             auto res = BGDInternalPlugin::get()->addHook<Func, CallConv>(addr);
             if (!res) {
-                BGDInternalPlugin::get()->throwError(BGDError {
+                BGDInternalPlugin::get()->throwError(
                     "Error Creating Hook",
                     res.error(),
                     kBGDSeverityError,
                     kBGDErrorTypeHook
-                });
+                );
             }
         }
         template<typename HookFunc>
@@ -64,12 +55,12 @@ struct InternalCreateHook {
             auto addr_ = &addr; 
             auto res = BGDInternalPlugin::get()->addHook<Func, CallConv>(addr_);
             if (!res) {
-                BGDInternalPlugin::get()->throwError(BGDError {
+                BGDInternalPlugin::get()->throwError(
                     "Error Creating Hook",
                     res.error(),
                     kBGDSeverityError,
                     kBGDErrorTypeHook
-                });
+                );
             }
         }
         InternalCreateHook(const char* module, int addr) {
@@ -81,21 +72,21 @@ struct InternalCreateHook {
                 m_mods[module] = mod;
             }
             if (!mod) {
-                BGDInternalPlugin::get()->throwError(BGDError {
+                BGDInternalPlugin::get()->throwError(
                     "Error Creating Hook",
                     "Unable to find module \""_s + module + "\"",
                     kBGDSeverityError,
                     kBGDErrorTypeHook
-                });
+                );
             }
             auto res = BGDInternalPlugin::get()->addHook<Func, CallConv>(as<uintptr_t>(mod) + addr);
             if (!res) {
-                BGDInternalPlugin::get()->throwError(BGDError {
+                BGDInternalPlugin::get()->throwError(
                     "Error Creating Hook",
                     res.error(),
                     kBGDSeverityError,
                     kBGDErrorTypeHook
-                });
+                );
             }
         }
         template<typename HookFunc>
@@ -108,23 +99,23 @@ struct InternalCreateHook {
                 m_mods[module] = mod;
             }
             if (!mod) {
-                BGDInternalPlugin::get()->throwError(BGDError {
+                BGDInternalPlugin::get()->throwError(
                     "Error Creating Hook",
                     "Unable to find module \""_s + module + "\"",
                     kBGDSeverityError,
                     kBGDErrorTypeHook
-                });
+                );
             }
             // cringe++ wont let me convert addr directly to uintptr_t
             auto addr_ = &addr; 
             auto res = BGDInternalPlugin::get()->addHook<Func, CallConv>(as<uintptr_t>(mod) + as<uintptr_t>(addr_));
             if (!res) {
-                BGDInternalPlugin::get()->throwError(BGDError {
+                BGDInternalPlugin::get()->throwError(
                     "Error Creating Hook",
                     res.error(),
                     kBGDSeverityError,
                     kBGDErrorTypeHook
-                });
+                );
             }
         }
         InternalCreateHook(const char* module, const char* symbol) {
@@ -136,30 +127,30 @@ struct InternalCreateHook {
                 m_mods[module] = mod;
             }
             if (!mod) {
-                BGDInternalPlugin::get()->throwError(BGDError {
+                BGDInternalPlugin::get()->throwError(
                     "Error Creating Hook",
                     "Unable to find module \""_s + module + "\"",
                     kBGDSeverityError,
                     kBGDErrorTypeHook
-                });
+                );
             }
             auto addr = reinterpret_cast<uintptr_t>(GetProcAddress(mod, symbol));
             if (!addr) {
-                BGDInternalPlugin::get()->throwError(BGDError {
+                BGDInternalPlugin::get()->throwError(
                     "Error Creating Hook",
                     "Unable to find symbol \""_s + symbol + "\" in module \""_s + module + "\"",
                     kBGDSeverityError,
                     kBGDErrorTypeHook
-                });
+                );
             }
             auto res = BGDInternalPlugin::get()->addHook<Func, CallConv>(addr);
             if (!res) {
-                BGDInternalPlugin::get()->throwError(BGDError {
+                BGDInternalPlugin::get()->throwError(
                     "Error Creating Hook",
                     res.error(),
                     kBGDSeverityError,
                     kBGDErrorTypeHook
-                });
+                );
             }
         }
 };

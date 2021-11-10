@@ -3,8 +3,6 @@
 #include <string>
 
 namespace bgd {
-    class BGDPlugin;
-
     enum BGDSeverity {
         kBGDSeverityDebug,      // no need to even pay attention
         kBGDSeverityInfo,       // fyi :)
@@ -16,7 +14,7 @@ namespace bgd {
         kBGDSeverityEmergency,  // !!!!!!!!!!!!!
     };
 
-    constexpr const char* BGDSeverityToString(BGDSeverity severity) {
+    static std::string BGDSeverityToString(BGDSeverity severity) {
         switch (severity) {
             case kBGDSeverityDebug:     return "Debug";
             case kBGDSeverityInfo:      return "Info";
@@ -40,7 +38,7 @@ namespace bgd {
         kBGDErrorTypeMissingData,   // missing required files
     };
 
-    constexpr const char* BGDErrorTypeToString(BGDErrorType type) {
+    static std::string BGDErrorTypeToString(BGDErrorType type) {
         switch (type) {
             case kBGDErrorTypeGeneral:      return "General";
             case kBGDErrorTypeInit:         return "Initialization";
@@ -51,29 +49,4 @@ namespace bgd {
             case kBGDErrorTypeUnknown:default:return "Unknown";
         }
     }
-
-    struct BGDError {
-        std::string_view info;          // title / short description
-        std::string_view description;   // full description
-        BGDSeverity severity;           // severity
-        BGDErrorType type;              // type
-        BGDPlugin* plugin = nullptr;    // source plugin
-
-        BGDError() = delete;
-        BGDError(
-            std::string_view info,
-            std::string_view description,
-            BGDSeverity severity,
-            BGDErrorType type
-        ) : info(info), description(description),
-            severity(severity), type(type) {}
-        BGDError(
-            std::string_view info,
-            std::string_view description,
-            BGDSeverity severity,
-            BGDErrorType type,
-            BGDPlugin* plugin
-        ) : info(info), description(description),
-            severity(severity), type(type), plugin(plugin) {}
-    };
 }

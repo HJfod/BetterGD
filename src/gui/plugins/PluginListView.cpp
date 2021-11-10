@@ -21,7 +21,7 @@ void PluginCell::loadFromPlugin(PluginObject* plugin) {
     this->m_pLayer->addChild(menu);
 
     auto titleLabel = CCLabelBMFont::create(
-        this->m_pPlugin->getName(), "bigFont.fnt"
+        std::string(this->m_pPlugin->getName()).c_str(), "bigFont.fnt"
     );
     titleLabel->setAnchorPoint({ .0f, .5f });
     titleLabel->setScale(.5f);

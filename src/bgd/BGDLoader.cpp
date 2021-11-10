@@ -6,20 +6,21 @@
 #include <thread>
 #include "BGDInternal.hpp"
 
-using namespace bgd;
+USE_BGD_NAMESPACE();
 
-BGDLoader* bgd::BGDLoader::get() {
+BGDLoader* BGDLoader::get() {
     static auto g_loader = new BGDLoader;
     return g_loader;
 }
 
-void bgd::BGDLoader::createDirectories() {
+void BGDLoader::createDirectories() {
     directory_create(const_join_path_c_str<bgd_directory>);
     directory_create(const_join_path_c_str<bgd_directory, bgd_resource_directory>);
     directory_create(const_join_path_c_str<bgd_directory, bgd_plugin_directory>);
 }
 
-size_t bgd::BGDLoader::updatePlugins() {
+size_t BGDLoader::updatePlugins() {
+    std::cout << __FUNCTION__ << "\n";
     size_t loaded = 0;
     this->createDirectories();
     for (auto const& entry : std::filesystem::directory_iterator(
@@ -44,7 +45,7 @@ size_t bgd::BGDLoader::updatePlugins() {
     return loaded;
 }
 
-bool bgd::BGDLoader::isPluginLoaded(std::string const& id) {
+bool BGDLoader::isPluginLoaded(std::string const& id) {
     return vector_contains<BGDPlugin*>(
         this->m_vLoadedPlugins,
         [id](BGDPlugin* p) -> bool {
@@ -53,7 +54,7 @@ bool bgd::BGDLoader::isPluginLoaded(std::string const& id) {
     );
 }
 
-BGDPlugin* bgd::BGDLoader::getLoadedPlugin(std::string const& id) {
+BGDPlugin* BGDLoader::getLoadedPlugin(std::string const& id) {
     return vector_select<BGDPlugin*>(
         this->m_vLoadedPlugins,
         [id](BGDPlugin* p) -> bool {
@@ -62,15 +63,15 @@ BGDPlugin* bgd::BGDLoader::getLoadedPlugin(std::string const& id) {
     );
 }
 
-std::vector<BGDPlugin*> bgd::BGDLoader::getAllPlugins() {
+std::vector<BGDPlugin*> BGDLoader::getAllPlugins() {
     return this->m_vLoadedPlugins;
 }
 
-bool bgd::BGDLoader::setup() {
+bool BGDLoader::setup() {
     if (this->m_bIsSetup)
         return true;
 
-    bgd::loadConsole();
+    loadConsole();
     this->createDirectories();
     BGDInternal::get()->setup();
     this->updatePlugins();
@@ -82,56 +83,70 @@ bool bgd::BGDLoader::setup() {
     return true;
 }
 
-void bgd::BGDLoader::loadData() {
+void BGDLoader::loadData() {
     for (auto const& plugin : this->m_vLoadedPlugins) {
         plugin->loadData();
     }
 }
 
-void bgd::BGDLoader::saveData() {
+void BGDLoader::saveData() {
     for (auto const& plugin : this->m_vLoadedPlugins) {
         plugin->saveData();
     }
 }
 
-bgd::BGDLoader::BGDLoader() {}
+BGDLoader::BGDLoader() {
+    this->m_pLogStream = new BGDLogStream;
+}
 
-bgd::BGDLoader::~BGDLoader() {
+BGDLoader::~BGDLoader() {
     for (auto const& plugin : this->m_vLoadedPlugins) {
         delete plugin;
     }
-    for (auto const& error : this->m_vErrors) {
-        delete error;
+    for (auto const& log : this->m_vLogs) {
+        delete log;
     }
+    delete this->m_pLogStream;
 }
 
-void bgd::BGDLoader::throwError(BGDError const& error) {
-    auto ne = new BGDError(error);
-    this->m_vErrors.push_back(ne);
-    BGDInternal::get()->log(ne);
+void BGDLoader::log(BGDLog* log) {
+    this->m_vLogs.push_back(log);
 }
 
-std::vector<BGDError*> bgd::BGDLoader::getErrors(
+std::vector<BGDLog*> BGDLoader::getLogs() const {
+    return this->m_vLogs;
+}
+
+std::vector<BGDLogError*> BGDLoader::getErrors(
     std::initializer_list<BGDErrorType> typeFilter,
     std::initializer_list<BGDSeverity>  severityFilter
 ) {
+    std::vector<BGDLogError*> errs;
+
     if (
         !typeFilter.size() && !severityFilter.size()
-    ) return this->m_vErrors;
-
-    std::vector<BGDError*> errs;
-
-    for (auto const& err : this->m_vErrors) {
-        for (auto const& type : typeFilter) {
-            if (err->type == type) {
-                errs.push_back(err);
-                break;
-            }
+    ) {
+        for (auto const& log : this->m_vLogs) {
+            auto err = dynamic_cast<BGDLogError*>(log);
+            if (err) errs.push_back(err);
         }
-        for (auto const& severity : severityFilter) {
-            if (err->severity == severity) {
-                errs.push_back(err);
-                break;
+        return errs;
+    }
+
+    for (auto const& log : this->m_vLogs) {
+        auto err = dynamic_cast<BGDLogError*>(log);
+        if (err) {
+            for (auto const& type : typeFilter) {
+                if (err->getErrorType() == type) {
+                    errs.push_back(err);
+                    break;
+                }
+            }
+            for (auto const& severity : severityFilter) {
+                if (err->getSeverity() == severity) {
+                    errs.push_back(err);
+                    break;
+                }
             }
         }
     }

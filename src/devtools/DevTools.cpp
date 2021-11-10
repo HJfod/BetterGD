@@ -456,8 +456,8 @@ void DevTools::generateContent() {
             ImGui::EndTabItem();
         }
         if (ImGui::BeginTabItem("Console")) {
-            for (auto const& log : BGDInternal::get()->getLogs()) {
-                ImGui::TextWrapped(log.toString().c_str());
+            for (auto const& log : BGDLoader::get()->getLogs()) {
+                ImGui::TextWrapped(log->toString(true).c_str());
                 ImGui::Separator();
             }
             ImGui::EndTabItem();

@@ -2,6 +2,7 @@
 
 #include "BGDMacros.hpp"
 #include "BGDError.hpp"
+#include "BGDLog.hpp"
 #include "BGDHook.hpp"
 #include "../utils/other/ext.hpp"
 #include "../matdash/matdash.hpp"
@@ -24,7 +25,7 @@ namespace bgd {
                                    
     class BGD_DLL BGDPluginBase {
         protected:
-            const char* m_sPath;
+            std::string_view m_sPath;
             BGDPlatformInfo* m_pInfo;
             std::vector<BGDSaveManager*> m_vSaveManagers;
             std::vector<BGDHook*> m_vHooks;
@@ -39,11 +40,11 @@ namespace bgd {
 
     class BGD_DLL BGDPlugin : BGDPluginBase {
         protected:
-            const char* m_sID;
-            const char* m_sName;
-            const char* m_sDeveloper;
-            const char* m_sDescription = nullptr;
-            const char* m_sCredits = nullptr;
+            std::string_view m_sID;
+            std::string_view m_sName;
+            std::string_view m_sDeveloper;
+            std::string_view m_sDescription;
+            std::string_view m_sCredits;
 
             void platformCleanup();
 
@@ -68,16 +69,20 @@ namespace bgd {
             );
 
         public:
-            void throwError(BGDError const& error);
-
-            const char* getID()         const;
-            const char* getName()       const;
-            const char* getDeveloper()  const;
-            const char* getCredits()    const;
-            const char* getPath()       const;
-            const char* getDescription()const;
+            std::string_view getID()         const;
+            std::string_view getName()       const;
+            std::string_view getDeveloper()  const;
+            std::string_view getCredits()    const;
+            std::string_view getPath()       const;
+            std::string_view getDescription()const;
 
             BGDLogStream& log();
+            void throwError(
+                std::string_view const& info,
+                std::string_view const& fullDescription,
+                BGDSeverity severity,
+                BGDErrorType type
+            );
 
             BGDPlugin();
             virtual ~BGDPlugin();

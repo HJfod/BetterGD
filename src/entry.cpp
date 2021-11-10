@@ -1,6 +1,7 @@
 #include <BetterGD.hpp>
 
 DWORD WINAPI load_thread(LPVOID hModule) {
+    std::cout << __FUNCTION__ << "\n";
     bgd::BGDLoader::get()->setup();
     bgd::bufferConsoleInput();
     bgd::unloadConsole();

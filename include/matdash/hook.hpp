@@ -20,12 +20,12 @@ namespace bgd {
             CreateHook(uintptr_t addr, bgd::BGDPlugin* plugin) {
                 auto res = plugin->addHook<Func, CallConv>(addr);
                 if (!res) {
-                    plugin->throwError(BGDError {
+                    plugin->throwError(
                         "Error Creating Hook",
                         res.error(),
                         kBGDSeverityError,
                         kBGDErrorTypeHook
-                    });
+                    );
                 }
             }
             template<typename HookFunc>
@@ -34,15 +34,15 @@ namespace bgd {
                 auto addr_ = &addr; 
                 auto res = plugin->addHook<Func, CallConv>(addr_);
                 if (!res) {
-                    plugin->throwError(BGDError {
+                    plugin->throwError(
                         "Error Creating Hook",
                         res.error(),
                         kBGDSeverityError,
                         kBGDErrorTypeHook
-                    });
+                    );
                 }
             }
-            CreateHook(const char* module, uintptr_t addr, bgd::BGDPlugin* plugin) {
+            CreateHook(const char* module, int addr, bgd::BGDPlugin* plugin) {
                 HMODULE mod;
                 if (m_mods.count(module)) {
                     mod = m_mods[module];
@@ -51,21 +51,21 @@ namespace bgd {
                     m_mods[module] = mod;
                 }
                 if (!mod) {
-                    plugin->throwError(BGDError {
+                    plugin->throwError(
                         "Error Creating Hook",
                         "Unable to find module \""_s + module + "\"",
                         kBGDSeverityError,
                         kBGDErrorTypeHook
-                    });
+                    );
                 }
                 auto res = plugin->addHook<Func, CallConv>(as<uintptr_t>(mod) + addr);
                 if (!res) {
-                    plugin->throwError(BGDError {
+                    plugin->throwError(
                         "Error Creating Hook",
                         res.error(),
                         kBGDSeverityError,
                         kBGDErrorTypeHook
-                    });
+                    );
                 }
             }
             template<typename HookFunc>
@@ -78,23 +78,23 @@ namespace bgd {
                     m_mods[module] = mod;
                 }
                 if (!mod) {
-                    plugin->throwError(BGDError {
+                    plugin->throwError(
                         "Error Creating Hook",
                         "Unable to find module \""_s + module + "\"",
                         kBGDSeverityError,
                         kBGDErrorTypeHook
-                    });
+                    );
                 }
                 // cringe++ wont let me convert addr directly to uintptr_t
                 auto addr_ = &addr; 
                 auto res = plugin->addHook<Func, CallConv>(as<uintptr_t>(mod) + as<uintptr_t>(addr_));
                 if (!res) {
-                    plugin->throwError(BGDError {
+                    plugin->throwError(
                         "Error Creating Hook",
                         res.error(),
                         kBGDSeverityError,
                         kBGDErrorTypeHook
-                    });
+                    );
                 }
             }
             CreateHook(const char* module, const char* symbol, bgd::BGDPlugin* plugin) {
@@ -106,30 +106,30 @@ namespace bgd {
                     m_mods[module] = mod;
                 }
                 if (!mod) {
-                    plugin->throwError(BGDError {
+                    plugin->throwError(
                         "Error Creating Hook",
                         "Unable to find module \""_s + module + "\"",
                         kBGDSeverityError,
                         kBGDErrorTypeHook
-                    });
+                    );
                 }
                 auto addr = reinterpret_cast<uintptr_t>(GetProcAddress(mod, symbol));
                 if (!addr) {
-                    plugin->throwError(BGDError {
+                    plugin->throwError(
                         "Error Creating Hook",
                         "Unable to find symbol \""_s + symbol + "\" in module \""_s + module + "\"",
                         kBGDSeverityError,
                         kBGDErrorTypeHook
-                    });
+                    );
                 }
                 auto res = plugin->addHook<Func, CallConv>(addr);
                 if (!res) {
-                    plugin->throwError(BGDError {
+                    plugin->throwError(
                         "Error Creating Hook",
                         res.error(),
                         kBGDSeverityError,
                         kBGDErrorTypeHook
-                    });
+                    );
                 }
             }
     };

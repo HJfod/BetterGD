@@ -7,7 +7,7 @@ void PluginInfoLayer::setup() {
     auto winSize = CCDirector::sharedDirector()->getWinSize();
 
     auto nameLabel = CCLabelBMFont::create(
-        this->m_pPlugin->getName(), "bigFont.fnt"
+        std::string(this->m_pPlugin->getName()).c_str(), "bigFont.fnt"
     );
     nameLabel->setPosition(winSize.width / 2, winSize.height / 2 + 110.f);
     nameLabel->setScale(.7f);
@@ -28,8 +28,8 @@ void PluginInfoLayer::setup() {
     descBG->setColor(cc3x(0));
     this->m_pLayer->addChild(descBG);
 
-    std::string desc = this->m_pPlugin->getDescription() ?
-        this->m_pPlugin->getDescription() :
+    auto desc = this->m_pPlugin->getDescription().size() ?
+        std::string(this->m_pPlugin->getDescription()) :
         "[No Description Provided]";
 
     auto descLabel = TextArea::create(
@@ -47,8 +47,8 @@ void PluginInfoLayer::setup() {
     creditsBG->setColor(cc3x(0));
     this->m_pLayer->addChild(creditsBG);
 
-    std::string credits = this->m_pPlugin->getCredits() ?
-        "Credits: "_s + this->m_pPlugin->getCredits() :
+    auto credits = this->m_pPlugin->getCredits().size() ?
+        "Credits: "_s + std::string(this->m_pPlugin->getCredits()) :
         "[No Credits Provided]";
 
     auto creditsLabel = TextArea::create(
