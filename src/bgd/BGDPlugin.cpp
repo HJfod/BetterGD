@@ -79,12 +79,12 @@ void BGDPlugin::unregisterSaveManager(BGDSaveManager* manager) {
 
 void BGDPlugin::throwError(
     std::string_view const& info,
-    std::string_view const& fullDescription,
-    BGDSeverity severity,
-    BGDErrorType type
+    BGDSeverity severity
 ) {
-    auto msg = new BGDLogError(
-        std::string(info), std::string(fullDescription), severity, type, this
-    );
-    BGDLoader::get()->log(msg);
+    BGDLoader::get()->log(new BGDLogMessage(
+        std::string(info),
+        severity,
+        kBGDLogTypeError,
+        this
+    ));
 }

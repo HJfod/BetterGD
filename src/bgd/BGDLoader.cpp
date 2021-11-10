@@ -20,7 +20,6 @@ void BGDLoader::createDirectories() {
 }
 
 size_t BGDLoader::updatePlugins() {
-    std::cout << __FUNCTION__ << "\n";
     size_t loaded = 0;
     this->createDirectories();
     for (auto const& entry : std::filesystem::directory_iterator(
@@ -71,7 +70,9 @@ bool BGDLoader::setup() {
     if (this->m_bIsSetup)
         return true;
 
-    loadConsole();
+    BGD_PLATFORM_CONSOLE(
+        loadConsole();
+    )
     this->createDirectories();
     BGDInternal::get()->setup();
     this->updatePlugins();
@@ -109,47 +110,41 @@ BGDLoader::~BGDLoader() {
     delete this->m_pLogStream;
 }
 
-void BGDLoader::log(BGDLog* log) {
+void BGDLoader::log(BGDLogMessage* log) {
     this->m_vLogs.push_back(log);
 }
 
-std::vector<BGDLog*> BGDLoader::getLogs() const {
+std::vector<BGDLogMessage*> const& BGDLoader::getLogs() const {
     return this->m_vLogs;
 }
 
-std::vector<BGDLogError*> BGDLoader::getErrors(
-    std::initializer_list<BGDErrorType> typeFilter,
-    std::initializer_list<BGDSeverity>  severityFilter
+std::vector<BGDLogMessage*> BGDLoader::getLogs(
+    std::initializer_list<BGDLogType>  typeFilter,
+    std::initializer_list<BGDSeverity> severityFilter
 ) {
-    std::vector<BGDLogError*> errs;
-
     if (
         !typeFilter.size() && !severityFilter.size()
     ) {
-        for (auto const& log : this->m_vLogs) {
-            auto err = dynamic_cast<BGDLogError*>(log);
-            if (err) errs.push_back(err);
-        }
-        return errs;
+        return this->m_vLogs;
     }
+
+    std::vector<BGDLogMessage*> logs;
 
     for (auto const& log : this->m_vLogs) {
-        auto err = dynamic_cast<BGDLogError*>(log);
-        if (err) {
-            for (auto const& type : typeFilter) {
-                if (err->getErrorType() == type) {
-                    errs.push_back(err);
-                    break;
-                }
-            }
-            for (auto const& severity : severityFilter) {
-                if (err->getSeverity() == severity) {
-                    errs.push_back(err);
-                    break;
-                }
+        for (auto const& type : typeFilter) {
+            if (log->getType() == type) {
+                logs.push_back(log);
+                goto found_this;
             }
         }
+        for (auto const& severity : severityFilter) {
+            if (log->getSeverity() == severity) {
+                logs.push_back(log);
+                goto found_this;
+            }
+        }
+        found_this:;
     }
 
-    return errs;
+    return logs;
 }

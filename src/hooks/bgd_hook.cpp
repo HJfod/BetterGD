@@ -72,16 +72,13 @@ bgd::Result<> BGDPlugin::removeHook(BGDHook* hook) {
 }
 
 bool BGDInternal::loadHooks() {
-    std::cout << __FUNCTION__ << "\n";
     auto thereWereErrors = false;
     for (auto const& hook : g_hooks) {
         auto res = hook.plugin->addHookBase(hook.hook);
         if (!res) {
             hook.plugin->throwError(
-                "Error Creating Hook",
                 res.error(),
-                kBGDSeverityError,
-                kBGDErrorTypeHook
+                kBGDSeverityError
             );
             thereWereErrors = true;
         }

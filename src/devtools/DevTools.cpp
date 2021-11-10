@@ -8,6 +8,12 @@
 constexpr static auto resource_dir = const_join_path<bgd_directory, bgd_resource_directory>;
 constexpr static auto font_default = std::string_view("OpenSans-Regular.ttf");
 
+static ImFont* g_defaultFont = nullptr;
+static ImFont* g_smallFont   = nullptr;
+
+#define CHECK_IS(var, newName, type) \
+    type* newName = nullptr; if ((newName = dynamic_cast<type*>(var)))
+
 ImVec2 toVec2(const CCPoint& a) {
     const auto size = ImGui::GetMainViewport()->Size;
     const auto winSize = CCDirector::sharedDirector()->getWinSize();
@@ -91,7 +97,7 @@ void DevTools::draw() {
         auto director = CCDirector::sharedDirector();
         if (ImGui::Begin("BetterGD Dev Tools", nullptr, flags)) {
             auto& fonts = ImGui::GetIO().Fonts->Fonts;
-            ImGui::PushFont(fonts[fonts.size() - 1]);
+            ImGui::PushFont(g_defaultFont);
             if (tools->m_eMode == kDevToolsModeIntegrated) {
                 tools->resizeWindow();
             }
@@ -111,7 +117,8 @@ DevTools::DevTools() {
         BGDInternalPlugin::get()->addHookInternal(target, hook, trampoline);
     });
     ImGuiHook::setInitFunction([]() -> void {
-        ImGui::GetIO().Fonts->AddFontFromMemoryTTF(Font_OpenSans, sizeof Font_OpenSans, 18.f);
+        g_defaultFont = ImGui::GetIO().Fonts->AddFontFromMemoryTTF(Font_OpenSans, sizeof Font_OpenSans, 18.f);
+        g_smallFont   = ImGui::GetIO().Fonts->AddFontFromMemoryTTF(Font_OpenSans, sizeof Font_OpenSans, 10.f);
     });
 }
 
@@ -439,6 +446,57 @@ void DevTools::recurseUpdateList(CCNode* node, unsigned int i) {
     }
 }
 
+void DevTools::generatePluginInfo(BGDPlugin* plugin) {
+    if (ImGui::TreeNode(plugin, std::string(plugin->getName()).c_str())) {
+        ImGui::Text("Name: %s",         plugin->getName());
+        ImGui::Text("ID: %s",           plugin->getID());
+        ImGui::Text("Description: %s",  plugin->getDescription().size() ?
+                                        plugin->getDescription() :
+                                        "Not provided");
+        ImGui::Text("Developer: %s",    plugin->getDeveloper());
+        ImGui::Text("Credits: %s",      plugin->getCredits().size() ?
+                                        plugin->getCredits() :
+                                        "Not provided");
+        ImGui::Text("Hooks: %d",        plugin->getHooks().size());
+    }
+}
+
+void DevTools::logMessage(BGDLogMessage* log) {
+    ImGui::PushFont(g_smallFont);
+    ImGui::Text(log->getTimeString().c_str());
+    ImGui::PopFont();
+    auto& msgs = log->getData();
+    if (!msgs.size()) {
+        this->generatePluginInfo(log->getSender());
+    } else {
+        for (auto const& msg : msgs) {
+            CHECK_IS(msg, as_str, BGDLogString) {
+                ImGui::TextWrapped(as_str->toString().c_str());
+            }
+            CHECK_IS(msg, as_plugin, BGDLogPlugin) {
+                this->generatePluginInfo(as_plugin->getPlugin());
+            }
+            CHECK_IS(msg, as_ccobj, BGDLogCCObject) {
+                auto node = dynamic_cast<CCNode*>(as_ccobj->getObject());
+                if (node) {
+                    this->recurseUpdateList(node);
+                } else {
+                    ImGui::Text(as_ccobj->toString().c_str());
+                }
+            }
+        }
+    }
+    ImGui::PushFont(g_smallFont);
+    ImGui::Text(
+        "Type: %s, Level: %s | Logged by %s",
+        BGDLogTypeToString(log->getType()).c_str(),
+        BGDSeverityToString(log->getSeverity()).c_str(),
+        log->getSender()->getName()
+    );
+    ImGui::PopFont();
+    ImGui::Separator();
+}
+
 void DevTools::generateContent() {
     static int selected_dir = 0;
     ImGui::PushItemWidth(120.f);
@@ -457,8 +515,7 @@ void DevTools::generateContent() {
         }
         if (ImGui::BeginTabItem("Console")) {
             for (auto const& log : BGDLoader::get()->getLogs()) {
-                ImGui::TextWrapped(log->toString(true).c_str());
-                ImGui::Separator();
+                this->logMessage(log);
             }
             ImGui::EndTabItem();
         }

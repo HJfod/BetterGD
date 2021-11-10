@@ -16,7 +16,7 @@ namespace bgd {
     class BGD_DLL BGDLoader {
         protected:
             std::vector<BGDPlugin*> m_vLoadedPlugins;
-            std::vector<BGDLog*> m_vLogs;
+            std::vector<BGDLogMessage*> m_vLogs;
             BGDLogStream* m_pLogStream;
             bool m_bIsSetup = false;
 
@@ -38,11 +38,11 @@ namespace bgd {
                 return *this->m_pLogStream;
             }
 
-            void log(BGDLog* log);
-            std::vector<BGDLog*>      getLogs() const;
-            std::vector<BGDLogError*> getErrors(
-                std::initializer_list<BGDErrorType> typeFilter     = {},
-                std::initializer_list<BGDSeverity>  severityFilter = {}
+            void log(BGDLogMessage* log);
+            std::vector<BGDLogMessage*> const& getLogs() const;
+            std::vector<BGDLogMessage*> getLogs(
+                std::initializer_list<BGDLogType>  typeFilter,
+                std::initializer_list<BGDSeverity> severityFilter = {}
             );
     
             bool isPluginLoaded(std::string const& id);

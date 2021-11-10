@@ -42,10 +42,8 @@ struct InternalCreateHook {
             auto res = BGDInternalPlugin::get()->addHook<Func, CallConv>(addr);
             if (!res) {
                 BGDInternalPlugin::get()->throwError(
-                    "Error Creating Hook",
                     res.error(),
-                    kBGDSeverityError,
-                    kBGDErrorTypeHook
+                    kBGDSeverityCritical
                 );
             }
         }
@@ -56,10 +54,8 @@ struct InternalCreateHook {
             auto res = BGDInternalPlugin::get()->addHook<Func, CallConv>(addr_);
             if (!res) {
                 BGDInternalPlugin::get()->throwError(
-                    "Error Creating Hook",
                     res.error(),
-                    kBGDSeverityError,
-                    kBGDErrorTypeHook
+                    kBGDSeverityCritical
                 );
             }
         }
@@ -73,19 +69,15 @@ struct InternalCreateHook {
             }
             if (!mod) {
                 BGDInternalPlugin::get()->throwError(
-                    "Error Creating Hook",
                     "Unable to find module \""_s + module + "\"",
-                    kBGDSeverityError,
-                    kBGDErrorTypeHook
+                    kBGDSeverityCritical
                 );
             }
             auto res = BGDInternalPlugin::get()->addHook<Func, CallConv>(as<uintptr_t>(mod) + addr);
             if (!res) {
                 BGDInternalPlugin::get()->throwError(
-                    "Error Creating Hook",
                     res.error(),
-                    kBGDSeverityError,
-                    kBGDErrorTypeHook
+                    kBGDSeverityCritical
                 );
             }
         }
@@ -100,10 +92,8 @@ struct InternalCreateHook {
             }
             if (!mod) {
                 BGDInternalPlugin::get()->throwError(
-                    "Error Creating Hook",
                     "Unable to find module \""_s + module + "\"",
-                    kBGDSeverityError,
-                    kBGDErrorTypeHook
+                    kBGDSeverityCritical
                 );
             }
             // cringe++ wont let me convert addr directly to uintptr_t
@@ -111,10 +101,8 @@ struct InternalCreateHook {
             auto res = BGDInternalPlugin::get()->addHook<Func, CallConv>(as<uintptr_t>(mod) + as<uintptr_t>(addr_));
             if (!res) {
                 BGDInternalPlugin::get()->throwError(
-                    "Error Creating Hook",
                     res.error(),
-                    kBGDSeverityError,
-                    kBGDErrorTypeHook
+                    kBGDSeverityCritical
                 );
             }
         }
@@ -128,28 +116,22 @@ struct InternalCreateHook {
             }
             if (!mod) {
                 BGDInternalPlugin::get()->throwError(
-                    "Error Creating Hook",
                     "Unable to find module \""_s + module + "\"",
-                    kBGDSeverityError,
-                    kBGDErrorTypeHook
+                    kBGDSeverityCritical
                 );
             }
             auto addr = reinterpret_cast<uintptr_t>(GetProcAddress(mod, symbol));
             if (!addr) {
                 BGDInternalPlugin::get()->throwError(
-                    "Error Creating Hook",
                     "Unable to find symbol \""_s + symbol + "\" in module \""_s + module + "\"",
-                    kBGDSeverityError,
-                    kBGDErrorTypeHook
+                    kBGDSeverityCritical
                 );
             }
             auto res = BGDInternalPlugin::get()->addHook<Func, CallConv>(addr);
             if (!res) {
                 BGDInternalPlugin::get()->throwError(
-                    "Error Creating Hook",
                     res.error(),
-                    kBGDSeverityError,
-                    kBGDErrorTypeHook
+                    kBGDSeverityCritical
                 );
             }
         }

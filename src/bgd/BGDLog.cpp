@@ -11,106 +11,39 @@ BGDLogCCObject::~BGDLogCCObject() {
     }
 }
 
-BGDLogMany::~BGDLogMany() {
-    for (auto const& log : this->m_vLogs) {
+BGDLogMessage::~BGDLogMessage() {
+    for (auto const& log : this->m_vData) {
         delete log;
     }
 }
 
-std::string BGDLogError::toString(bool logTime) const {
-    std::stringstream res;
-
-    if (this->m_pPlugin) {
-        std::cout << this->m_pPlugin->getName() << "\n";
-        res << std::string(this->m_pPlugin->getName()) << ": ";
-    }
-    res << BGDSeverityToString(this->m_eSeverity);
-    if (this->m_eSeverity != kBGDSeverityError) {
-        res << " Error ";
-    }
-    if (logTime) {
-        res << " at " << timePointAsString(this->m_obTime);
-    }
-    res << ": " << this->m_sDescription;
-
-    return res.str();
+std::string BGDLogString::toString() const {
+    return this->m_sString;
 }
 
-std::string BGDLogError::toShortString() const {
-    return BGDSeverityToString(this->m_eSeverity) + ": "_s + this->m_sDescription;
+std::string BGDLogPlugin::toString() const {
+    return "[ " + std::string(this->m_pPlugin->getName()) + " ]";
+}
+
+std::string BGDLogCCObject::toString() const {
+    return "{ " + std::string(getNodeName(this->m_pObj)) + " }";
 }
 
 std::string BGDLogMessage::toString(bool logTime) const {
     std::stringstream res;
 
-    if (this->m_pPlugin) {
-        res << this->m_pPlugin->getName() << ": ";
+    if (this->m_pSender) {
+        res << this->m_pSender->getName();
     }
     if (logTime) {
         res << " at " << timePointAsString(this->m_obTime);
     }
-    res << ": " << this->m_sMessage;
-
-    return res.str();
-}
-
-std::string BGDLogMessage::toShortString() const {
-    return this->m_sMessage;
-}
-
-std::string BGDLogPlugin::toString(bool logTime) const {
-    std::stringstream res;
-
-    if (this->m_pPlugin) {
-        res << " { " << this->m_pPlugin->getName() << " } ";
-    }
-    if (logTime) {
-        res << " at " << timePointAsString(this->m_obTime);
+    res << ": ";
+    for (auto const& log : this->m_vData) {
+        res << " " << log->toString();
     }
 
     return res.str();
-}
-
-std::string BGDLogPlugin::toShortString() const {
-    return std::string(this->m_pPlugin->getName());
-}
-
-std::string BGDLogCCObject::toString(bool logTime) const {
-    std::stringstream res;
-
-    if (this->m_pPlugin) {
-        res << this->m_pPlugin->getName() << ": ";
-    }
-    if (logTime) {
-        res << " at " << timePointAsString(this->m_obTime);
-    }
-    res << ": " << getNodeName(this->m_pObj);
-
-    return res.str();
-}
-
-std::string BGDLogCCObject::toShortString() const {
-    return "["_s + getNodeName(this->m_pObj) + "]"_s;
-}
-
-std::string BGDLogMany::toString(bool logTime) const {
-    std::stringstream res;
-
-    if (this->m_pPlugin) {
-        res << this->m_pPlugin->getName() << ": ";
-    }
-    if (logTime) {
-        res << " at " << timePointAsString(this->m_obTime);
-    }
-    for (auto const& log : this->m_vLogs) {
-        res << " " << log->toShortString();
-    }
-
-    return res.str();
-}
-
-std::string BGDLogMany::toShortString() const {
-    return this->toString();
 }
 
 void BGDLogStream::init() {
@@ -119,33 +52,56 @@ void BGDLogStream::init() {
     }
 }
 
+void BGDLogStream::save() {
+    if (this->m_pLog && this->m_sStream.str().size()) {
+        this->m_pLog->add(new BGDLogString(this->m_sStream.str()));
+        this->m_sStream.str(std::string());
+    }
+}
+
+void BGDLogStream::finish() {
+    this->init();
+    this->save();
+
+    BGDLoader::get()->log(this->m_pLog);
+
+    BGD_PLATFORM_CONSOLE(
+        std::cout << this->m_pLog->toString(true) << "\n";
+    )
+
+    // BGDLoader manages this memory now
+    this->m_pLog = nullptr;
+    this->m_sStream.str(std::string());
+}
+
 BGDLogStream& BGDLogStream::operator<<(bgd::BGDPlugin* plugin) {
+    this->save();
     if (!this->m_pLog) {
-        this->m_pLog = new BGDLogPlugin(plugin);
-    } else if (!this->m_pLog->m_pPlugin) {
-        this->m_pLog->m_pPlugin = plugin;
-    } else if (dynamic_cast<BGDLogMany*>(this->m_pLog)) {
-        dynamic_cast<BGDLogMany*>(this->m_pLog)->add(new BGDLogPlugin(plugin));
+        this->m_pLog = new BGDLogMessage(plugin);
+    } else if (!this->m_pLog->m_pSender) {
+        this->m_pLog->m_pSender = plugin;
     } else {
-        auto old = this->m_pLog;
-        this->m_pLog = new BGDLogMany({ old, new BGDLogPlugin(plugin) }, old->m_pPlugin);
+        this->m_pLog->add(new BGDLogPlugin(plugin));
     }
     return *this;
 }
 
 BGDLogStream& BGDLogStream::operator<<(cocos2d::CCObject* obj) {
-    if (!this->m_pLog) {
-        this->m_pLog = new BGDLogCCObject(obj, nullptr);
-    } else if (dynamic_cast<BGDLogPlugin*>(this->m_pLog)) {
-        auto old = this->m_pLog;
-        this->m_pLog = new BGDLogCCObject(obj, old->m_pPlugin);
-        delete old;
-    } else if (dynamic_cast<BGDLogMany*>(this->m_pLog)) {
-        dynamic_cast<BGDLogMany*>(this->m_pLog)->add(new BGDLogCCObject(obj, nullptr));
-    } else {
-        auto old = this->m_pLog;
-        this->m_pLog = new BGDLogMany({ old, new BGDLogCCObject(obj, old->m_pPlugin) }, old->m_pPlugin);
-    }
+    this->save();
+    this->init();
+    this->m_pLog->add(new BGDLogCCObject(obj));
+    return *this;
+}
+
+BGDLogStream& BGDLogStream::operator<<(BGDSeverity severity) {
+    this->init();
+    this->m_pLog->m_eSeverity = severity;
+    return *this;
+}
+
+BGDLogStream& BGDLogStream::operator<<(BGDLogType type) {
+    this->init();
+    this->m_pLog->m_eType = type;
     return *this;
 }
 
@@ -204,30 +160,7 @@ BGDLogStream& BGDLogStream::operator<<(cocos2d::CCRect const& rect) {
 }
 
 BGDLogStream& BGDLogStream::operator<<(bgd::endl_type) {
-    if (!this->m_pLog) {
-        this->m_pLog = new BGDLogMessage(this->m_sStream.str(), nullptr);
-    } else if (dynamic_cast<BGDLogMessage*>(this->m_pLog)) {
-        dynamic_cast<BGDLogMessage*>(this->m_pLog)->m_sMessage = this->m_sStream.str();
-    } else if (dynamic_cast<BGDLogMany*>(this->m_pLog)) {
-        dynamic_cast<BGDLogMany*>(this->m_pLog)->add(new BGDLogMessage(this->m_sStream.str(), nullptr));
-    } else {
-        auto old = this->m_pLog;
-        this->m_pLog = new BGDLogMany({
-            old,
-            new BGDLogMessage(this->m_sStream.str(), old->m_pPlugin)
-        }, old->m_pPlugin);
-    }
-
-    BGDLoader::get()->log(this->m_pLog);
-
-    BGD_PLATFORM_CONSOLE(
-        std::cout << this->m_pLog->toString(true) << "\n";
-    )
-
-    // BGDLoader manages this memory now
-    this->m_pLog = nullptr;
-    this->m_sStream.str(std::string());
-
+    this->finish();
     return *this;
 }
 

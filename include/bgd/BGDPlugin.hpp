@@ -1,7 +1,6 @@
 #pragma once
 
 #include "BGDMacros.hpp"
-#include "BGDError.hpp"
 #include "BGDLog.hpp"
 #include "BGDHook.hpp"
 #include "../utils/other/ext.hpp"
@@ -79,9 +78,7 @@ namespace bgd {
             BGDLogStream& log();
             void throwError(
                 std::string_view const& info,
-                std::string_view const& fullDescription,
-                BGDSeverity severity,
-                BGDErrorType type
+                BGDSeverity severity
             );
 
             BGDPlugin();

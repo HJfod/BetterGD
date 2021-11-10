@@ -1,84 +1,94 @@
 #pragma once
 
 #include <utils/gd/include_gd.hpp>
-#include "BGDPlugin.hpp"
-#include "BGDError.hpp"
+#include <utils/other/general.hpp>
 
 namespace bgd {
     class BGDPlugin;
     class BGDLogStream;
 
+    using log_clock = std::chrono::system_clock;
+
+    enum BGDSeverity {
+        kBGDSeverityDebug,      // no need to even pay attention
+        kBGDSeverityInfo,       // fyi :)
+        kBGDSeverityNotice,     // hmm
+        kBGDSeverityWarning,    // oh shit
+        kBGDSeverityError,      // oh fuck
+        kBGDSeverityCritical,   // oh god oh fuck
+        kBGDSeverityAlert,      // panic
+        kBGDSeverityEmergency,  // !!!!!!!!!!!!!
+    };
+
+    static std::string BGDSeverityToString(BGDSeverity severity) {
+        switch (severity) {
+            case kBGDSeverityDebug:     return "Debug";
+            case kBGDSeverityInfo:      return "Info";
+            case kBGDSeverityNotice:    return "Notice";
+            case kBGDSeverityWarning:   return "Warning";
+            case kBGDSeverityError:     return "Error";
+            case kBGDSeverityCritical:  return "Critical";
+            case kBGDSeverityAlert:     return "Alert";
+            case kBGDSeverityEmergency: return "Emergency";
+            default:                    return "Unknown";
+        }
+    }
+
+    enum BGDLogType {
+        kBGDLogTypeGeneral,
+        kBGDLogTypeError,
+        kBGDLogTypeData,
+    };
+
+    static std::string BGDLogTypeToString(BGDLogType type) {
+        switch (type) {
+            case kBGDLogTypeGeneral:        return "General";
+            case kBGDLogTypeError:          return "Error";
+            case kBGDLogTypeData:           return "Data";
+            default:                        return "Unknown";
+        }
+    }
+
     class BGD_DLL BGDLog {
         protected:
-            BGDPlugin* m_pPlugin;
-            std::chrono::system_clock::time_point m_obTime;
-
             friend class BGDLogStream;
 
         public:
-            virtual std::string toString(bool logTime) const = 0;
-            virtual std::string toShortString() const = 0;
+            virtual std::string toString() const = 0;
 
             virtual ~BGDLog();
-
-            BGDLog() :
-                m_pPlugin(nullptr),
-                m_obTime(std::chrono::system_clock::now()) {}
-            BGDLog(BGDPlugin* plugin) :
-                m_pPlugin(plugin),
-                m_obTime(std::chrono::system_clock::now()) {}
     };
 
     class BGD_DLL BGDLogPlugin : public BGDLog {
         protected:
+            BGDPlugin* m_pPlugin;
+
             friend class BGDLogStream;
         
         public:
             BGDLogPlugin(BGDPlugin* plugin) :
-                BGDLog(plugin) {}
+                m_pPlugin(plugin) {}
+            
+            inline BGDPlugin* getPlugin() const {
+                return m_pPlugin;
+            }
 
-            std::string toString(bool logTime = false) const override;
-            std::string toShortString() const override;
+            std::string toString() const override;
     };
 
-    class BGD_DLL BGDLogError : public BGDLog {
+    class BGD_DLL BGDLogString : public BGDLog {
         protected:
-            std::string m_sInfo;
-            std::string m_sDescription;
-            BGDSeverity m_eSeverity;
-            BGDErrorType m_eType;
+            std::string m_sString;
 
             friend class BGDLogStream;
 
         public:
-            std::string toString(bool logTime = true) const override;
-            std::string toShortString() const override;
+            std::string toString() const override;
 
-            inline BGDSeverity getSeverity() const {
-                return m_eSeverity;
-            }
-            inline BGDErrorType getErrorType() const {
-                return m_eType;
-            }
-            inline std::string const& getDescription() const {
-                return m_sDescription;
-            }
-            inline std::string const& getInfo() const {
-                return m_sInfo;
-            }
-
-            BGDLogError() = default;
-            BGDLogError(
-                std::string const& info,
-                std::string const& fullDescription,
-                BGDSeverity severity,
-                BGDErrorType type,
-                BGDPlugin* plugin
-            ) : m_sInfo(info),
-                m_sDescription(fullDescription),
-                m_eSeverity(severity),
-                m_eType(type),
-                BGDLog(plugin) {}
+            BGDLogString() = default;
+            BGDLogString(
+                std::string const& str
+            ) : m_sString(str) {}
     };
 
     class BGD_DLL BGDLogCCObject : public BGDLog {
@@ -90,56 +100,82 @@ namespace bgd {
         public:
             BGDLogCCObject() = default;
             BGDLogCCObject(
-                cocos2d::CCObject* obj,
-                BGDPlugin* plugin
-            ) : m_pObj(obj),
-                BGDLog(plugin) {
+                cocos2d::CCObject* obj
+            ) : m_pObj(obj) {
                 obj->retain();
             }
             ~BGDLogCCObject();
+
+            inline cocos2d::CCObject* getObject() { return m_pObj; }
             
-            std::string toString(bool logTime = false) const override;
-            std::string toShortString() const override;
+            std::string toString() const override;
     };
 
-    class BGD_DLL BGDLogMessage : public BGDLog {
+    class BGD_DLL BGDLogMessage {
         protected:
-            std::string m_sMessage;
+            BGDPlugin* m_pSender            = nullptr;
+            log_clock::time_point m_obTime  = log_clock::now();
+            std::vector<BGDLog*> m_vData    = {};
+            BGDSeverity m_eSeverity         = kBGDSeverityDebug;
+            BGDLogType  m_eType             = kBGDLogTypeGeneral;
 
             friend class BGDLogStream;
         
         public:
             BGDLogMessage() = default;
+
             BGDLogMessage(
-                std::string const& msg,
                 BGDPlugin* plugin
-            ) : BGDLog(plugin),
-                m_sMessage(msg) {}
+            ) : m_pSender(plugin) {}
 
-            std::string toString(bool logTime = true) const override;
-            std::string toShortString() const override;
-    };
-
-    class BGD_DLL BGDLogMany : public BGDLog {
-        protected:
-            std::vector<BGDLog*> m_vLogs;
-
-            friend class BGDLogStream;
-
-        public:
-            BGDLogMany(
-                std::vector<BGDLog*> const& logs,
+            BGDLogMessage(
+                std::string data,
                 BGDPlugin* plugin
-            ) : BGDLog(plugin),
-                m_vLogs(logs) {}
-            virtual ~BGDLogMany();
-            
-            inline void add(BGDLog* log) {
-                this->m_vLogs.push_back(log);
+            ) : m_vData({ new BGDLogString(data) }),
+                m_pSender(plugin) {}
+
+            BGDLogMessage(
+                std::string data,
+                BGDSeverity severity,
+                BGDLogType type,
+                BGDPlugin* plugin
+            ) : m_vData({ new BGDLogString(data) }),
+                m_eSeverity(severity),
+                m_eType(type),
+                m_pSender(plugin) {}
+
+            BGDLogMessage(
+                std::initializer_list<BGDLog*> data,
+                BGDPlugin* plugin
+            ) : m_pSender(plugin),
+                m_vData(data) {}
+
+            ~BGDLogMessage();
+
+            inline void add(BGDLog* msg) {
+                this->m_vData.push_back(msg);
             }
 
-            std::string toString(bool logTime = false) const override;
-            std::string toShortString() const override;
+            inline log_clock::time_point getTime() const {
+                return this->m_obTime;
+            }
+            inline std::string getTimeString() const {
+                return timePointAsString(this->m_obTime);
+            }
+            inline BGDLogType getType() const {
+                return this->m_eType;
+            }
+            inline BGDPlugin* getSender() const {
+                return this->m_pSender;
+            }
+            inline BGDSeverity getSeverity() const {
+                return this->m_eSeverity;
+            }
+            inline std::vector<BGDLog*> const& getData() const {
+                return this->m_vData;
+            }
+
+            std::string toString(bool logTime = true) const;
     };
 
     struct endl_type {
@@ -149,14 +185,18 @@ namespace bgd {
 
     class BGD_DLL BGDLogStream {
         protected:
-            BGDLog* m_pLog = nullptr;
+            BGDLogMessage* m_pLog = nullptr;
             std::stringstream m_sStream;
 
             void init();
+            void save();
+            void finish();
 
         public:
             BGDLogStream& operator<<(BGDPlugin*);
             BGDLogStream& operator<<(void*);
+            BGDLogStream& operator<<(BGDSeverity);
+            BGDLogStream& operator<<(BGDLogType);
             BGDLogStream& operator<<(cocos2d::CCObject*);
             BGDLogStream& operator<<(std::string const&);
             BGDLogStream& operator<<(const char*);

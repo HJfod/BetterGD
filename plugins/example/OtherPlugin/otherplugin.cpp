@@ -16,6 +16,14 @@ class OtherPlugin : public bgd::BGDPlugin {
         BGD_PLUGIN_GET(OtherPlugin);
 };
 
+
+
+
+
+
+
+
+
 bool GJGarageLayer_init(GJGarageLayer* self) {
     if (!bgd::hook::orig<&GJGarageLayer_init>(self))
         return false;
@@ -26,9 +34,27 @@ bool GJGarageLayer_init(GJGarageLayer* self) {
         OtherPlugin::get()->log() << "MyPlugin is not loaded :(" << bgd::endl;
     }
 
+    // log a CCNode to the console
+    OtherPlugin::get()->log() << "hey check out this node: " << getChild<CCNode*>(self, 6) << bgd::endl;
+    
+    // log GJGarageLayer to the console
+    OtherPlugin::get()->log() << self << bgd::endl;
+
+    // log the plugin itself (empty log)
+    OtherPlugin::get()->log() << bgd::endl;
+
     return true;
 }
 static CreateHook<&GJGarageLayer_init>$gjgli(base + 0x1255d0, OtherPlugin::get());
+
+
+
+
+
+
+
+
+
 
 BGD_LOAD(OtherPlugin);
 

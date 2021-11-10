@@ -31,10 +31,12 @@ class DevTools {
         void loadStyle();
         void reloadStyle();
         void recurseUpdateList(CCNode* parent, unsigned int = 0);
+        void generatePluginInfo(BGDPlugin* plugin);
         void generateContent();
         float getSceneScale();
         void resizeWindow();
         void updateVisibility(DevToolsMode, DevToolsMount = kDevToolsMountWest);
+        void logMessage(BGDLogMessage* msg);
 
         static void draw();
 
