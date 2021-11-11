@@ -28,6 +28,8 @@ class BGDInternalPlugin : public BGDPlugin {
     protected:
         void setup() override;
     
+        BGDInternalPlugin();
+
     public:
         static BGDInternalPlugin* get();
 };

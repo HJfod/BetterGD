@@ -16,16 +16,22 @@ enum DevToolsMount {
     kDevToolsMountSouth,
 };
 
+enum DevToolsTheme {
+    kDevToolsThemeLight,
+    kDevToolsThemeDark,
+};
+
 class DevTools {
     protected:
-        bool m_bVisible     = false;
-        bool m_bLoadedStyle = false;
-        float m_fWidth      = 200.f;
-        float m_fHeight     = 100.f;
-        float m_fPadding    = 20.f;
+        bool m_bVisible         = false;
+        bool m_bLoadedStyle     = false;
+        float m_fWidth          = 200.f;
+        float m_fHeight         = 100.f;
+        float m_fPadding        = 20.f;
         CCSize m_obPopoutSize   = { 200.f, 200.f };
-        DevToolsMode m_eMode    = kDevToolsModeIntegrated;
+        DevToolsMode  m_eMode   = kDevToolsModeIntegrated;
         DevToolsMount m_eMount  = kDevToolsMountWest;
+        DevToolsTheme m_eTheme  = kDevToolsThemeDark;
 
         void showAnimation(CCScene*, bool transition);
         void loadStyle();
@@ -37,6 +43,7 @@ class DevTools {
         void resizeWindow();
         void updateVisibility(DevToolsMode, DevToolsMount = kDevToolsMountWest);
         void logMessage(BGDLogMessage* msg);
+        void loadTheme(DevToolsTheme theme);
 
         static void draw();
 

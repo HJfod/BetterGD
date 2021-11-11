@@ -66,10 +66,16 @@ BGDInternal* BGDInternal::get() {
     return g_int;
 }
 
+BGDInternalPlugin::BGDInternalPlugin() : BGDPlugin() {
+    this->setup();
+}
+
 void BGDInternalPlugin::setup() {
+    std::cout << "setup internal\n";
     this->m_sID = "hjfod.bettergd";
     this->m_sName = "BetterGD";
     this->m_sDeveloper = "HJfod";
+    this->m_sDescription = "Internal representation of BetterGD";
 }
 
 BGDInternalPlugin* BGDInternalPlugin::get() {

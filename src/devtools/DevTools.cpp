@@ -160,59 +160,15 @@ void DevTools::loadStyle() {
     style->ScrollbarRounding = 3;
     style->GrabRounding      = 2;
     style->ItemSpacing.x     = 10;
-    style->ItemSpacing.y     = 4;
+    style->ItemSpacing.y     = 6;
     style->IndentSpacing     = 22;
     style->FramePadding.x    = 6;
     style->FramePadding.y    = 4;
     style->Alpha             = 1.0f;
     style->FrameRounding     = 3.0f;
+    style->WindowPadding     = { 2.f, 2.f };
 
-    colors[ImGuiCol_Text]                  = ImVec4(0.00f, 0.00f, 0.00f, 1.00f);
-    colors[ImGuiCol_TextDisabled]          = ImVec4(0.60f, 0.60f, 0.60f, 1.00f);
-    colors[ImGuiCol_WindowBg]              = ImVec4(0.86f, 0.86f, 0.86f, 1.00f);
-    colors[ImGuiCol_ChildBg]               = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
-    colors[ImGuiCol_PopupBg]               = ImVec4(0.93f, 0.93f, 0.93f, 0.98f);
-    if (this->m_eMode == kDevToolsModeIntegrated) {
-        colors[ImGuiCol_Border]            = colors[ImGuiCol_WindowBg];
-        colors[ImGuiCol_BorderShadow]      = colors[ImGuiCol_WindowBg];
-    } else {
-        colors[ImGuiCol_Border]            = ImVec4(0.71f, 0.71f, 0.71f, 0.08f);
-        colors[ImGuiCol_BorderShadow]      = ImVec4(0.00f, 0.00f, 0.00f, 0.04f);
-    }
-    colors[ImGuiCol_FrameBg]               = ImVec4(0.71f, 0.71f, 0.71f, 0.55f);
-    colors[ImGuiCol_FrameBgHovered]        = ImVec4(0.94f, 0.94f, 0.94f, 0.55f);
-    colors[ImGuiCol_FrameBgActive]         = ImVec4(0.71f, 0.78f, 0.69f, 0.98f);
-    colors[ImGuiCol_TitleBg]               = ImVec4(0.85f, 0.85f, 0.85f, 1.00f);
-    colors[ImGuiCol_TitleBgCollapsed]      = ImVec4(0.82f, 0.78f, 0.78f, 0.51f);
-    colors[ImGuiCol_TitleBgActive]         = ImVec4(0.78f, 0.78f, 0.78f, 1.00f);
-    colors[ImGuiCol_MenuBarBg]             = ImVec4(0.86f, 0.86f, 0.86f, 1.00f);
-    colors[ImGuiCol_ScrollbarBg]           = ImVec4(0.20f, 0.25f, 0.30f, 0.61f);
-    colors[ImGuiCol_ScrollbarGrab]         = ImVec4(0.90f, 0.90f, 0.90f, 0.30f);
-    colors[ImGuiCol_ScrollbarGrabHovered]  = ImVec4(0.92f, 0.92f, 0.92f, 0.78f);
-    colors[ImGuiCol_ScrollbarGrabActive]   = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
-    colors[ImGuiCol_CheckMark]             = ImVec4(0.184f, 0.407f, 0.193f, 1.00f);
-    colors[ImGuiCol_SliderGrab]            = ImVec4(0.26f, 0.59f, 0.98f, 0.78f);
-    colors[ImGuiCol_SliderGrabActive]      = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
-    colors[ImGuiCol_Button]                = ImVec4(0.71f, 0.78f, 0.69f, 0.40f);
-    colors[ImGuiCol_ButtonHovered]         = ImVec4(0.725f, 0.805f, 0.702f, 1.00f);
-    colors[ImGuiCol_ButtonActive]          = ImVec4(0.793f, 0.900f, 0.836f, 1.00f);
-    colors[ImGuiCol_Header]                = ImVec4(0.71f, 0.78f, 0.69f, 0.31f);
-    colors[ImGuiCol_HeaderHovered]         = ImVec4(0.71f, 0.78f, 0.69f, 0.80f);
-    colors[ImGuiCol_HeaderActive]          = ImVec4(0.71f, 0.78f, 0.69f, 1.00f);
-    colors[ImGuiCol_Separator]             = ImVec4(0.39f, 0.39f, 0.39f, 1.00f);
-    colors[ImGuiCol_SeparatorHovered]      = ImVec4(0.14f, 0.44f, 0.80f, 0.78f);
-    colors[ImGuiCol_SeparatorActive]       = ImVec4(0.14f, 0.44f, 0.80f, 1.00f);
-    colors[ImGuiCol_ResizeGrip]            = ImVec4(1.00f, 1.00f, 1.00f, 0.00f);
-    colors[ImGuiCol_ResizeGripHovered]     = ImVec4(0.26f, 0.59f, 0.98f, 0.45f);
-    colors[ImGuiCol_ResizeGripActive]      = ImVec4(0.26f, 0.59f, 0.98f, 0.78f);
-    colors[ImGuiCol_PlotLines]             = ImVec4(0.39f, 0.39f, 0.39f, 1.00f);
-    colors[ImGuiCol_PlotLinesHovered]      = ImVec4(1.00f, 0.43f, 0.35f, 1.00f);
-    colors[ImGuiCol_PlotHistogram]         = ImVec4(0.90f, 0.70f, 0.00f, 1.00f);
-    colors[ImGuiCol_PlotHistogramHovered]  = ImVec4(1.00f, 0.60f, 0.00f, 1.00f);
-    colors[ImGuiCol_TextSelectedBg]        = ImVec4(0.26f, 0.59f, 0.98f, 0.35f);
-    colors[ImGuiCol_DragDropTarget]        = ImVec4(0.26f, 0.59f, 0.98f, 0.95f);
-    colors[ImGuiCol_NavHighlight]          = colors[ImGuiCol_HeaderHovered];
-    colors[ImGuiCol_NavWindowingHighlight] = ImVec4(0.70f, 0.70f, 0.70f, 0.70f);
+    this->loadTheme(this->m_eTheme);
 }
 
 void DevTools::reloadStyle() {
@@ -448,16 +404,43 @@ void DevTools::recurseUpdateList(CCNode* node, unsigned int i) {
 
 void DevTools::generatePluginInfo(BGDPlugin* plugin) {
     if (ImGui::TreeNode(plugin, std::string(plugin->getName()).c_str())) {
-        ImGui::Text("Name: %s",         plugin->getName());
-        ImGui::Text("ID: %s",           plugin->getID());
-        ImGui::Text("Description: %s",  plugin->getDescription().size() ?
+        ImGui::TextWrapped("Name: %s",         plugin->getName());
+        ImGui::TextWrapped("ID: %s",           plugin->getID());
+        ImGui::TextWrapped("Description: %s",  plugin->getDescription().size() ?
                                         plugin->getDescription() :
                                         "Not provided");
-        ImGui::Text("Developer: %s",    plugin->getDeveloper());
-        ImGui::Text("Credits: %s",      plugin->getCredits().size() ?
+        ImGui::TextWrapped("Developer: %s",    plugin->getDeveloper());
+        ImGui::TextWrapped("Credits: %s",      plugin->getCredits().size() ?
                                         plugin->getCredits() :
                                         "Not provided");
-        ImGui::Text("Hooks: %d",        plugin->getHooks().size());
+
+        if (ImGui::TreeNode(cstrfmt("Hooks: %d", plugin->getHooks().size()))) {
+            for (auto const& hook : plugin->getHooks()) {
+                auto info = BGDHookInfo(hook);
+                if (ImGui::TreeNode(info.formatted().c_str())) {
+                    ImGui::TextWrapped(info.formattedDetails().c_str());
+                    if (hook->isEnabled()) {
+                        if (ImGui::Button("Disable")) {
+                            plugin->disableHook(hook);
+                        }
+                    } else {
+                        if (ImGui::Button("Enable")) {
+                            plugin->enableHook(hook);
+                        }
+                    }
+                    ImGui::TreePop();
+                }
+            }
+            ImGui::TreePop();
+        }
+
+        if (!dynamic_cast<BGDInternalPlugin*>(plugin)) {
+            ImGui::Button("Reload");
+            ImGui::SameLine();
+            ImGui::Button("Unload");
+        }
+
+        ImGui::TreePop();
     }
 }
 
@@ -465,6 +448,12 @@ void DevTools::logMessage(BGDLogMessage* log) {
     ImGui::PushFont(g_smallFont);
     ImGui::Text(log->getTimeString().c_str());
     ImGui::PopFont();
+    ImGui::SameLine(ImGui::GetWindowWidth() - 30);
+    if (ImGui::Button(("X##log.delete=" + log->toString()).c_str())) {
+        std::cout << "delete log\n";
+        BGDLoader::get()->deleteLog(log);
+        return;
+    }
     auto& msgs = log->getData();
     if (!msgs.size()) {
         this->generatePluginInfo(log->getSender());
@@ -500,15 +489,22 @@ void DevTools::logMessage(BGDLogMessage* log) {
 void DevTools::generateContent() {
     static int selected_dir = 0;
     ImGui::PushItemWidth(120.f);
-    if (ImGui::Combo("", &selected_dir, "Dock to Left\0Dock to Right\0Dock to Top\0Dock to Bottom\0Pop-out\0")) {
+    if (ImGui::Combo("##dev.dock", &selected_dir, "Dock to Left\0Dock to Right\0Dock to Top\0Dock to Bottom\0Pop-out\0")) {
         if (selected_dir == 4) {
             this->updateVisibility(kDevToolsModePopup);
         } else {
             this->updateVisibility(kDevToolsModeIntegrated, static_cast<DevToolsMount>(selected_dir));
         }
     }
+    ImGui::SameLine();
+    static int selected_theme = kDevToolsThemeDark;
+    ImGui::PushItemWidth(120.f);
+    if (ImGui::Combo("##dev.theme", &selected_theme, "Light\0Dark\0")) {
+        this->m_eTheme = static_cast<DevToolsTheme>(selected_theme);
+        this->reloadStyle();
+    }
     ImGui::Separator();
-    if (ImGui::BeginTabBar("dev.tabs")) {
+    if (ImGui::BeginTabBar("dev.tabs", ImGuiTabBarFlags_Reorderable)) {
         if (ImGui::BeginTabItem("Tree")) {
             this->recurseUpdateList(CCDirector::sharedDirector()->getRunningScene());
             ImGui::EndTabItem();
@@ -516,6 +512,13 @@ void DevTools::generateContent() {
         if (ImGui::BeginTabItem("Console")) {
             for (auto const& log : BGDLoader::get()->getLogs()) {
                 this->logMessage(log);
+            }
+            ImGui::EndTabItem();
+        }
+        if (ImGui::BeginTabItem("Plugins")) {
+            this->generatePluginInfo(BGDInternalPlugin::get());
+            for (auto const& plugin : BGDLoader::get()->getAllPlugins()) {
+                this->generatePluginInfo(plugin);
             }
             ImGui::EndTabItem();
         }

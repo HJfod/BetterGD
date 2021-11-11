@@ -39,6 +39,7 @@ namespace bgd {
             }
 
             void log(BGDLogMessage* log);
+            void deleteLog(BGDLogMessage* log);
             std::vector<BGDLogMessage*> const& getLogs() const;
             std::vector<BGDLogMessage*> getLogs(
                 std::initializer_list<BGDLogType>  typeFilter,

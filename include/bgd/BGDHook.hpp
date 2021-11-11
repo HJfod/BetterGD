@@ -1,6 +1,8 @@
 #pragma once
 
+#include "BGDMacros.hpp"
 #include <inttypes.h>
+#include <string>
 
 class BGDInternal;
 
@@ -9,6 +11,19 @@ namespace bgd {
 
     class BGDPluginBase;
     class BGDPlugin;
+    class BGDHook;
+
+    struct BGDHookInfo {
+        const BGDHook* hook;
+        std::string    module;
+
+        BGDHookInfo() = delete;
+        BGDHookInfo(BGDHookInfo const&) = delete;
+        BGDHookInfo(BGDHook* hook);
+
+        std::string formatted() const;
+        std::string formattedDetails() const;
+    };
 
     class BGD_DLL BGDHook {
         private:
@@ -20,6 +35,7 @@ namespace bgd {
             friend class BGDPlugin;
             friend class BGDPluginBase;
             friend class BGDInternal;
+            friend struct BGDHookInfo;
 
         public:
             inline address_t getAddress() const {

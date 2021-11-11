@@ -6,6 +6,7 @@ USE_BGD_NAMESPACE();
 BGDLog::~BGDLog() {}
 
 BGDLogCCObject::~BGDLogCCObject() {
+    std::cout << __FUNCTION__ << "\n";
     if (this->m_pObj) {
         this->m_pObj->release();
     }
@@ -38,7 +39,7 @@ std::string BGDLogMessage::toString(bool logTime) const {
     if (logTime) {
         res << " at " << timePointAsString(this->m_obTime);
     }
-    res << ": ";
+    res << ":";
     for (auto const& log : this->m_vData) {
         res << " " << log->toString();
     }

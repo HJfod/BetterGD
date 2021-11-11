@@ -8,9 +8,7 @@
 
 USE_BGD_NAMESPACE();
 
-BGDPlugin::BGDPlugin() {
-    this->setup();
-}
+BGDPlugin::BGDPlugin() {}
 
 BGDPlugin::~BGDPlugin() {
     this->platformCleanup();
