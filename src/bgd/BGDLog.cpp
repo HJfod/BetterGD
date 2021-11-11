@@ -6,7 +6,6 @@ USE_BGD_NAMESPACE();
 BGDLog::~BGDLog() {}
 
 BGDLogCCObject::~BGDLogCCObject() {
-    std::cout << __FUNCTION__ << "\n";
     if (this->m_pObj) {
         this->m_pObj->release();
     }

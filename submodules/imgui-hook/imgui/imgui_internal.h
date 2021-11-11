@@ -1864,6 +1864,10 @@ struct IMGUI_API ImGuiWindowTempData
     ImVector<float>         ItemWidthStack;         // Store item widths to restore (attention: .back() is not == ItemWidth)
     ImVector<float>         TextWrapPosStack;       // Store text wrap pos to restore (attention: .back() is not == TextWrapPos)
     ImGuiStackSizes         StackSizesOnBegin;      // Store size of various stacks for asserting
+
+    HJ_ADD(
+    float                   CheckboxSize = 1.0f;    // Checkbox scale multiplier
+    );
 };
 
 // Storage for one window

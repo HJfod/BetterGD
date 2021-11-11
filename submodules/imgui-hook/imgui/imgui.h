@@ -75,6 +75,9 @@ Index of this file:
 #define IMGUI_IMPL_API              IMGUI_API
 #endif
 
+// le propietary modification has arrived
+#define HJ_ADD(...) __VA_ARGS__
+
 // Helper Macros
 #ifndef IM_ASSERT
 #include <assert.h>
@@ -404,6 +407,9 @@ namespace ImGui
     IMGUI_API float         CalcItemWidth();                                                // width of item given pushed settings and current cursor position. NOT necessarily the width of last item unlike most 'Item' functions.
     IMGUI_API void          PushTextWrapPos(float wrap_local_pos_x = 0.0f);                 // push word-wrapping position for Text*() commands. < 0.0f: no wrapping; 0.0f: wrap to end of window (or column); > 0.0f: wrap at 'wrap_pos_x' position in window local space
     IMGUI_API void          PopTextWrapPos();
+    HJ_ADD(
+    IMGUI_API void          PushCheckboxSize(float size);
+    )
 
     // Style read access
     // - Use the style editor (ShowStyleEditor() function) to interactively see what the colors are)

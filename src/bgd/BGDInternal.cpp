@@ -71,7 +71,6 @@ BGDInternalPlugin::BGDInternalPlugin() : BGDPlugin() {
 }
 
 void BGDInternalPlugin::setup() {
-    std::cout << "setup internal\n";
     this->m_sID = "hjfod.bettergd";
     this->m_sName = "BetterGD";
     this->m_sDeveloper = "HJfod";

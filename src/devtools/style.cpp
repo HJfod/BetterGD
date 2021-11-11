@@ -150,7 +150,7 @@ void DevTools::loadTheme(DevToolsTheme theme) {
         
         case kDevToolsThemeDark: {
             COMPOSE_COLOR_ONLY( _MainBg,         20, 30, 40, 255 );
-            COMPOSE_COLOR_ONLY( _AltBg,          0, 0, 0, 255 );
+            COMPOSE_COLOR_ONLY( _AltBg,          20, 30, 40, 255 );
             COMPOSE_COLOR_ONLY( _Text,           255, 255, 255, 255 );
             COMPOSE_COLOR_ONLY( _MainColor,      192, 255, 216, 120 );
             COMPOSE_COLOR_ONLY( _Highlight,      192, 216, 255, 120 );
@@ -167,8 +167,8 @@ void DevTools::loadTheme(DevToolsTheme theme) {
                 COPY_COLOR_A(       Border,         _MainBg, 23);
                 COPY_COLOR_A(       BorderShadow,   _AltBg,  50);
             }
-            LIGHTEN_COLOR(      FrameBg,        _MainBg, 20);
-            LIGHTEN_COLOR_A(    FrameBgHovered, _MainBg, 35, -80);
+            LIGHTEN_COLOR(      FrameBg,        _MainBg, 40);
+            LIGHTEN_COLOR_A(    FrameBgHovered, _MainBg, 80, 20);
             COPY_COLOR_A(       FrameBgActive,  _MainBg, 230);
             COPY_COLOR_A(       TitleBg,        _MainBg, 255);
             LIGHTEN_COLOR_A(   TitleBgCollapsed,_MainBg, 10, -150);
@@ -181,18 +181,18 @@ void DevTools::loadTheme(DevToolsTheme theme) {
             LIGHTEN_COLOR_A(    CheckMark,      _Highlight, 0, 255);
             LIGHTEN_COLOR(      SliderGrab,     _MainColor, 50);
             LIGHTEN_COLOR(      SliderGrabActive,_Highlight, 0);
-            LIGHTEN_COLOR_A(    Button,         _MainColor, 0, -180);
-            LIGHTEN_COLOR(      ButtonHovered,  _MainColor, 10);
+            LIGHTEN_COLOR_A(    Button,         _MainBg, 40, 0);
+            LIGHTEN_COLOR_A(    ButtonHovered,  _MainBg, 80, 20);
             LIGHTEN_COLOR(      ButtonActive,   _Highlight, 10);
-            LIGHTEN_COLOR_A(    Header,         _MainColor, 30, -140);
-            LIGHTEN_COLOR_A(    HeaderHovered,  _MainColor, 30, -40);
-            LIGHTEN_COLOR(      HeaderActive,   _Highlight, 0);
+            COPY_COLOR(         Header,         Button);
+            COPY_COLOR(         HeaderHovered,  ButtonHovered);
+            COPY_COLOR(         HeaderActive,   ButtonActive);
             LIGHTEN_COLOR(      Separator,          _MainBg, -160);
             LIGHTEN_COLOR_A(    SeparatorHovered,   _MainColor, 160, -40);
             LIGHTEN_COLOR(      SeparatorActive,    _Highlight, 0);
-            LIGHTEN_COLOR_A(    ResizeGrip,         _MainColor, 0, -140);
-            LIGHTEN_COLOR_A(    ResizeGripHovered,  _MainColor, 0, -40);
-            LIGHTEN_COLOR(      ResizeGripActive,   _Highlight, 0);
+            COPY_COLOR(         ResizeGrip,         Button);
+            COPY_COLOR(         ResizeGripHovered,  ButtonHovered);
+            COPY_COLOR(         ResizeGripActive,   ButtonActive);
             LIGHTEN_COLOR_A(    PlotLines,          _MainColor, 0, -140);
             LIGHTEN_COLOR_A(    PlotLinesHovered,   _MainColor, 0, -40);
             LIGHTEN_COLOR_A(    PlotHistogram,      _MainColor, 0, -140);
@@ -201,9 +201,45 @@ void DevTools::loadTheme(DevToolsTheme theme) {
             LIGHTEN_COLOR_A(    DragDropTarget,     _MainColor, 60, -20);
             COPY_COLOR(         NavHighlight,       HeaderHovered);
             LIGHTEN_COLOR_A(    NavWindowingHighlight,_MainColor, 40, -40);
-            LIGHTEN_COLOR_A(    Tab,                _MainColor, 50, -100);
-            LIGHTEN_COLOR_A(    TabHovered,         _MainColor, 30, -40);
-            LIGHTEN_COLOR(      TabActive,          _Highlight, 0);
+            LIGHTEN_COLOR(      Tab,                Button, -20);
+            COPY_COLOR(         TabHovered,         ButtonHovered);
+            COPY_COLOR(         TabActive,          ButtonActive);
         } break;
     }
+}
+
+void DevTools::loadStyle() {
+    if (this->m_bLoadedStyle) {
+        return;
+    }
+    
+    this->m_bLoadedStyle = true;
+
+    auto style = &ImGui::GetStyle();
+    auto colors = style->Colors;
+    
+    if (this->m_eMode == kDevToolsModeIntegrated) {
+        style->WindowRounding    = 0.0f;
+    } else {
+        style->WindowRounding    = 2.0f;
+    }
+    style->ScrollbarRounding = 3.0f;
+    style->GrabRounding      = 2.0f;
+    style->AntiAliasedLines  = true;
+    style->AntiAliasedFill   = true;
+    style->WindowRounding    = 2;
+    style->ChildRounding     = 2;
+    style->ScrollbarSize     = 16;
+    style->ScrollbarRounding = 3;
+    style->GrabRounding      = 2;
+    style->ItemSpacing.x     = 10;
+    style->ItemSpacing.y     = 6;
+    style->IndentSpacing     = 22;
+    style->FramePadding.x    = 6;
+    style->FramePadding.y    = 4;
+    style->Alpha             = 1.0f;
+    style->FrameRounding     = 3.0f;
+    style->WindowPadding     = { 2.f, 2.f };
+
+    this->loadTheme(this->m_eTheme);
 }

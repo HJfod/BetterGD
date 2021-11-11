@@ -7642,6 +7642,13 @@ void ImGui::PushItemWidth(float item_width)
     g.NextItemData.Flags &= ~ImGuiNextItemDataFlags_HasWidth;
 }
 
+void ImGui::PushCheckboxSize(float size)
+{
+    ImGuiContext& g = *GImGui;
+    ImGuiWindow* window = g.CurrentWindow;
+    window->DC.CheckboxSize = size;
+}
+
 void ImGui::PushMultiItemsWidths(int components, float w_full)
 {
     ImGuiContext& g = *GImGui;
