@@ -97,6 +97,10 @@ void DevTools::loadTheme(DevToolsTheme theme) {
             COMPOSE_COLOR_ONLY( _MainColor,      192, 255, 216, 255 );
             COMPOSE_COLOR_ONLY( _Highlight,      192, 216, 255, 255 );
 
+            *this->m_pColorYes      = { .0f, 1.f,  .2f, .8f };
+            *this->m_pColorNo       = { 1.f, .0f,  .0f, .8f };
+            *this->m_pColorWarning  = { 1.f, .56f, .0f, .8f };
+
             COPY_COLOR(         Text,           _Text);
             LIGHTEN_COLOR(      TextDisabled,   _Text, -102);
             COPY_COLOR(         WindowBg,       _MainBg);
@@ -155,6 +159,10 @@ void DevTools::loadTheme(DevToolsTheme theme) {
             COMPOSE_COLOR_ONLY( _MainColor,      192, 255, 216, 120 );
             COMPOSE_COLOR_ONLY( _Highlight,      192, 216, 255, 120 );
 
+            *this->m_pColorYes      = { .0f, 1.f,  .2f, .8f };
+            *this->m_pColorNo       = { 1.f, .0f,  .0f, .8f };
+            *this->m_pColorWarning  = { 1.f, .56f, .0f, .8f };
+
             COPY_COLOR(         Text,           _Text);
             LIGHTEN_COLOR(      TextDisabled,   _Text, -102);
             COPY_COLOR(         WindowBg,       _MainBg);
@@ -190,7 +198,7 @@ void DevTools::loadTheme(DevToolsTheme theme) {
             LIGHTEN_COLOR(      Separator,          _MainBg, -160);
             LIGHTEN_COLOR_A(    SeparatorHovered,   _MainColor, 160, -40);
             LIGHTEN_COLOR(      SeparatorActive,    _Highlight, 0);
-            COPY_COLOR(         ResizeGrip,         Button);
+            COMPOSE_COLOR_HEX(  ResizeGrip,         0);
             COPY_COLOR(         ResizeGripHovered,  ButtonHovered);
             COPY_COLOR(         ResizeGripActive,   ButtonActive);
             LIGHTEN_COLOR_A(    PlotLines,          _MainColor, 0, -140);

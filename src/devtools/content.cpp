@@ -4,7 +4,7 @@
 #include <BGDInternal.hpp>
 #include <imgui-hook.hpp>
 #include "../config.h"
-#include "BGDIcons.hpp"
+#include "FeatherIcons.hpp"
 
 #define CHECK_IS(var, newName, type) \
     type* newName = nullptr; if ((newName = dynamic_cast<type*>(var)))
@@ -298,21 +298,25 @@ void DevTools::generatePluginInfo(BGDPlugin* plugin) {
 void DevTools::logMessage(BGDLogMessage* log) {
     ImU32 color = 0;
     if (log->getSeverity() == kBGDSeverityWarning) {
-        color = 0x27ff8f00;
+        color = ImGui::ColorConvertFloat4ToU32(*this->m_pColorWarning);
+        color = (color & 0x00ffffff) + 0x27000000; // set alpha
     }
     if (log->getSeverity() >= kBGDSeverityError) {
-        color = 0x27ff0000;
+        color = ImGui::ColorConvertFloat4ToU32(*this->m_pColorNo);
+        color = (color & 0x00ffffff) + 0x27000000; // set alpha
     }
     ImGui::BeginGroup();
     {
         ImGui::PushFont(this->m_pSmallFont);
         ImGui::Text(log->getTimeString().c_str());
         ImGui::PopFont();
-        ImGui::SameLine(ImGui::GetWindowWidth() - 40);
-        if (ImGui::Button(("X##log.delete=" + log->toString()).c_str())) {
+        ImGui::SameLine(ImGui::GetWindowWidth() - 50);
+        ImGui::PushStyleColor(ImGuiCol_Button, *this->m_pColorNo);
+        if (ImGui::Button((FEATHER_X "##log.delete=" + log->toString()).c_str())) {
             BGDLoader::get()->deleteLog(log);
             return;
         }
+        ImGui::PopStyleColor();
         auto& msgs = log->getData();
         if (!msgs.size()) {
             this->generatePluginInfo(log->getSender());
@@ -352,13 +356,15 @@ void DevTools::logMessage(BGDLogMessage* log) {
 
 void DevTools::generateContent() {
     static int selected_dir = 0;
-    ImGui::PushItemWidth(120.f);
+    auto orig = ImGui::GetStyle().ItemSpacing;
+    ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, { 4.f, orig.y });
+    ImGui::PushItemWidth((ImGui::GetWindowWidth() - 10.f) / 2);
     if (ImGui::Combo("##dev.dock", &selected_dir,
-        BGD_ICON_DOCKWEST  "Dock to Left\0"
-        BGD_ICON_DOCKEAST  "Dock to Right\0"
-        BGD_ICON_DOCKNORTH "Dock to Top\0"
-        BGD_ICON_DOCKSOUTH "Dock to Bottom\0"
-        BGD_ICON_DOCKPOP   "Pop-out\0"
+        FEATHER_SIDEBAR         " Dock to Left\0"
+        FEATHER_SIDEBAR_FLIP    " Dock to Right\0"
+        FEATHER_TOPBAR          " Dock to Top\0"
+        FEATHER_BOTTOMBAR       " Dock to Bottom\0"
+        FEATHER_EXTERNAL_LINK   " Pop-out\0"
     )) {
         if (selected_dir == 4) {
             this->updateVisibility(kDevToolsModePopup);
@@ -368,17 +374,21 @@ void DevTools::generateContent() {
     }
     ImGui::SameLine();
     static int selected_theme = kDevToolsThemeDark;
-    ImGui::PushItemWidth(120.f);
-    if (ImGui::Combo("##dev.theme", &selected_theme, "Light Theme\0Dark Theme\0")) {
+    ImGui::PushItemWidth((ImGui::GetWindowWidth() - 10.f) / 2);
+    if (ImGui::Combo("##dev.theme", &selected_theme,
+        FEATHER_SUN      " Light Theme\0"
+        FEATHER_UMBRELLA " Dark Theme\0"
+    )) {
         this->m_eTheme = static_cast<DevToolsTheme>(selected_theme);
         this->reloadStyle();
     }
+    ImGui::PopStyleVar();
     if (ImGui::BeginTabBar("dev.tabs", ImGuiTabBarFlags_Reorderable)) {
-        if (ImGui::BeginTabItem("Tree")) {
+        if (ImGui::BeginTabItem(FEATHER_GIT_MERGE " Tree")) {
             this->recurseUpdateList(CCDirector::sharedDirector()->getRunningScene());
             ImGui::EndTabItem();
         }
-        if (ImGui::BeginTabItem("Console")) {
+        if (ImGui::BeginTabItem(FEATHER_TERMINAL  " Console")) {
             if (ImGui::BeginChild(
                 0xB00B, { ImGui::GetWindowWidth(), ImGui::GetWindowHeight() - 180 }, true,
                 ImGuiWindowFlags_HorizontalScrollbar
@@ -408,17 +418,17 @@ void DevTools::generateContent() {
             }
             ImGui::EndTabItem();
         }
-        if (ImGui::BeginTabItem("Plugins")) {
+        if (ImGui::BeginTabItem(FEATHER_PACKAGE   " Plugins")) {
             this->generatePluginInfo(BGDInternalPlugin::get());
             for (auto const& plugin : BGDLoader::get()->getAllPlugins()) {
                 this->generatePluginInfo(plugin);
             }
             ImGui::EndTabItem();
         }
-        if (ImGui::BeginTabItem("ReClass")) {
+        if (ImGui::BeginTabItem(FEATHER_CPU       " ReClass")) {
             ImGui::EndTabItem();
         }
-        if (ImGui::BeginTabItem("Settings")) {
+        if (ImGui::BeginTabItem(FEATHER_SETTINGS  " Settings")) {
             ImGui::Checkbox("Hide Scene Overflow",      &this->m_bHideOverflow);
             ImGui::Checkbox("Attributes in Node Tree",  &this->m_bAttributesInTree);
             ImGui::Separator();

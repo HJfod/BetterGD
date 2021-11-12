@@ -22,6 +22,7 @@ enum DevToolsTheme {
 };
 
 struct ImFont;
+struct ImVec4;
 
 class DevTools {
     protected:
@@ -43,6 +44,9 @@ class DevTools {
         DevToolsTheme m_eTheme  = kDevToolsThemeDark;
         ImFont* m_pDefaultFont  = nullptr;
         ImFont* m_pSmallFont    = nullptr;
+        ImVec4* m_pColorNo      = nullptr;
+        ImVec4* m_pColorYes     = nullptr;
+        ImVec4* m_pColorWarning = nullptr;
 
         void showAnimation(CCScene*, bool transition);
         void loadStyle();

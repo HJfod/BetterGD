@@ -6,6 +6,7 @@
 
 #include "OpenSans.hpp"
 #include "BGDIcons.hpp"
+#include "FeatherIcons.hpp"
 #undef max
 
 constexpr static auto resource_dir = const_join_path<bgd_directory, bgd_resource_directory>;
@@ -199,6 +200,10 @@ void DevTools::draw() {
 }
 
 DevTools::DevTools() {
+    this->m_pColorYes       = new ImVec4;
+    this->m_pColorNo        = new ImVec4;
+    this->m_pColorWarning   = new ImVec4;
+
     ImGuiHook::setRenderFunction([this]() -> void { this->draw(); });
     ImGuiHook::setToggleCallback([this]() -> void {
         this->m_bVisible ^= 1;
@@ -208,7 +213,7 @@ DevTools::DevTools() {
     });
     ImGuiHook::setInitFunction([this]() -> void {
         auto& io = ImGui::GetIO();
-        static const ImWchar icon_ranges[] = { BGD_ICON_MIN_FA, BGD_ICON_MAX_FA, 0 };
+        static const ImWchar icon_ranges[] = { FEATHER_MIN_FA, FEATHER_MAX_FA, 0 };
 
         ImFontConfig defConfig;
         defConfig.MergeMode = true;
@@ -216,7 +221,7 @@ DevTools::DevTools() {
             Font_OpenSans, sizeof Font_OpenSans, 18.f
         );
         io.Fonts->AddFontFromMemoryTTF(
-            Font_BGDIcons, sizeof Font_BGDIcons, 18.f, &defConfig, icon_ranges
+            Font_FeatherIcons, sizeof Font_FeatherIcons, 14.f, &defConfig, icon_ranges
         );
         io.Fonts->Build();
 
@@ -226,13 +231,17 @@ DevTools::DevTools() {
             Font_OpenSans, sizeof Font_OpenSans, 10.f
         );
         io.Fonts->AddFontFromMemoryTTF(
-            Font_BGDIcons, sizeof Font_BGDIcons, 10.f, &smallConfig, icon_ranges
+            Font_FeatherIcons, sizeof Font_FeatherIcons, 6.f, &smallConfig, icon_ranges
         );
         io.Fonts->Build();
     });
 }
 
-DevTools::~DevTools() {}
+DevTools::~DevTools() {
+    delete this->m_pColorYes;
+    delete this->m_pColorNo;
+    delete this->m_pColorWarning;
+}
 
 DevTools* DevTools::get() {
     static auto g_dev = new DevTools;
