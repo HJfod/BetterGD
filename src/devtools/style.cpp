@@ -159,10 +159,10 @@ void DevTools::loadTheme(DevToolsTheme theme) {
             LIGHTEN_COLOR(      TextDisabled,   _Text, -102);
             COPY_COLOR(         WindowBg,       _MainBg);
             COPY_COLOR(         ChildBg,        _AltBg);
-            COPY_COLOR(         PopupBg,        WindowBg);
+            LIGHTEN_COLOR_A(    PopupBg,        _MainBg, 40, 0);
             if (this->m_eMode == kDevToolsModeIntegrated) {
-                COPY_COLOR(         Border,         WindowBg);
-                COPY_COLOR(         BorderShadow,   WindowBg);
+                COPY_COLOR_A(       Border,         _MainBg, 23);
+                COPY_COLOR_A(       BorderShadow,   _AltBg,  50);
             } else {
                 COPY_COLOR_A(       Border,         _MainBg, 23);
                 COPY_COLOR_A(       BorderShadow,   _AltBg,  50);
@@ -197,7 +197,7 @@ void DevTools::loadTheme(DevToolsTheme theme) {
             LIGHTEN_COLOR_A(    PlotLinesHovered,   _MainColor, 0, -40);
             LIGHTEN_COLOR_A(    PlotHistogram,      _MainColor, 0, -140);
             LIGHTEN_COLOR_A(    PlotHistogramHovered,_MainColor, 0, -40);
-            LIGHTEN_COLOR_A(    TextSelectedBg,     _MainColor, 60, -180);
+            LIGHTEN_COLOR_A(    TextSelectedBg,     _Highlight, 60, -80);
             LIGHTEN_COLOR_A(    DragDropTarget,     _MainColor, 60, -20);
             COPY_COLOR(         NavHighlight,       HeaderHovered);
             LIGHTEN_COLOR_A(    NavWindowingHighlight,_MainColor, 40, -40);
@@ -224,22 +224,22 @@ void DevTools::loadStyle() {
         style->WindowRounding    = 2.0f;
     }
     style->ScrollbarRounding = 3.0f;
-    style->GrabRounding      = 2.0f;
+    style->GrabRounding      = 1.0f;
     style->AntiAliasedLines  = true;
     style->AntiAliasedFill   = true;
-    style->WindowRounding    = 2;
+    style->WindowRounding    = 1;
     style->ChildRounding     = 2;
     style->ScrollbarSize     = 16;
     style->ScrollbarRounding = 3;
     style->GrabRounding      = 2;
-    style->ItemSpacing.x     = 10;
-    style->ItemSpacing.y     = 6;
+    style->ItemSpacing.x     = 14;
+    style->ItemSpacing.y     = 8;
     style->IndentSpacing     = 22;
-    style->FramePadding.x    = 6;
+    style->FramePadding.x    = 8;
     style->FramePadding.y    = 4;
     style->Alpha             = 1.0f;
-    style->FrameRounding     = 3.0f;
-    style->WindowPadding     = { 2.f, 2.f };
+    style->FrameRounding     = 1.0f;
+    style->WindowPadding     = { 3.f, 3.f };
 
     this->loadTheme(this->m_eTheme);
 }

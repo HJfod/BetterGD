@@ -115,7 +115,6 @@ void BGDLoader::log(BGDLogMessage* log) {
 }
 
 void BGDLoader::deleteLog(BGDLogMessage* log) {
-    std::cout << "BGDLoader::deleteLog\n";
     vector_erase(this->m_vLogs, log);
     delete log;
 }

@@ -3,6 +3,8 @@
 #include "DevTools.hpp"
 #include <BGDInternal.hpp>
 #include <imgui-hook.hpp>
+#include "../config.h"
+#include "BGDIcons.hpp"
 
 #define CHECK_IS(var, newName, type) \
     type* newName = nullptr; if ((newName = dynamic_cast<type*>(var)))
@@ -294,41 +296,55 @@ void DevTools::generatePluginInfo(BGDPlugin* plugin) {
 }
 
 void DevTools::logMessage(BGDLogMessage* log) {
-    ImGui::PushFont(this->m_pSmallFont);
-    ImGui::Text(log->getTimeString().c_str());
-    ImGui::PopFont();
-    ImGui::SameLine(ImGui::GetWindowWidth() - 30);
-    if (ImGui::Button(("X##log.delete=" + log->toString()).c_str())) {
-        BGDLoader::get()->deleteLog(log);
-        return;
+    ImU32 color = 0;
+    if (log->getSeverity() == kBGDSeverityWarning) {
+        color = 0x27ff8f00;
     }
-    auto& msgs = log->getData();
-    if (!msgs.size()) {
-        this->generatePluginInfo(log->getSender());
-    } else {
-        for (auto const& msg : msgs) {
-            CHECK_IS(msg, as_str, BGDLogString) {
-                ImGui::TextWrapped(as_str->toString().c_str());
-            }
-            CHECK_IS(msg, as_plugin, BGDLogPlugin) {
-                this->generatePluginInfo(as_plugin->getPlugin());
-            }
-            CHECK_IS(msg, as_ccobj, BGDLogCCObject) {
-                auto node = dynamic_cast<CCNode*>(as_ccobj->getObject());
-                if (node) {
-                    this->recurseUpdateList(node);
-                } else {
-                    ImGui::Text(as_ccobj->toString().c_str());
+    if (log->getSeverity() >= kBGDSeverityError) {
+        color = 0x27ff0000;
+    }
+    ImGui::BeginGroup();
+    {
+        ImGui::PushFont(this->m_pSmallFont);
+        ImGui::Text(log->getTimeString().c_str());
+        ImGui::PopFont();
+        ImGui::SameLine(ImGui::GetWindowWidth() - 40);
+        if (ImGui::Button(("X##log.delete=" + log->toString()).c_str())) {
+            BGDLoader::get()->deleteLog(log);
+            return;
+        }
+        auto& msgs = log->getData();
+        if (!msgs.size()) {
+            this->generatePluginInfo(log->getSender());
+        } else {
+            for (auto const& msg : msgs) {
+                CHECK_IS(msg, as_str, BGDLogString) {
+                    ImGui::TextWrapped(as_str->toString().c_str());
+                }
+                CHECK_IS(msg, as_plugin, BGDLogPlugin) {
+                    this->generatePluginInfo(as_plugin->getPlugin());
+                }
+                CHECK_IS(msg, as_ccobj, BGDLogCCObject) {
+                    auto node = dynamic_cast<CCNode*>(as_ccobj->getObject());
+                    if (node) {
+                        this->recurseUpdateList(node);
+                    } else {
+                        ImGui::Text(as_ccobj->toString().c_str());
+                    }
                 }
             }
         }
+        ImGui::PushFont(this->m_pSmallFont);
+        ImGui::Text(
+            "Type: %s, Level: %s | Logged by %s",
+            BGDLogTypeToString(log->getType()).c_str(),
+            BGDSeverityToString(log->getSeverity()).c_str(),
+            log->getSender()->getName()
+        );
     }
-    ImGui::PushFont(this->m_pSmallFont);
-    ImGui::Text(
-        "Type: %s, Level: %s | Logged by %s",
-        BGDLogTypeToString(log->getType()).c_str(),
-        BGDSeverityToString(log->getSeverity()).c_str(),
-        log->getSender()->getName()
+    ImGui::EndGroup();
+    ImGui::GetWindowDrawList()->AddRectFilled(
+        ImGui::GetItemRectMin(), ImGui::GetItemRectMin(), color
     );
     ImGui::PopFont();
     ImGui::Separator();
@@ -337,7 +353,13 @@ void DevTools::logMessage(BGDLogMessage* log) {
 void DevTools::generateContent() {
     static int selected_dir = 0;
     ImGui::PushItemWidth(120.f);
-    if (ImGui::Combo("##dev.dock", &selected_dir, "Dock to Left\0Dock to Right\0Dock to Top\0Dock to Bottom\0Pop-out\0")) {
+    if (ImGui::Combo("##dev.dock", &selected_dir,
+        BGD_ICON_DOCKWEST  "Dock to Left\0"
+        BGD_ICON_DOCKEAST  "Dock to Right\0"
+        BGD_ICON_DOCKNORTH "Dock to Top\0"
+        BGD_ICON_DOCKSOUTH "Dock to Bottom\0"
+        BGD_ICON_DOCKPOP   "Pop-out\0"
+    )) {
         if (selected_dir == 4) {
             this->updateVisibility(kDevToolsModePopup);
         } else {
@@ -347,18 +369,20 @@ void DevTools::generateContent() {
     ImGui::SameLine();
     static int selected_theme = kDevToolsThemeDark;
     ImGui::PushItemWidth(120.f);
-    if (ImGui::Combo("##dev.theme", &selected_theme, "Light\0Dark\0")) {
+    if (ImGui::Combo("##dev.theme", &selected_theme, "Light Theme\0Dark Theme\0")) {
         this->m_eTheme = static_cast<DevToolsTheme>(selected_theme);
         this->reloadStyle();
     }
-    ImGui::Separator();
     if (ImGui::BeginTabBar("dev.tabs", ImGuiTabBarFlags_Reorderable)) {
         if (ImGui::BeginTabItem("Tree")) {
             this->recurseUpdateList(CCDirector::sharedDirector()->getRunningScene());
             ImGui::EndTabItem();
         }
         if (ImGui::BeginTabItem("Console")) {
-            if (ImGui::BeginChild(0xB00B)) {
+            if (ImGui::BeginChild(
+                0xB00B, { ImGui::GetWindowWidth(), ImGui::GetWindowHeight() - 180 }, true,
+                ImGuiWindowFlags_HorizontalScrollbar
+            )) {
                 for (auto const& log : BGDLoader::get()->getLogs()) {
                     this->logMessage(log);
                 }
@@ -366,8 +390,19 @@ void DevTools::generateContent() {
             ImGui::EndChild();
             ImGui::Separator();
             static char command_buf[255] = { 0 };
-            ImGui::InputText("Run Command", command_buf, IM_ARRAYSIZE(command_buf));
-            ImGui::SameLine(ImGui::GetWindowWidth() - 30);
+            if (this->m_bCommandSuccess) {
+                memset(command_buf, 0, sizeof command_buf);
+                this->m_bCommandSuccess = false;
+            }
+            ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - 60);
+            if (ImGui::InputText(
+                "##dev.run_command", command_buf, IM_ARRAYSIZE(command_buf),
+                ImGuiInputTextFlags_EnterReturnsTrue
+            )) {
+                this->executeConsoleCommand(command_buf);
+                ImGui::SetKeyboardFocusHere();
+            }
+            ImGui::SameLine(ImGui::GetWindowWidth() - 50);
             if (ImGui::Button("Run")) {
                 this->executeConsoleCommand(command_buf);
             }
@@ -386,6 +421,8 @@ void DevTools::generateContent() {
         if (ImGui::BeginTabItem("Settings")) {
             ImGui::Checkbox("Hide Scene Overflow",      &this->m_bHideOverflow);
             ImGui::Checkbox("Attributes in Node Tree",  &this->m_bAttributesInTree);
+            ImGui::Separator();
+            ImGui::TextWrapped("Running " BGD_PROJECT_NAME " version " BGD_VERSION " (" BGD_VERSION_SUFFIX ")");
             ImGui::EndTabItem();
         }
         ImGui::EndTabBar();

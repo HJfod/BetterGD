@@ -199,6 +199,7 @@ namespace bgd {
             BGDLogStream& operator<<(BGDLogType);
             BGDLogStream& operator<<(cocos2d::CCObject*);
             BGDLogStream& operator<<(std::string const&);
+            BGDLogStream& operator<<(std::string_view const&);
             BGDLogStream& operator<<(const char*);
             BGDLogStream& operator<<(int);
             BGDLogStream& operator<<(long);

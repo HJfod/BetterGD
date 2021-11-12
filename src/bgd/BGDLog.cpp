@@ -111,6 +111,12 @@ BGDLogStream& BGDLogStream::operator<<(std::string const& str) {
     return *this;
 }
 
+BGDLogStream& BGDLogStream::operator<<(std::string_view const& str) {
+    this->init();
+    this->m_sStream << str;
+    return *this;
+}
+
 BGDLogStream& BGDLogStream::operator<<(const char* str) {
     this->init();
     this->m_sStream << str;

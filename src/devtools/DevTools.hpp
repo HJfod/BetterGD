@@ -29,6 +29,7 @@ class DevTools {
         bool m_bLoadedStyle     = false;
         bool m_bHideOverflow    = true;
         bool m_bAttributesInTree= false;
+        bool m_bCommandSuccess  = false;
         float m_fWidth          = 200.f;
         float m_fMinWidth       = 100.f;
         float m_fMaxWidth       = 700.f;

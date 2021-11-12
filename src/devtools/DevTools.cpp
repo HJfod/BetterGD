@@ -2,8 +2,10 @@
 #include <BGDInternal.hpp>
 #include <imgui-hook.hpp>
 #include <limits>
+#include "ArgParser.hpp"
 
 #include "OpenSans.hpp"
+#include "BGDIcons.hpp"
 #undef max
 
 constexpr static auto resource_dir = const_join_path<bgd_directory, bgd_resource_directory>;
@@ -190,7 +192,7 @@ void DevTools::draw() {
                         (win.y * this->getSceneScale());
                 }
             }
-            this->showAnimation(CCDirector::sharedDirector()->getRunningScene(), false);
+            this->fixSceneScale(CCDirector::sharedDirector()->getRunningScene());
         }
         ImGui::End();
     }
@@ -205,8 +207,28 @@ DevTools::DevTools() {
         BGDInternalPlugin::get()->addHookInternal(target, hook, trampoline);
     });
     ImGuiHook::setInitFunction([this]() -> void {
-        this->m_pDefaultFont = ImGui::GetIO().Fonts->AddFontFromMemoryTTF(Font_OpenSans, sizeof Font_OpenSans, 18.f);
-        this->m_pSmallFont   = ImGui::GetIO().Fonts->AddFontFromMemoryTTF(Font_OpenSans, sizeof Font_OpenSans, 10.f);
+        auto& io = ImGui::GetIO();
+        static const ImWchar icon_ranges[] = { BGD_ICON_MIN_FA, BGD_ICON_MAX_FA, 0 };
+
+        ImFontConfig defConfig;
+        defConfig.MergeMode = true;
+        this->m_pDefaultFont = io.Fonts->AddFontFromMemoryTTF(
+            Font_OpenSans, sizeof Font_OpenSans, 18.f
+        );
+        io.Fonts->AddFontFromMemoryTTF(
+            Font_BGDIcons, sizeof Font_BGDIcons, 18.f, &defConfig, icon_ranges
+        );
+        io.Fonts->Build();
+
+        ImFontConfig smallConfig;
+        smallConfig.MergeMode = true;
+        this->m_pSmallFont = io.Fonts->AddFontFromMemoryTTF(
+            Font_OpenSans, sizeof Font_OpenSans, 10.f
+        );
+        io.Fonts->AddFontFromMemoryTTF(
+            Font_BGDIcons, sizeof Font_BGDIcons, 10.f, &smallConfig, icon_ranges
+        );
+        io.Fonts->Build();
     });
 }
 
@@ -397,6 +419,16 @@ CCScene* createSceneByLayerName(std::string const& name, void* param = nullptr) 
 
 void DevTools::executeConsoleCommand(std::string const& cmd) {
     if (!cmd.size()) return;
+
+    auto parser = ArgParser().parse(cmd);
+
+    if (!parser) {
+        BGDInternalPlugin::get()->log()
+            << kBGDLogTypeError << kBGDSeverityError
+            << "Error Parsing Command: " << parser.error()
+            << bgd::endl;
+        return;
+    }
     
     std::vector<std::string> args;
     split_in_args(args, cmd);
@@ -414,7 +446,8 @@ void DevTools::executeConsoleCommand(std::string const& cmd) {
                 );
                 if (scene) {
                     BGDInternalPlugin::get()->log() << "Moving to scene " << args[1] << bgd::endl;
-                    CCDirector::sharedDirector()->replaceScene(scene);
+                    CCDirector::sharedDirector()->replaceScene(CCTransitionFade::create(.5f, scene));
+                    this->m_bCommandSuccess = true;
                 } else {
                     BGDInternalPlugin::get()->log() << kBGDSeverityError << kBGDLogTypeError <<
                         "Invalid Command: \"" << args[1] << "\" is not a valid SceneID" << bgd::endl;
