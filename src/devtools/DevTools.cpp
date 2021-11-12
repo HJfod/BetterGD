@@ -2,6 +2,7 @@
 #include <BGDInternal.hpp>
 #include <imgui-hook.hpp>
 #include <limits>
+
 #include "OpenSans.hpp"
 #undef max
 
@@ -147,7 +148,7 @@ void DevTools::draw() {
         this->loadStyle();
 
         ImGuiWindowFlags flags = 
-            ImGuiWindowFlags_HorizontalScrollbar;
+            ImGuiWindowFlags_NoScrollbar;
         
         if (this->m_eMode == kDevToolsModeIntegrated) {
             flags |=
