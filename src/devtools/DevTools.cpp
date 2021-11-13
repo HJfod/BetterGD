@@ -166,8 +166,6 @@ void DevTools::draw() {
             auto win = ImGui::GetMainViewport()->Size;
             auto winSize = CCDirector::sharedDirector()->getWinSize();
 
-            ImGui::PushCheckboxSize(.7f);
-
             this->hideOverflow();
 
             auto& fonts = ImGui::GetIO().Fonts->Fonts;

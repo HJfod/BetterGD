@@ -10,8 +10,10 @@ add_library(imgui-hook STATIC
     imgui/backends/imgui_impl_opengl3.cpp
 )
 set_property(TARGET imgui-hook PROPERTY CXX_STANDARD 17)
-target_include_directories(imgui-hook PRIVATE
+target_include_directories(imgui-hook PUBLIC
     "imgui"
+)
+target_include_directories(imgui-hook PRIVATE
     "../Cocos2d/cocos2dx/"
     "../Cocos2d/cocos2dx/include"
     "../Cocos2d/cocos2dx/kazmath/include"

@@ -253,6 +253,36 @@ void DevTools::recurseUpdateList(CCNode* node, unsigned int i) {
     }
 }
 
+void DevTools::recurseUpdateListOdd(CCNode* node, unsigned int i) {
+    std::stringstream stream;
+
+    stream << "<" << getNodeName(node);
+    if (dynamic_cast<CCScene*>(node)) {
+        stream << " type=" << node->getObjType();
+    }
+    if (node->getTag() != -1) {
+        stream << " tag=" << node->getTag();
+    }
+    if (node->getPositionX() != 0.f) {
+        stream << " x=" << node->getPositionX();
+    }
+    if (node->getPositionY() != 0.f) {
+        stream << " y=" << node->getPositionY();
+    }
+    if (node->getScale() != 1.f) {
+        stream << " scale=" << node->getScale();
+    }
+    stream << ">";
+
+    if (ImGui::TreeNode(node, stream.str().c_str())) {
+        CCARRAY_FOREACH_B_BASE(node->getChildren(), child, CCNode*, ix) {
+            this->recurseUpdateListOdd(dynamic_cast<CCNode*>(child), ix);
+        }
+        ImGui::TreePop();
+        ImGui::Text("</%s>", getNodeName(node));
+    }
+}
+
 void DevTools::generatePluginInfo(BGDPlugin* plugin) {
     if (ImGui::TreeNode(plugin, std::string(plugin->getName()).c_str())) {
         ImGui::TextWrapped("Name: %s",         plugin->getName());
@@ -292,6 +322,20 @@ void DevTools::generatePluginInfo(BGDPlugin* plugin) {
         }
 
         ImGui::TreePop();
+    }
+}
+
+void DevTools::generateTree() {
+    if (this->m_bOddHtmlStyleSetting) {
+        this->recurseUpdateListOdd(CCDirector::sharedDirector()->getRunningScene());
+    } else {
+        if (ImGui::BeginChild(
+            0xB00B, { ImGui::GetWindowWidth(), ImGui::GetWindowHeight() - 180 }, true,
+            ImGuiWindowFlags_HorizontalScrollbar
+        )) {
+            this->recurseUpdateList(CCDirector::sharedDirector()->getRunningScene());
+        }
+        ImGui::EndChild();
     }
 }
 
@@ -348,7 +392,7 @@ void DevTools::logMessage(BGDLogMessage* log) {
     }
     ImGui::EndGroup();
     ImGui::GetWindowDrawList()->AddRectFilled(
-        ImGui::GetItemRectMin(), ImGui::GetItemRectMin(), color
+        ImGui::GetItemRectMin(), ImGui::GetItemRectMax(), color
     );
     ImGui::PopFont();
     ImGui::Separator();
@@ -383,9 +427,11 @@ void DevTools::generateContent() {
         this->reloadStyle();
     }
     ImGui::PopStyleVar();
-    if (ImGui::BeginTabBar("dev.tabs", ImGuiTabBarFlags_Reorderable)) {
+    if (ImGui::BeginTabBar("dev.tabs",
+        ImGuiTabBarFlags_Reorderable
+    )) {
         if (ImGui::BeginTabItem(FEATHER_GIT_MERGE " Tree")) {
-            this->recurseUpdateList(CCDirector::sharedDirector()->getRunningScene());
+            this->generateTree();
             ImGui::EndTabItem();
         }
         if (ImGui::BeginTabItem(FEATHER_TERMINAL  " Console")) {
@@ -431,6 +477,7 @@ void DevTools::generateContent() {
         if (ImGui::BeginTabItem(FEATHER_SETTINGS  " Settings")) {
             ImGui::Checkbox("Hide Scene Overflow",      &this->m_bHideOverflow);
             ImGui::Checkbox("Attributes in Node Tree",  &this->m_bAttributesInTree);
+            ImGui::Checkbox("Weird XML Node Tree",      &this->m_bOddHtmlStyleSetting);
             ImGui::Separator();
             ImGui::TextWrapped("Running " BGD_PROJECT_NAME " version " BGD_VERSION " (" BGD_VERSION_SUFFIX ")");
             ImGui::EndTabItem();

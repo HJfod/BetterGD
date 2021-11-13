@@ -92,7 +92,7 @@ void DevTools::loadTheme(DevToolsTheme theme) {
     switch (theme) {
         case kDevToolsThemeLight: {
             COMPOSE_COLOR_ONLY( _MainBg,         240, 240, 240, 255 );
-            COMPOSE_COLOR_ONLY( _AltBg,          0, 0, 0, 255 );
+            COMPOSE_COLOR_ONLY( _AltBg,          230, 230, 230, 255 );
             COMPOSE_COLOR_ONLY( _Text,           0, 0, 0, 255 );
             COMPOSE_COLOR_ONLY( _MainColor,      192, 255, 216, 255 );
             COMPOSE_COLOR_ONLY( _Highlight,      192, 216, 255, 255 );

@@ -33,7 +33,9 @@ void __fastcall CCEGLView_swapBuffers_H(CCEGLView* self) {
         IMGUI_CHECKVERSION();
         ImGui::CreateContext();
         g_initFunc();
-        ImGui::GetIO();
+        auto& io = ImGui::GetIO();
+        io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+        // io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
         auto hwnd = WindowFromDC(*reinterpret_cast<HDC*>(reinterpret_cast<uintptr_t>(window) + 0x244));
         ImGui_ImplWin32_Init(hwnd);
         ImGui_ImplOpenGL3_Init();

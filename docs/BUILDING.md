@@ -6,6 +6,8 @@ If you get errors while building, it's either because:
 
  2) The repo is literally not in a buildable state lol
 
+ 3) You have the wrong ImGui branch (use `docking`)
+
 ## For fresh dummies
 
  * Install [Git](https://git-scm.com/downloads), [Visual Studio](https://visualstudio.microsoft.com/downloads/) (just the Build Tools are enough) and [VS Code](https://code.visualstudio.com/).

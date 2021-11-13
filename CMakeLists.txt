@@ -70,6 +70,7 @@ add_subdirectory(${COCOS2D_LOCATION})
 
 include_directories(
   cocos2d
+  imgui-hook
   "${GD_H_LOCATION}/include"
   "${GD_H_LOCATION}"
   "${MINHOOK_LOCATION}/include"

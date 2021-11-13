@@ -31,6 +31,7 @@ class DevTools {
         bool m_bHideOverflow    = true;
         bool m_bAttributesInTree= false;
         bool m_bCommandSuccess  = false;
+        bool m_bOddHtmlStyleSetting=false;
         float m_fWidth          = 200.f;
         float m_fMinWidth       = 100.f;
         float m_fMaxWidth       = 700.f;
@@ -52,6 +53,8 @@ class DevTools {
         void loadStyle();
         void reloadStyle();
         void recurseUpdateList(CCNode* parent, unsigned int = 0);
+        void recurseUpdateListOdd(CCNode* parent, unsigned int = 0);
+        void generateTree();
         void generatePluginInfo(BGDPlugin* plugin);
         void generateContent();
         float getSceneScale();

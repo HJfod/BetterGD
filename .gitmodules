@@ -14,3 +14,7 @@
 	path = submodules/lilac
 	url = https://github.com/lilac-sdk/core
 	
+[submodule "submodules/imgui-hook/imgui"]
+	path = submodules/imgui-hook/imgui
+	url = https://github.com/ocornut/imgui
+	branch = docking
