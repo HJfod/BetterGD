@@ -92,6 +92,7 @@ target_link_libraries(
   ${PROJECT_NAME}
   cocos2d
   imgui-hook
+  ${CMAKE_SOURCE_DIR}/submodules/GL/glew32.lib
   ${ZLIB_LIBRARIES}
 )
 

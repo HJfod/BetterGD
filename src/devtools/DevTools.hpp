@@ -1,6 +1,15 @@
 #pragma once
 
 #include <BGDUtils.hpp>
+#ifdef BGD_INCLUDE_IMGUI
+#include <imgui.h>
+#include <backends/imgui_impl_win32.h>
+#include <backends/imgui_impl_opengl3.h>
+#else
+struct ImFont;
+struct ImVec4;
+using ImGuiID = unsigned int;
+#endif
 
 USE_BGD_NAMESPACE();
 
@@ -8,9 +17,6 @@ enum DevToolsTheme {
     kDevToolsThemeLight,
     kDevToolsThemeDark,
 };
-
-struct ImFont;
-struct ImVec4;
 
 class DevTools {
     protected:
@@ -28,21 +34,28 @@ class DevTools {
         ImVec4* m_pColorWarning = nullptr;
         std::vector<CCRect> m_vDockInfo;
         CCNode* m_pSelectedNode = nullptr;
+        ImGuiID m_nDockSpaceID  = 0;
 
         void updateSceneScale(CCScene*);
+
+        void executeConsoleCommand(std::string const&);
+        
+        void initFonts();
         void loadStyle();
         void reloadStyle();
+        void loadTheme(DevToolsTheme theme);
+
         void recurseUpdateList(CCNode* parent, unsigned int = 0);
         void recurseUpdateListOdd(CCNode* parent, unsigned int = 0);
-        void generateTree();
-        void generatePluginInfo(BGDPlugin* plugin);
-        void generateTabs();
-        void resizeWindow();
         void logMessage(BGDLogMessage* msg);
-        void loadTheme(DevToolsTheme theme);
-        void executeConsoleCommand(std::string const&);
+        void generatePluginInfo(BGDPlugin* plugin);
+        void generateTree();
+        void generateTabs();
 
         void draw();
+        
+        friend void CCEGLView_swapBuffers(CCEGLView*);
+        friend void CCDirector_drawScene(CCDirector*);
 
         DevTools();
         ~DevTools();

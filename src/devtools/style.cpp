@@ -1,7 +1,7 @@
 #pragma once
 
+#define BGD_INCLUDE_IMGUI
 #include "DevTools.hpp"
-#include <imgui-hook.hpp>
 
 constexpr GLubyte limitc(int v) {
     return static_cast<GLubyte>(v > 255 ? 255 : v < 0 ? 0 : v);

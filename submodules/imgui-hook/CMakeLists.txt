@@ -1,7 +1,6 @@
 cmake_minimum_required(VERSION 3.0)
 
 add_library(imgui-hook STATIC
-    imgui-hook.cpp
     imgui/imgui.cpp
 	imgui/imgui_widgets.cpp
 	imgui/imgui_tables.cpp

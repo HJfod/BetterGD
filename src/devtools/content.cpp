@@ -1,8 +1,9 @@
 #pragma once
 
+#define BGD_INCLUDE_IMGUI
 #include "DevTools.hpp"
 #include <BGDInternal.hpp>
-#include <imgui-hook.hpp>
+#include <imgui/imgui_internal.h>
 #include "../config.h"
 #include "FeatherIcons.hpp"
 
@@ -188,6 +189,14 @@ void DevTools::logMessage(BGDLogMessage* log) {
 
 void DevTools::generateTabs() {
     this->m_vDockInfo = {};
+
+    if (!ImGui::DockBuilderGetNode(this->m_nDockSpaceID)) {
+        // this->m_nDockSpaceID = ImGui::GetID("dev.dockspace");
+        // ImGui::DockBuilderRemoveNode(this->m_nDockSpaceID);
+        // ImGui::DockBuilderAddNode(this->m_nDockSpaceID,
+        //     ImGuiDockNodeFlags_DockSpace | ImGuiDockNodeFlags_PassthruCentralNode
+        // );
+    }
 
     if (ImGui::Begin(FEATHER_GIT_MERGE " Tree")) {
         this->generateTree();
@@ -378,7 +387,7 @@ void DevTools::generateTabs() {
                     static_cast<GLubyte>(_color[1] * 255),
                     static_cast<GLubyte>(_color[2] * 255)
                 });
-                rgbaNode->setOpacity(_color[3] * 255);
+                rgbaNode->setOpacity(static_cast<GLubyte>(_color[3] * 255));
             }
             if (dynamic_cast<CCLabelProtocol*>(this->m_pSelectedNode) != nullptr) {
                 auto labelNode = dynamic_cast<CCLabelProtocol*>(this->m_pSelectedNode);
