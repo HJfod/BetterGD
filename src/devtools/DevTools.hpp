@@ -27,6 +27,7 @@ class DevTools {
         ImVec4* m_pColorYes     = nullptr;
         ImVec4* m_pColorWarning = nullptr;
         std::vector<CCRect> m_vDockInfo;
+        CCNode* m_pSelectedNode = nullptr;
 
         void updateSceneScale(CCScene*);
         void loadStyle();

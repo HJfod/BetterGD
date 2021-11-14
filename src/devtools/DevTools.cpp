@@ -32,9 +32,9 @@ void CCDirector_drawScene(CCDirector* self) {
     auto win = self->getOpenGLView()->getViewPortRect();
 
     // The framebuffer, which regroups 0, 1, or more textures, and 0 or 1 depth buffer.
-    GLuint FramebufferName = 0;
-    glGenFramebuffers(1, &FramebufferName);
-    glBindFramebuffer(GL_FRAMEBUFFER, FramebufferName);
+    GLuint framebuffer = 0;
+    glGenFramebuffers(1, &framebuffer);
+    glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
 
     // The texture we're going to render to
     GLuint renderedTexture;
@@ -69,22 +69,18 @@ void CCDirector_drawScene(CCDirector* self) {
     // Set "renderedTexture" as our colour attachement #0
     glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, renderedTexture, 0);
 
-    // Set the list of draw buffers.
-    GLenum DrawBuffers[1] = {GL_COLOR_ATTACHMENT0};
-    glDrawBuffers(1, DrawBuffers); // "1" is the size of DrawBuffers
-
     // Always check that our framebuffer is ok
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
         std::cout << "oh no\n";
         hook::orig<&CCDirector_drawScene>(self);
         glDeleteRenderbuffers(1, &depthrenderbuffer);
         glDeleteTextures(1, &renderedTexture);
-        glDeleteFramebuffers(1, &FramebufferName);
+        glDeleteFramebuffers(1, &framebuffer);
         return;
     }
 
     // Render to our framebuffer
-    glBindFramebuffer(GL_FRAMEBUFFER, FramebufferName);
+    glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
 
     hook::orig<&CCDirector_drawScene>(self);
 
@@ -134,7 +130,7 @@ void CCDirector_drawScene(CCDirector* self) {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glDeleteRenderbuffers(1, &depthrenderbuffer);
     glDeleteTextures(1, &renderedTexture);
-    glDeleteFramebuffers(1, &FramebufferName);
+    glDeleteFramebuffers(1, &framebuffer);
 }
 static InternalCreateHook<&CCDirector_drawScene>$ccdds(
     "libcocos2d.dll",
