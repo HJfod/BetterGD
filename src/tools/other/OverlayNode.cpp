@@ -30,7 +30,7 @@ OverlayNode* OverlayNode::create() {
 }
 
 OverlayNode* OverlayNode::get() {
-    static auto OverlayNode* g_node = OverlayNode::create();
+    static auto g_node = OverlayNode::create();
     g_node->moveCurrentNoficiationNode();
     return g_node;
 }

@@ -106,13 +106,8 @@ void DevTools::loadTheme(DevToolsTheme theme) {
             COPY_COLOR(         WindowBg,       _MainBg);
             COPY_COLOR(         ChildBg,        _AltBg);
             COPY_COLOR(         PopupBg,        WindowBg);
-            if (this->m_eMode == kDevToolsModeIntegrated) {
-                COPY_COLOR(         Border,         WindowBg);
-                COPY_COLOR(         BorderShadow,   WindowBg);
-            } else {
-                COPY_COLOR_A(       Border,         _MainBg, 23);
-                COPY_COLOR_A(       BorderShadow,   _AltBg,  50);
-            }
+            COPY_COLOR_A(       Border,         _MainBg, 23);
+            COPY_COLOR_A(       BorderShadow,   _AltBg,  50);
             LIGHTEN_COLOR(      FrameBg,        _MainBg, -20);
             LIGHTEN_COLOR_A(    FrameBgHovered, _MainBg, -35, -80);
             COPY_COLOR_A(       FrameBgActive,  _MainColor, 230);
@@ -168,13 +163,8 @@ void DevTools::loadTheme(DevToolsTheme theme) {
             COPY_COLOR(         WindowBg,       _MainBg);
             COPY_COLOR(         ChildBg,        _AltBg);
             LIGHTEN_COLOR_A(    PopupBg,        _MainBg, 40, 0);
-            if (this->m_eMode == kDevToolsModeIntegrated) {
-                COPY_COLOR_A(       Border,         _MainBg, 23);
-                COPY_COLOR_A(       BorderShadow,   _AltBg,  50);
-            } else {
-                COPY_COLOR_A(       Border,         _MainBg, 23);
-                COPY_COLOR_A(       BorderShadow,   _AltBg,  50);
-            }
+            COPY_COLOR_A(       Border,         _MainBg, 23);
+            COPY_COLOR_A(       BorderShadow,   _AltBg,  50);
             LIGHTEN_COLOR(      FrameBg,        _MainBg, 40);
             LIGHTEN_COLOR_A(    FrameBgHovered, _MainBg, 80, 20);
             COPY_COLOR_A(       FrameBgActive,  _MainBg, 230);
@@ -226,11 +216,7 @@ void DevTools::loadStyle() {
     auto style = &ImGui::GetStyle();
     auto colors = style->Colors;
     
-    if (this->m_eMode == kDevToolsModeIntegrated) {
-        style->WindowRounding    = 0.0f;
-    } else {
-        style->WindowRounding    = 2.0f;
-    }
+    style->WindowRounding    = 2.0f;
     style->ScrollbarRounding = 3.0f;
     style->GrabRounding      = 1.0f;
     style->AntiAliasedLines  = true;

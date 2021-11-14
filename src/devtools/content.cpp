@@ -398,90 +398,123 @@ void DevTools::logMessage(BGDLogMessage* log) {
     ImGui::Separator();
 }
 
-void DevTools::generateContent() {
-    static int selected_dir = 0;
-    auto orig = ImGui::GetStyle().ItemSpacing;
-    ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, { 4.f, orig.y });
-    ImGui::PushItemWidth((ImGui::GetWindowWidth() - 10.f) / 2);
-    if (ImGui::Combo("##dev.dock", &selected_dir,
-        FEATHER_SIDEBAR         " Dock to Left\0"
-        FEATHER_SIDEBAR_FLIP    " Dock to Right\0"
-        FEATHER_TOPBAR          " Dock to Top\0"
-        FEATHER_BOTTOMBAR       " Dock to Bottom\0"
-        FEATHER_EXTERNAL_LINK   " Pop-out\0"
-    )) {
-        if (selected_dir == 4) {
-            this->updateVisibility(kDevToolsModePopup);
-        } else {
-            this->updateVisibility(kDevToolsModeIntegrated, static_cast<DevToolsMount>(selected_dir));
+void DevTools::generateTabs() {
+    this->m_vDockInfo = {};
+
+    if (ImGui::Begin(FEATHER_GIT_MERGE " Tree")) {
+        this->generateTree();
+        if (ImGui::IsWindowDocked()) {
+            this->m_vDockInfo.push_back({
+                ImGui::GetWindowPos().x,
+                ImGui::GetWindowPos().y,
+                ImGui::GetWindowWidth(),
+                ImGui::GetWindowHeight()
+            });
         }
     }
-    ImGui::SameLine();
-    static int selected_theme = kDevToolsThemeDark;
-    ImGui::PushItemWidth((ImGui::GetWindowWidth() - 10.f) / 2);
-    if (ImGui::Combo("##dev.theme", &selected_theme,
-        FEATHER_SUN      " Light Theme\0"
-        FEATHER_UMBRELLA " Dark Theme\0"
-    )) {
-        this->m_eTheme = static_cast<DevToolsTheme>(selected_theme);
-        this->reloadStyle();
+    ImGui::End();
+
+    if (ImGui::Begin(FEATHER_TERMINAL  " Console")) {
+        if (ImGui::BeginChild(
+            0xB00B, { ImGui::GetWindowWidth(), ImGui::GetWindowHeight() - 80 }, true,
+            ImGuiWindowFlags_HorizontalScrollbar
+        )) {
+            for (auto const& log : BGDLoader::get()->getLogs()) {
+                this->logMessage(log);
+            }
+        }
+        ImGui::EndChild();
+        ImGui::Separator();
+        static char command_buf[255] = { 0 };
+        if (this->m_bCommandSuccess) {
+            memset(command_buf, 0, sizeof command_buf);
+            this->m_bCommandSuccess = false;
+        }
+        ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - 60);
+        if (ImGui::InputText(
+            "##dev.run_command", command_buf, IM_ARRAYSIZE(command_buf),
+            ImGuiInputTextFlags_EnterReturnsTrue
+        )) {
+            this->executeConsoleCommand(command_buf);
+            ImGui::SetKeyboardFocusHere();
+        }
+        ImGui::SameLine(ImGui::GetWindowWidth() - 50);
+        if (ImGui::Button("Run")) {
+            this->executeConsoleCommand(command_buf);
+        }
+
+        if (ImGui::IsWindowDocked()) {
+            this->m_vDockInfo.push_back({
+                ImGui::GetWindowPos().x,
+                ImGui::GetWindowPos().y,
+                ImGui::GetWindowWidth(),
+                ImGui::GetWindowHeight()
+            });
+        }
     }
-    ImGui::PopStyleVar();
-    if (ImGui::BeginTabBar("dev.tabs",
-        ImGuiTabBarFlags_Reorderable
-    )) {
-        if (ImGui::BeginTabItem(FEATHER_GIT_MERGE " Tree")) {
-            this->generateTree();
-            ImGui::EndTabItem();
+    ImGui::End();
+
+    if (ImGui::Begin(FEATHER_PACKAGE   " Plugins")) {
+        this->generatePluginInfo(BGDInternalPlugin::get());
+        for (auto const& plugin : BGDLoader::get()->getAllPlugins()) {
+            this->generatePluginInfo(plugin);
         }
-        if (ImGui::BeginTabItem(FEATHER_TERMINAL  " Console")) {
-            if (ImGui::BeginChild(
-                0xB00B, { ImGui::GetWindowWidth(), ImGui::GetWindowHeight() - 180 }, true,
-                ImGuiWindowFlags_HorizontalScrollbar
-            )) {
-                for (auto const& log : BGDLoader::get()->getLogs()) {
-                    this->logMessage(log);
-                }
-            }
-            ImGui::EndChild();
-            ImGui::Separator();
-            static char command_buf[255] = { 0 };
-            if (this->m_bCommandSuccess) {
-                memset(command_buf, 0, sizeof command_buf);
-                this->m_bCommandSuccess = false;
-            }
-            ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - 60);
-            if (ImGui::InputText(
-                "##dev.run_command", command_buf, IM_ARRAYSIZE(command_buf),
-                ImGuiInputTextFlags_EnterReturnsTrue
-            )) {
-                this->executeConsoleCommand(command_buf);
-                ImGui::SetKeyboardFocusHere();
-            }
-            ImGui::SameLine(ImGui::GetWindowWidth() - 50);
-            if (ImGui::Button("Run")) {
-                this->executeConsoleCommand(command_buf);
-            }
-            ImGui::EndTabItem();
+        if (ImGui::IsWindowDocked()) {
+            this->m_vDockInfo.push_back({
+                ImGui::GetWindowPos().x,
+                ImGui::GetWindowPos().y,
+                ImGui::GetWindowWidth(),
+                ImGui::GetWindowHeight()
+            });
         }
-        if (ImGui::BeginTabItem(FEATHER_PACKAGE   " Plugins")) {
-            this->generatePluginInfo(BGDInternalPlugin::get());
-            for (auto const& plugin : BGDLoader::get()->getAllPlugins()) {
-                this->generatePluginInfo(plugin);
-            }
-            ImGui::EndTabItem();
-        }
-        if (ImGui::BeginTabItem(FEATHER_CPU       " ReClass")) {
-            ImGui::EndTabItem();
-        }
-        if (ImGui::BeginTabItem(FEATHER_SETTINGS  " Settings")) {
-            ImGui::Checkbox("Hide Scene Overflow",      &this->m_bHideOverflow);
-            ImGui::Checkbox("Attributes in Node Tree",  &this->m_bAttributesInTree);
-            ImGui::Checkbox("Weird XML Node Tree",      &this->m_bOddHtmlStyleSetting);
-            ImGui::Separator();
-            ImGui::TextWrapped("Running " BGD_PROJECT_NAME " version " BGD_VERSION " (" BGD_VERSION_SUFFIX ")");
-            ImGui::EndTabItem();
-        }
-        ImGui::EndTabBar();
     }
+    ImGui::End();
+
+    if (ImGui::Begin(FEATHER_CPU       " ReClass")) {
+        ImGui::Text("todo");
+        if (ImGui::IsWindowDocked()) {
+            this->m_vDockInfo.push_back({
+                ImGui::GetWindowPos().x,
+                ImGui::GetWindowPos().y,
+                ImGui::GetWindowWidth(),
+                ImGui::GetWindowHeight()
+            });
+        }
+    }
+    ImGui::End();
+
+    if (ImGui::Begin(FEATHER_SETTINGS  " Settings")) {
+        ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, { 0.f, 0.f });
+        ImGui::Checkbox("GD in Window",             &this->m_bGDInWindow);
+        ImGui::Checkbox("Attributes in Node Tree",  &this->m_bAttributesInTree);
+        ImGui::Checkbox("Weird XML Node Tree",      &this->m_bOddHtmlStyleSetting);
+        ImGui::Checkbox("Dock With Shift",          &ImGui::GetIO().ConfigDockingWithShift);
+        ImGui::PopStyleVar();
+
+        ImGui::Separator();
+
+        static int selected_theme = this->m_eTheme;
+        ImGui::PushItemWidth((ImGui::GetWindowWidth() - 10.f) / 2);
+        if (ImGui::Combo("##dev.theme", &selected_theme,
+            FEATHER_SUN      " Light Theme\0"
+            FEATHER_UMBRELLA " Dark Theme\0"
+        )) {
+            this->m_eTheme = static_cast<DevToolsTheme>(selected_theme);
+            this->reloadStyle();
+        }
+
+        ImGui::Separator();
+
+        ImGui::TextWrapped("Running " BGD_PROJECT_NAME " version " BGD_VERSION " (" BGD_VERSION_SUFFIX ")");
+
+        if (ImGui::IsWindowDocked()) {
+            this->m_vDockInfo.push_back({
+                ImGui::GetWindowPos().x,
+                ImGui::GetWindowPos().y,
+                ImGui::GetWindowWidth(),
+                ImGui::GetWindowHeight()
+            });
+        }
+    }
+    ImGui::End();
 }

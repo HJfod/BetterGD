@@ -5,10 +5,20 @@
 
 using namespace cocos2d;
 
+void glfwMakeContextCurrent(GLFWwindow* window) {
+    static auto cocosBase = GetModuleHandleA("libcocos2d.dll");
+    reinterpret_cast<void(__cdecl*)(GLFWwindow*)>(
+        reinterpret_cast<uintptr_t>(cocosBase) + 0x1103e0
+    )(window);
+}
+
 void _stub() {}
 std::function<void()> g_drawFunc = _stub;
 std::function<void()> g_toggleCallback = _stub;
 std::function<void()> g_initFunc = _stub;
+bool g_render = false;
+
+std::function<void()> ImGuiHook::getRender() { return g_drawFunc; }
 
 void ImGuiHook::setRenderFunction(std::function<void()> func) {
     g_drawFunc = func;
@@ -20,6 +30,10 @@ void ImGuiHook::setInitFunction(std::function<void()> func) {
 
 void ImGuiHook::setToggleCallback(std::function<void()> func) {
     g_toggleCallback = func;
+}
+
+void ImGuiHook::setRender(bool yes) {
+    g_render = yes;
 }
 
 bool g_inited = false;
@@ -35,24 +49,27 @@ void __fastcall CCEGLView_swapBuffers_H(CCEGLView* self) {
         g_initFunc();
         auto& io = ImGui::GetIO();
         io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+        io.ConfigDockingWithShift = true;
         // io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
         auto hwnd = WindowFromDC(*reinterpret_cast<HDC*>(reinterpret_cast<uintptr_t>(window) + 0x244));
         ImGui_ImplWin32_Init(hwnd);
         ImGui_ImplOpenGL3_Init();
     }
 
-    ImGui_ImplOpenGL3_NewFrame();
-    ImGui_ImplWin32_NewFrame();
-    ImGui::NewFrame();
+    if (g_render) {
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplWin32_NewFrame();
+        ImGui::NewFrame();
 
-    g_drawFunc();
+        g_drawFunc();
 
-    ImGui::EndFrame();
-    ImGui::Render();
+        ImGui::EndFrame();
+        ImGui::Render();
 
-    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-    
-    glFlush();
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+        glFlush();
+    }
 
     CCEGLView_swapBuffers(self);
 }

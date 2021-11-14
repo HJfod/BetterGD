@@ -1,3 +1,4 @@
+#include "../../submodules/GL/glew.h"
 #include "DevTools.hpp"
 #include <BGDInternal.hpp>
 #include <imgui-hook.hpp>
@@ -12,135 +13,140 @@
 constexpr static auto resource_dir = const_join_path<bgd_directory, bgd_resource_directory>;
 constexpr static auto font_default = std::string_view("OpenSans-Regular.ttf");
 
-void DevTools::resizeWindow() {
-    auto win = ImGui::GetMainViewport()->Size;
-    auto winSize = CCDirector::sharedDirector()->getWinSize();
-    switch (this->m_eMount) {
-        case kDevToolsMountWest: {
-            auto ratio     = this->m_fWidth    / winSize.width;
-            auto ratio_min = this->m_fMinWidth / winSize.width;
-            auto ratio_max = this->m_fMaxWidth / winSize.width;
-            ImGui::SetNextWindowPos({ 0, 0 });
-            ImGui::SetNextWindowSize({
-                win.x * ratio * this->getSceneScale(), win.y
-            });
-            ImGui::SetNextWindowSizeConstraints({
-                win.x * ratio_min * this->getSceneScale(), win.y
-            }, {
-                win.x * ratio_max * this->getSceneScale(), win.y
-            });
-        } break;
-            
-        case kDevToolsMountEast: {
-            auto ratio     = this->m_fWidth    / winSize.width;
-            auto ratio_min = this->m_fMinWidth / winSize.width;
-            auto ratio_max = this->m_fMaxWidth / winSize.width;
-            ImGui::SetNextWindowPos({
-                win.x - win.x * ratio * this->getSceneScale(), 0
-            });
-            ImGui::SetNextWindowSize({
-                win.x * ratio * this->getSceneScale(), win.y
-            });
-            ImGui::SetNextWindowSizeConstraints({
-                win.x * ratio_min * this->getSceneScale(), win.y
-            }, {
-                win.x * ratio_max * this->getSceneScale(), win.y
-            });
-        } break;
-            
-        case kDevToolsMountSouth: {
-            auto ratio     = this->m_fHeight    / winSize.height;
-            auto ratio_min = this->m_fMinHeight / winSize.height;
-            auto ratio_max = this->m_fMaxHeight / winSize.height;
-            ImGui::SetNextWindowPos({
-                0, win.y - win.y * ratio * this->getSceneScale()
-            });
-            ImGui::SetNextWindowSize({
-                win.x, win.y * ratio * this->getSceneScale()
-            });
-            ImGui::SetNextWindowSizeConstraints({
-                win.x, win.y * ratio_min * this->getSceneScale()
-            }, {
-                win.x, win.y * ratio_max * this->getSceneScale()
-            });
-        } break;
-            
-        case kDevToolsMountNorth: {
-            auto ratio     = this->m_fHeight    / winSize.height;
-            auto ratio_min = this->m_fMinHeight / winSize.height;
-            auto ratio_max = this->m_fMaxHeight / winSize.height;
-            ImGui::SetNextWindowPos({
-                0, 0
-            });
-            ImGui::SetNextWindowSize({
-                win.x, win.y * ratio * this->getSceneScale()
-            });
-            ImGui::SetNextWindowSizeConstraints({
-                win.x, win.y * ratio_min * this->getSceneScale()
-            }, {
-                win.x, win.y * ratio_max * this->getSceneScale()
-            });
-        } break;
-    }
+ImVec2 operator-(ImVec2 const& v1, ImVec2 const& v2) {
+    return { v1.x - v2.x, v1.y - v2.y };
 }
 
-void DevTools::hideOverflow() {
-    // no not the hentai
-    if (!this->m_bHideOverflow || this->m_eMode == kDevToolsModePopup) {
+ImVec2 operator*(ImVec2 const& v1, float multi) {
+    return { v1.x * multi, v1.y * multi };
+}
+
+void CCDirector_drawScene(CCDirector* self) {
+    if (!DevTools::get()->shouldPopGame()) {
+        ImGuiHook::setRender(true);
+
+        return hook::orig<&CCDirector_drawScene>(self);
+    }
+    ImGuiHook::setRender(false);
+
+    auto win = self->getOpenGLView()->getViewPortRect();
+
+    // The framebuffer, which regroups 0, 1, or more textures, and 0 or 1 depth buffer.
+    GLuint FramebufferName = 0;
+    glGenFramebuffers(1, &FramebufferName);
+    glBindFramebuffer(GL_FRAMEBUFFER, FramebufferName);
+
+    // The texture we're going to render to
+    GLuint renderedTexture;
+    glGenTextures(1, &renderedTexture);
+
+    // "Bind" the newly created texture : all future texture functions will modify this texture
+    glBindTexture(GL_TEXTURE_2D, renderedTexture);
+
+    // Give an empty image to OpenGL ( the last "0" )
+    glTexImage2D(
+        GL_TEXTURE_2D, 0,GL_RGB,
+        static_cast<GLsizei>(win.size.width),
+        static_cast<GLsizei>(win.size.height),
+        0,GL_RGB, GL_UNSIGNED_BYTE, 0
+    );
+
+    // Poor filtering. Needed !
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+    // The depth buffer
+    GLuint depthrenderbuffer;
+    glGenRenderbuffers(1, &depthrenderbuffer);
+    glBindRenderbuffer(GL_RENDERBUFFER, depthrenderbuffer);
+    glRenderbufferStorage(
+        GL_RENDERBUFFER, GL_DEPTH_COMPONENT,
+        static_cast<GLsizei>(win.size.width),
+        static_cast<GLsizei>(win.size.height)
+    );
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthrenderbuffer);
+
+    // Set "renderedTexture" as our colour attachement #0
+    glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, renderedTexture, 0);
+
+    // Set the list of draw buffers.
+    GLenum DrawBuffers[1] = {GL_COLOR_ATTACHMENT0};
+    glDrawBuffers(1, DrawBuffers); // "1" is the size of DrawBuffers
+
+    // Always check that our framebuffer is ok
+    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+        std::cout << "oh no\n";
+        hook::orig<&CCDirector_drawScene>(self);
+        glDeleteRenderbuffers(1, &depthrenderbuffer);
+        glDeleteTextures(1, &renderedTexture);
+        glDeleteFramebuffers(1, &FramebufferName);
         return;
     }
 
-    auto win = ImGui::GetMainViewport()->Size;
-    auto winSize = CCDirector::sharedDirector()->getWinSize();
-    auto list = ImGui::GetForegroundDrawList();
+    // Render to our framebuffer
+    glBindFramebuffer(GL_FRAMEBUFFER, FramebufferName);
 
-    switch (this->m_eMount) {
-        case kDevToolsMountEast: case kDevToolsMountWest: {
-            float height = (win.y - (win.x - ImGui::GetWindowWidth()) * win.y / win.x) / 2;
-            const float offset_l = this->m_eMount == kDevToolsMountWest ?
-                ImGui::GetWindowWidth() : 0;
-            const float offset_r = this->m_eMount == kDevToolsMountEast ?
-                ImGui::GetWindowWidth() : 0;
+    hook::orig<&CCDirector_drawScene>(self);
 
-            list->AddRectFilled({
-                offset_l, 0
-            }, {
-                win.x - offset_r,
-                height
-            }, 0xff000000);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-            list->AddRectFilled({
-                offset_l,
-                win.y - height
-            }, {
-                win.x - offset_r,
-                win.y
-            }, 0xff000000);
-        } break;
+    ImGui_ImplOpenGL3_NewFrame();
+    ImGui_ImplWin32_NewFrame();
+    ImGui::NewFrame();
 
-        case kDevToolsMountSouth: case kDevToolsMountNorth: {
-            float width = (win.x - (win.y - ImGui::GetWindowHeight()) * win.x / win.y) / 2;
-            const float offset_t = this->m_eMount == kDevToolsMountNorth ?
-                ImGui::GetWindowHeight() : 0;
-            const float offset_b = this->m_eMount == kDevToolsMountSouth ?
-                ImGui::GetWindowHeight() : 0;
+    glClear(0x4100);
 
-            list->AddRectFilled({
-                0, offset_t
-            }, {
-                width,
-                win.y - offset_b,
-            }, 0xff000000);
+    ImGuiHook::getRender()();
 
-            list->AddRectFilled({
-                win.x - width,
-                offset_t
-            }, {
-                win.x,
-                win.y - offset_b
-            }, 0xff000000);
-        } break;
+    if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
+        auto backup_current_context = self->getOpenGLView()->getWindow();
+        ImGui::UpdatePlatformWindows();
+        ImGui::RenderPlatformWindowsDefault();
+        glfwMakeContextCurrent(backup_current_context);
     }
+    
+    glFlush();
+
+    if (ImGui::Begin("Geometry Dash")) {
+        auto ratio = win.size.width / win.size.height;
+        ImVec2 imgSize = {
+            (ImGui::GetWindowHeight() - 20) * ratio,
+            (ImGui::GetWindowHeight() - 20)
+        };
+        if (ImGui::GetWindowWidth() - 20 < imgSize.x) {
+            imgSize = {
+                (ImGui::GetWindowWidth() - 20),
+                (ImGui::GetWindowWidth() - 20) / ratio
+            };
+        }
+        ImGui::SetCursorPos((ImGui::GetWindowSize() - imgSize) * 0.5f);
+        ImGui::Image(as<ImTextureID>(renderedTexture),
+            imgSize, { 0, 1 }, { 1, 0 }
+        );
+    }
+    ImGui::End();
+
+    ImGui::EndFrame();
+    ImGui::Render();
+
+    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glDeleteRenderbuffers(1, &depthrenderbuffer);
+    glDeleteTextures(1, &renderedTexture);
+    glDeleteFramebuffers(1, &FramebufferName);
+}
+static InternalCreateHook<&CCDirector_drawScene>$ccdds(
+    "libcocos2d.dll",
+    "?drawScene@CCDirector@cocos2d@@QAEXXZ"
+);
+
+bool DevTools::isVisible() const {
+    return this->m_bVisible;
+}
+
+bool DevTools::shouldPopGame() const {
+    return this->m_bVisible && this->m_bGDInWindow;
 }
 
 void DevTools::draw() {
@@ -153,47 +159,15 @@ void DevTools::draw() {
         ImGuiWindowFlags flags = 
             ImGuiWindowFlags_NoScrollbar;
         
-        if (this->m_eMode == kDevToolsModeIntegrated) {
-            flags |=
-                ImGuiWindowFlags_NoMove |
-                ImGuiWindowFlags_NoCollapse;
-        }
+        ImGui::DockSpaceOverViewport(
+            nullptr, ImGuiDockNodeFlags_PassthruCentralNode
+        );
+        auto& fonts = ImGui::GetIO().Fonts->Fonts;
+        ImGui::PushFont(this->m_pDefaultFont);
+        this->generateTabs();
+        ImGui::PopFont();
+        this->fixSceneScale(CCDirector::sharedDirector()->getRunningScene());
 
-        if (this->m_eMode == kDevToolsModeIntegrated) {
-            this->resizeWindow();
-        }
-        if (ImGui::Begin("BetterGD Dev Tools", nullptr, flags)) {
-            auto win = ImGui::GetMainViewport()->Size;
-            auto winSize = CCDirector::sharedDirector()->getWinSize();
-
-            this->hideOverflow();
-
-            auto& fonts = ImGui::GetIO().Fonts->Fonts;
-            ImGui::PushFont(this->m_pDefaultFont);
-            this->generateContent();
-            ImGui::PopFont();
-
-            if (this->m_eMode == kDevToolsModeIntegrated) {
-                if (
-                    this->m_eMount == kDevToolsMountEast ||
-                    this->m_eMount == kDevToolsMountWest
-                ) {
-                    this->m_fWidth = 
-                        (ImGui::GetWindowWidth()  * winSize.width) /
-                        (win.x * this->getSceneScale());
-                }
-                if (
-                    this->m_eMount == kDevToolsMountSouth ||
-                    this->m_eMount == kDevToolsMountNorth
-                ) {
-                    this->m_fHeight =
-                        (ImGui::GetWindowHeight() * winSize.height) /
-                        (win.y * this->getSceneScale());
-                }
-            }
-            this->fixSceneScale(CCDirector::sharedDirector()->getRunningScene());
-        }
-        ImGui::End();
     }
 }
 
@@ -257,66 +231,33 @@ void DevTools::reloadStyle() {
     this->loadStyle();
 }
 
-void DevTools::updateVisibility(DevToolsMode mode, DevToolsMount mount) {
-    if (this->m_eMode == kDevToolsModePopup) {
-        this->m_obPopoutSize.width  = ImGui::GetWindowSize().x;
-        this->m_obPopoutSize.height = ImGui::GetWindowSize().y;
-    }
-    if (mode == kDevToolsModePopup) {
-        ImGui::SetWindowSize({
-            this->m_obPopoutSize.width,
-            this->m_obPopoutSize.height
-        });
-    } else {
-        ImGui::SetWindowSize({
-            this->m_fWidth,
-            this->m_fHeight
-        });
-    }
-    auto scene = CCDirector::sharedDirector()->getRunningScene();
-    this->m_eMode = mode;
-    this->m_eMount = mount;
-    this->showAnimation(scene, false);
-    this->reloadStyle();
-}
+void DevTools::updateSceneScale(CCScene* scene) {
+    if (!ImGui::GetCurrentContext())
+        return;
 
-float DevTools::getSceneScale() {
-    if (this->m_eMode == kDevToolsModePopup || !this->m_bVisible) {
-        return 1.f;
-    }
-    auto winSize = CCDirector::sharedDirector()->getWinSize();
-    if (
-        this->m_eMount == kDevToolsMountSouth ||
-        this->m_eMount == kDevToolsMountNorth
-    ) {
-        return winSize.height / (winSize.height + this->m_fHeight);
-    }
-    return winSize.width / (winSize.width + this->m_fWidth);
-}
+    auto win = ImGui::GetMainViewport()->Size;
 
-void DevTools::showAnimation(CCScene* scene, bool transition) {
-    auto scale = getSceneScale();
-    switch (this->m_eMount) {
-        case kDevToolsMountWest:
-            scene->setAnchorPoint({ 1.f, .5f });
-            break;
-        case kDevToolsMountEast:
-            scene->setAnchorPoint({ .0f, .5f });
-            break;
-        case kDevToolsMountNorth:
-            scene->setAnchorPoint({ .5f, .0f });
-            break;
-        case kDevToolsMountSouth:
-            scene->setAnchorPoint({ .5f, 1.f });
-            break;
-    }
-    transition = false;
-    if (transition) {
-        scene->runAction(CCEaseInOut::create(
-            CCScaleTo::create(.5f, scale), 2.f
-        ));
-    } else {
-        scene->setScale(scale);
+    enum docking {
+        left        = 0b1,
+        top         = 0b10,
+        right       = 0b100,
+        bottom      = 0b1000,
+    };
+
+    for (auto const& info : this->m_vDockInfo) {
+        int dock = 0;
+        if (info.origin.x <= 0.f) {
+            dock |= left;
+        }
+        if (info.origin.y <= 0.f) {
+            dock |= top;
+        }
+        if (info.origin.x + info.size.width >= win.x) {
+            dock |= right;
+        }
+        if (info.origin.y + info.size.height >= win.y) {
+            dock |= bottom;
+        }
     }
 }
 
@@ -326,9 +267,9 @@ void DevTools::fixSceneScale(CCScene* scene) {
     );
     if (t) {
         scene = t->getIn();
-        this->showAnimation(t->getOut(), false);
+        this->updateSceneScale(t->getOut());
     }
-    this->showAnimation(scene, false);
+    this->updateSceneScale(scene);
 }
 
 void DevTools::willSwitchToScene(CCScene* scene) {
@@ -339,7 +280,6 @@ void DevTools::show() {
     if (!this->m_bVisible) {
         auto scene = CCDirector::sharedDirector()->getRunningScene();
         this->m_bVisible = true;
-        this->showAnimation(scene, true);
     }
 }
 
@@ -347,7 +287,6 @@ void DevTools::hide() {
     if (this->m_bVisible) {
         auto scene = CCDirector::sharedDirector()->getRunningScene();
         this->m_bVisible = false;
-        this->showAnimation(scene, true);
     }
 }
 
