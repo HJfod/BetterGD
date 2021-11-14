@@ -21,9 +21,6 @@ enum DevToolsTheme {
     kDevToolsThemeDark,
 };
 
-struct ImFont;
-struct ImVec4;
-
 class DevTools {
     protected:
         bool m_bVisible         = false;
@@ -43,12 +40,7 @@ class DevTools {
         DevToolsMode  m_eMode   = kDevToolsModeIntegrated;
         DevToolsMount m_eMount  = kDevToolsMountWest;
         DevToolsTheme m_eTheme  = kDevToolsThemeDark;
-        ImFont* m_pDefaultFont  = nullptr;
-        ImFont* m_pSmallFont    = nullptr;
-        ImVec4* m_pColorNo      = nullptr;
-        ImVec4* m_pColorYes     = nullptr;
-        ImVec4* m_pColorWarning = nullptr;
-
+        
         void showAnimation(CCScene*, bool transition);
         void loadStyle();
         void reloadStyle();
@@ -58,7 +50,6 @@ class DevTools {
         void generatePluginInfo(BGDPlugin* plugin);
         void generateContent();
         float getSceneScale();
-        void resizeWindow();
         void updateVisibility(DevToolsMode, DevToolsMount = kDevToolsMountWest);
         void logMessage(BGDLogMessage* msg);
         void loadTheme(DevToolsTheme theme);

@@ -1,6 +1,5 @@
 #include "DevTools.hpp"
 #include <BGDInternal.hpp>
-#include <imgui-hook.hpp>
 #include <limits>
 #include "ArgParser.hpp"
 
@@ -12,234 +11,24 @@
 constexpr static auto resource_dir = const_join_path<bgd_directory, bgd_resource_directory>;
 constexpr static auto font_default = std::string_view("OpenSans-Regular.ttf");
 
-void DevTools::resizeWindow() {
-    auto win = ImGui::GetMainViewport()->Size;
-    auto winSize = CCDirector::sharedDirector()->getWinSize();
-    switch (this->m_eMount) {
-        case kDevToolsMountWest: {
-            auto ratio     = this->m_fWidth    / winSize.width;
-            auto ratio_min = this->m_fMinWidth / winSize.width;
-            auto ratio_max = this->m_fMaxWidth / winSize.width;
-            ImGui::SetNextWindowPos({ 0, 0 });
-            ImGui::SetNextWindowSize({
-                win.x * ratio * this->getSceneScale(), win.y
-            });
-            ImGui::SetNextWindowSizeConstraints({
-                win.x * ratio_min * this->getSceneScale(), win.y
-            }, {
-                win.x * ratio_max * this->getSceneScale(), win.y
-            });
-        } break;
-            
-        case kDevToolsMountEast: {
-            auto ratio     = this->m_fWidth    / winSize.width;
-            auto ratio_min = this->m_fMinWidth / winSize.width;
-            auto ratio_max = this->m_fMaxWidth / winSize.width;
-            ImGui::SetNextWindowPos({
-                win.x - win.x * ratio * this->getSceneScale(), 0
-            });
-            ImGui::SetNextWindowSize({
-                win.x * ratio * this->getSceneScale(), win.y
-            });
-            ImGui::SetNextWindowSizeConstraints({
-                win.x * ratio_min * this->getSceneScale(), win.y
-            }, {
-                win.x * ratio_max * this->getSceneScale(), win.y
-            });
-        } break;
-            
-        case kDevToolsMountSouth: {
-            auto ratio     = this->m_fHeight    / winSize.height;
-            auto ratio_min = this->m_fMinHeight / winSize.height;
-            auto ratio_max = this->m_fMaxHeight / winSize.height;
-            ImGui::SetNextWindowPos({
-                0, win.y - win.y * ratio * this->getSceneScale()
-            });
-            ImGui::SetNextWindowSize({
-                win.x, win.y * ratio * this->getSceneScale()
-            });
-            ImGui::SetNextWindowSizeConstraints({
-                win.x, win.y * ratio_min * this->getSceneScale()
-            }, {
-                win.x, win.y * ratio_max * this->getSceneScale()
-            });
-        } break;
-            
-        case kDevToolsMountNorth: {
-            auto ratio     = this->m_fHeight    / winSize.height;
-            auto ratio_min = this->m_fMinHeight / winSize.height;
-            auto ratio_max = this->m_fMaxHeight / winSize.height;
-            ImGui::SetNextWindowPos({
-                0, 0
-            });
-            ImGui::SetNextWindowSize({
-                win.x, win.y * ratio * this->getSceneScale()
-            });
-            ImGui::SetNextWindowSizeConstraints({
-                win.x, win.y * ratio_min * this->getSceneScale()
-            }, {
-                win.x, win.y * ratio_max * this->getSceneScale()
-            });
-        } break;
-    }
-}
-
 void DevTools::hideOverflow() {
     // no not the hentai
     if (!this->m_bHideOverflow || this->m_eMode == kDevToolsModePopup) {
         return;
     }
 
-    auto win = ImGui::GetMainViewport()->Size;
-    auto winSize = CCDirector::sharedDirector()->getWinSize();
-    auto list = ImGui::GetForegroundDrawList();
-
-    switch (this->m_eMount) {
-        case kDevToolsMountEast: case kDevToolsMountWest: {
-            float height = (win.y - (win.x - ImGui::GetWindowWidth()) * win.y / win.x) / 2;
-            const float offset_l = this->m_eMount == kDevToolsMountWest ?
-                ImGui::GetWindowWidth() : 0;
-            const float offset_r = this->m_eMount == kDevToolsMountEast ?
-                ImGui::GetWindowWidth() : 0;
-
-            list->AddRectFilled({
-                offset_l, 0
-            }, {
-                win.x - offset_r,
-                height
-            }, 0xff000000);
-
-            list->AddRectFilled({
-                offset_l,
-                win.y - height
-            }, {
-                win.x - offset_r,
-                win.y
-            }, 0xff000000);
-        } break;
-
-        case kDevToolsMountSouth: case kDevToolsMountNorth: {
-            float width = (win.x - (win.y - ImGui::GetWindowHeight()) * win.x / win.y) / 2;
-            const float offset_t = this->m_eMount == kDevToolsMountNorth ?
-                ImGui::GetWindowHeight() : 0;
-            const float offset_b = this->m_eMount == kDevToolsMountSouth ?
-                ImGui::GetWindowHeight() : 0;
-
-            list->AddRectFilled({
-                0, offset_t
-            }, {
-                width,
-                win.y - offset_b,
-            }, 0xff000000);
-
-            list->AddRectFilled({
-                win.x - width,
-                offset_t
-            }, {
-                win.x,
-                win.y - offset_b
-            }, 0xff000000);
-        } break;
-    }
+    // todo: do this using Cocos2d
 }
 
 void DevTools::draw() {
     if (this->m_bVisible) {
-        auto& style = ImGui::GetStyle();
-        style.ColorButtonPosition = ImGuiDir_Left;
 
-        this->loadStyle();
-
-        ImGuiWindowFlags flags = 
-            ImGuiWindowFlags_NoScrollbar;
-        
-        if (this->m_eMode == kDevToolsModeIntegrated) {
-            flags |=
-                ImGuiWindowFlags_NoMove |
-                ImGuiWindowFlags_NoCollapse;
-        }
-
-        if (this->m_eMode == kDevToolsModeIntegrated) {
-            this->resizeWindow();
-        }
-        if (ImGui::Begin("BetterGD Dev Tools", nullptr, flags)) {
-            auto win = ImGui::GetMainViewport()->Size;
-            auto winSize = CCDirector::sharedDirector()->getWinSize();
-
-            this->hideOverflow();
-
-            auto& fonts = ImGui::GetIO().Fonts->Fonts;
-            ImGui::PushFont(this->m_pDefaultFont);
-            this->generateContent();
-            ImGui::PopFont();
-
-            if (this->m_eMode == kDevToolsModeIntegrated) {
-                if (
-                    this->m_eMount == kDevToolsMountEast ||
-                    this->m_eMount == kDevToolsMountWest
-                ) {
-                    this->m_fWidth = 
-                        (ImGui::GetWindowWidth()  * winSize.width) /
-                        (win.x * this->getSceneScale());
-                }
-                if (
-                    this->m_eMount == kDevToolsMountSouth ||
-                    this->m_eMount == kDevToolsMountNorth
-                ) {
-                    this->m_fHeight =
-                        (ImGui::GetWindowHeight() * winSize.height) /
-                        (win.y * this->getSceneScale());
-                }
-            }
-            this->fixSceneScale(CCDirector::sharedDirector()->getRunningScene());
-        }
-        ImGui::End();
     }
 }
 
-DevTools::DevTools() {
-    this->m_pColorYes       = new ImVec4;
-    this->m_pColorNo        = new ImVec4;
-    this->m_pColorWarning   = new ImVec4;
+DevTools::DevTools() {}
 
-    ImGuiHook::setRenderFunction([this]() -> void { this->draw(); });
-    ImGuiHook::setToggleCallback([this]() -> void {
-        this->m_bVisible ^= 1;
-    });
-    ImGuiHook::setupHooks([](void* target, void* hook, void** trampoline) -> void {
-        BGDInternalPlugin::get()->addHookInternal(target, hook, trampoline);
-    });
-    ImGuiHook::setInitFunction([this]() -> void {
-        auto& io = ImGui::GetIO();
-        static const ImWchar icon_ranges[] = { FEATHER_MIN_FA, FEATHER_MAX_FA, 0 };
-
-        ImFontConfig defConfig;
-        defConfig.MergeMode = true;
-        this->m_pDefaultFont = io.Fonts->AddFontFromMemoryTTF(
-            Font_OpenSans, sizeof Font_OpenSans, 18.f
-        );
-        io.Fonts->AddFontFromMemoryTTF(
-            Font_FeatherIcons, sizeof Font_FeatherIcons, 14.f, &defConfig, icon_ranges
-        );
-        io.Fonts->Build();
-
-        ImFontConfig smallConfig;
-        smallConfig.MergeMode = true;
-        this->m_pSmallFont = io.Fonts->AddFontFromMemoryTTF(
-            Font_OpenSans, sizeof Font_OpenSans, 10.f
-        );
-        io.Fonts->AddFontFromMemoryTTF(
-            Font_FeatherIcons, sizeof Font_FeatherIcons, 6.f, &smallConfig, icon_ranges
-        );
-        io.Fonts->Build();
-    });
-}
-
-DevTools::~DevTools() {
-    delete this->m_pColorYes;
-    delete this->m_pColorNo;
-    delete this->m_pColorWarning;
-}
+DevTools::~DevTools() {}
 
 DevTools* DevTools::get() {
     static auto g_dev = new DevTools;
@@ -258,20 +47,11 @@ void DevTools::reloadStyle() {
 }
 
 void DevTools::updateVisibility(DevToolsMode mode, DevToolsMount mount) {
-    if (this->m_eMode == kDevToolsModePopup) {
-        this->m_obPopoutSize.width  = ImGui::GetWindowSize().x;
-        this->m_obPopoutSize.height = ImGui::GetWindowSize().y;
-    }
+    if (this->m_eMode == kDevToolsModePopup) {}
     if (mode == kDevToolsModePopup) {
-        ImGui::SetWindowSize({
-            this->m_obPopoutSize.width,
-            this->m_obPopoutSize.height
-        });
+        // todo
     } else {
-        ImGui::SetWindowSize({
-            this->m_fWidth,
-            this->m_fHeight
-        });
+        // todo
     }
     auto scene = CCDirector::sharedDirector()->getRunningScene();
     this->m_eMode = mode;
