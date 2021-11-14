@@ -20,5 +20,6 @@
 #include "tools/keybinds/KeybindManager.hpp"
 
 #include "tools/other/EditCommand.hpp"
+#include "tools/other/OverlayNode.hpp"
 
 #include "tools/gmd/gmd.hpp"
