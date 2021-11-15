@@ -4,9 +4,12 @@
 #include "../../submodules/GL/glew.h"
 #include "DevTools.hpp"
 #include <BGDInternal.hpp>
+#include <windowsx.h>
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 static bool g_bRenderInSwapBuffers = false;
+static bool g_bShouldPassEventsToGDButTransformed = false;
+static ImVec4 g_obGDWindowRect;
 
 void CCEGLView_swapBuffers(CCEGLView* self) {
     static bool g_init = [self]() -> bool {
@@ -58,9 +61,27 @@ bool operator!=(ImVec2 const& v1, ImVec2 const& v2) {
     return v1.x == v2.x && v1.y == v2.y;
 }
 
+void CCEGLView_onGLFWMouseMoveCallBack(CCEGLView* self, GLFWwindow* window, double x, double y) {
+    if (g_bShouldPassEventsToGDButTransformed) {
+        auto win = ImGui::GetMainViewport()->Size;
+
+        x = (x / win.x) * g_obGDWindowRect.z + g_obGDWindowRect.x;
+        y = (y / win.y) * g_obGDWindowRect.w + g_obGDWindowRect.y;
+
+        std::cout << "tranformed\n";
+    }
+
+    hook::orig<&CCEGLView_onGLFWMouseMoveCallBack, hook::Thiscall>(self, window, x, y);
+}
+static InternalCreateHook<&CCEGLView_onGLFWMouseMoveCallBack, hook::Thiscall>$ccevogmmc(
+    "libcocos2d.dll",
+    "?onGLFWMouseMoveCallBack@CCEGLView@cocos2d@@IAEXPAUGLFWwindow@@NN@Z"
+);
+
 void CCDirector_drawScene(CCDirector* self) {
     if (!DevTools::get()->shouldPopGame()) {
         g_bRenderInSwapBuffers = true;
+        g_bShouldPassEventsToGDButTransformed = false;
         return hook::orig<&CCDirector_drawScene>(self);
     }
     g_bRenderInSwapBuffers = false;
@@ -141,7 +162,6 @@ void CCDirector_drawScene(CCDirector* self) {
 
     if (ImGui::Begin("Geometry Dash")) {
         auto ratio = winSize.size.width / winSize.size.height;
-        auto win = ImGui::GetMainViewport()->Size;
         ImVec2 imgSize = {
             (ImGui::GetWindowHeight() - 35) * ratio,
             (ImGui::GetWindowHeight() - 35)
@@ -158,23 +178,12 @@ void CCDirector_drawScene(CCDirector* self) {
         ImGui::Image(as<ImTextureID>(renderedTexture),
             imgSize, { 0, 1 }, { 1, 0 }
         );
-        static bool   s_clicked = false;
-        static ImVec2 s_lastPos = { -1.f, -1.f };
-        if (ImGui::IsItemHovered()) {
-            if (ImGui::GetMousePos() != s_lastPos) {
-                s_lastPos = ImGui::GetMousePos();
-                self->getOpenGLView()->onGLFWMouseMoveCallBack(
-                    self->getOpenGLView()->getWindow(),
-                    (ImGui::GetMousePos().x / win.x) * imgSize.x + pos.x,
-                    (ImGui::GetMousePos().y / win.y) * imgSize.y + pos.y
-                );
-            }
-            if (s_clicked != ImGui::IsMouseDown(0)) {
-                self->getOpenGLView()->onGLFWMouseCallBack(
-                    self->getOpenGLView()->getWindow(), 0, s_clicked, 0
-                );
-            }
-        }
+        g_obGDWindowRect = {
+            ImGui::GetWindowPos().x + pos.x,
+            ImGui::GetWindowPos().y + pos.y,
+            imgSize.x, imgSize.y
+        };
+        g_bShouldPassEventsToGDButTransformed = ImGui::IsItemHovered();
     }
     ImGui::End();
 
@@ -240,6 +249,17 @@ void CCEGLView_pollEvents(CCEGLView* self) {
             }
         }
 
+        if (g_bShouldPassEventsToGDButTransformed && msg.message == WM_MOUSEMOVE) {
+            auto win = ImGui::GetMainViewport()->Size;
+            auto mpos = ImVec2(
+                GET_X_LPARAM(msg.lParam) - g_obGDWindowRect.x,
+                GET_Y_LPARAM(msg.lParam) - g_obGDWindowRect.y
+            );
+            auto x = (mpos.x / g_obGDWindowRect.z) * win.x;
+            auto y = (mpos.y / g_obGDWindowRect.w) * win.y;
+            msg.lParam = MAKELPARAM(x, y);
+        }
+
         if (io.WantCaptureKeyboard) {
             switch(msg.message) {
                 case WM_HOTKEY:
@@ -251,6 +271,10 @@ void CCEGLView_pollEvents(CCEGLView* self) {
                 case WM_SYSKEYUP:
                     blockInput = true;
             }
+        }
+
+        if (g_bShouldPassEventsToGDButTransformed) {
+            blockInput = false;
         }
 
         if (!blockInput) {
