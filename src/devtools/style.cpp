@@ -202,6 +202,8 @@ void DevTools::loadTheme(DevToolsTheme theme) {
             LIGHTEN_COLOR(      Tab,                Button, -20);
             COPY_COLOR(         TabHovered,         ButtonHovered);
             COPY_COLOR(         TabActive,          ButtonActive);
+            LIGHTEN_COLOR_A(    TableBorderStrong,  _Text, 0, -50);
+            LIGHTEN_COLOR_A(    TableBorderLight,   _Text, 0, -100);
         } break;
     }
 }

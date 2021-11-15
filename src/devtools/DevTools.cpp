@@ -7,6 +7,7 @@
 #include "OpenSans.hpp"
 #include "BGDIcons.hpp"
 #include "FeatherIcons.hpp"
+#include "RobotoMono.hpp"
 #undef max
 
 constexpr static auto resource_dir = const_join_path<bgd_directory, bgd_resource_directory>;
@@ -42,28 +43,24 @@ void DevTools::draw() {
 }
 
 void DevTools::initFonts() {
-    auto& io = ImGui::GetIO();
     static const ImWchar icon_ranges[] = { FEATHER_MIN_FA, FEATHER_MAX_FA, 0 };
+    
+    static const auto add_font = +[](ImFont** member, void* font, float size) -> void {
+        auto& io = ImGui::GetIO();
+        ImFontConfig config;
+        config.MergeMode = true;
+        *member = io.Fonts->AddFontFromMemoryTTF(
+            font, sizeof font, size
+        );
+        io.Fonts->AddFontFromMemoryTTF(
+            Font_FeatherIcons, sizeof Font_FeatherIcons, size - 4.f, &config, icon_ranges
+        );
+        io.Fonts->Build();
+    };
 
-    ImFontConfig defConfig;
-    defConfig.MergeMode = true;
-    this->m_pDefaultFont = io.Fonts->AddFontFromMemoryTTF(
-        Font_OpenSans, sizeof Font_OpenSans, 18.f
-    );
-    io.Fonts->AddFontFromMemoryTTF(
-        Font_FeatherIcons, sizeof Font_FeatherIcons, 14.f, &defConfig, icon_ranges
-    );
-    io.Fonts->Build();
-
-    ImFontConfig smallConfig;
-    smallConfig.MergeMode = true;
-    this->m_pSmallFont = io.Fonts->AddFontFromMemoryTTF(
-        Font_OpenSans, sizeof Font_OpenSans, 10.f
-    );
-    io.Fonts->AddFontFromMemoryTTF(
-        Font_FeatherIcons, sizeof Font_FeatherIcons, 6.f, &smallConfig, icon_ranges
-    );
-    io.Fonts->Build();
+    add_font(&this->m_pDefaultFont, Font_OpenSans,   18.f);
+    add_font(&this->m_pSmallFont,   Font_OpenSans,   10.f);
+    add_font(&this->m_pMonoFont,    Font_RobotoMono, 18.f);
 }
 
 DevTools::DevTools() {
@@ -89,39 +86,15 @@ class AccessSpecifiersAreForNerds : public CCTransitionScene {
         CCScene* getOut() { return this->m_pOutScene; }
 };
 
+void DevTools::selectNode(CCNode* node) {
+    CC_SAFE_RELEASE(this->m_pSelectedNode);
+    this->m_pSelectedNode = node;
+    CC_SAFE_RETAIN(this->m_pSelectedNode);
+}
+
 void DevTools::reloadStyle() {
     this->m_bLoadedStyle = false;
     this->loadStyle();
-}
-
-void DevTools::updateSceneScale(CCScene* scene) {
-    if (!ImGui::GetCurrentContext())
-        return;
-
-    auto win = ImGui::GetMainViewport()->Size;
-
-    enum docking {
-        left        = 0b1,
-        top         = 0b10,
-        right       = 0b100,
-        bottom      = 0b1000,
-    };
-
-    for (auto const& info : this->m_vDockInfo) {
-        int dock = 0;
-        if (info.origin.x <= 0.f) {
-            dock |= left;
-        }
-        if (info.origin.y <= 0.f) {
-            dock |= top;
-        }
-        if (info.origin.x + info.size.width >= win.x) {
-            dock |= right;
-        }
-        if (info.origin.y + info.size.height >= win.y) {
-            dock |= bottom;
-        }
-    }
 }
 
 void DevTools::fixSceneScale(CCScene* scene) {
@@ -130,13 +103,11 @@ void DevTools::fixSceneScale(CCScene* scene) {
     );
     if (t) {
         scene = t->getIn();
-        this->updateSceneScale(t->getOut());
     }
-    this->updateSceneScale(scene);
 }
 
 void DevTools::willSwitchToScene(CCScene* scene) {
-    this->m_pSelectedNode = nullptr;
+    this->selectNode(nullptr);
     this->fixSceneScale(scene);
 }
 
@@ -240,33 +211,41 @@ void DevTools::executeConsoleCommand(std::string const& cmd) {
         return;
     }
     
-    std::vector<std::string> args;
-    split_in_args(args, cmd);
+    auto args = parser.value();
 
-    switch (hash(args[0].c_str())) {
-        case "goto"_h: {
-            if (args.size() < 2) {
+    SWITCH_ARGS {
+        HANDLER("goto") {
+            if (!args.hasArg(1)) {
                 BGDInternalPlugin::get()->throwError(
                     "Invalid Command: \"goto\" requires a second parameter of type SceneID",
                     kBGDSeverityError
                 );
             } else {
                 auto scene = createSceneByLayerName(
-                    args[1], as<void*>(args.size() < 3 ? 0 : std::stoi(args[2]))
+                    args.at(1), as<void*>(std::stoi(args.at(2, "0")))
                 );
                 if (scene) {
-                    BGDInternalPlugin::get()->log() << "Moving to scene " << args[1] << bgd::endl;
+                    BGDInternalPlugin::get()->log() << "Moving to scene " << args.at(1) << bgd::endl;
                     CCDirector::sharedDirector()->replaceScene(CCTransitionFade::create(.5f, scene));
                     this->m_bCommandSuccess = true;
                 } else {
                     BGDInternalPlugin::get()->log() << kBGDSeverityError << kBGDLogTypeError <<
-                        "Invalid Command: \"" << args[1] << "\" is not a valid SceneID" << bgd::endl;
+                        "Invalid Command: \"" << args.at(1) << "\" is not a valid SceneID" << bgd::endl;
                 }
             }
-        } break;
+        }
     
-        default:
-            BGDInternalPlugin::get()->log() << kBGDSeverityError << kBGDLogTypeError <<
-                "Unknown Command: \"" << args[0] << "\"" << bgd::endl;
+        SWITCH_SUB("test") {
+            HANDLER("warn") {
+                BGDInternalPlugin::get()->log()
+                    << kBGDSeverityWarning
+                    << "Example warning"
+                    << bgd::endl;
+            }
+
+            UNKNOWN_HANDLER();
+        }
+    
+        UNKNOWN_HANDLER();
     }
 }

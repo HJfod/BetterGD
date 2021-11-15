@@ -9,6 +9,7 @@
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 static bool g_bRenderInSwapBuffers = false;
 static bool g_bShouldPassEventsToGDButTransformed = false;
+static bool g_bUpdateBuffer = false;
 static ImVec4 g_obGDWindowRect;
 
 void CCEGLView_swapBuffers(CCEGLView* self) {
@@ -61,6 +62,15 @@ bool operator!=(ImVec2 const& v1, ImVec2 const& v2) {
     return v1.x == v2.x && v1.y == v2.y;
 }
 
+void CCEGLView_updateWindow(CCEGLView* self, int width, int height) {
+    g_bUpdateBuffer = true;
+    return hook::orig<&CCEGLView_updateWindow>(self, width, height);
+}
+static InternalCreateHook<&CCEGLView_updateWindow>$ccevuw(
+    "libcocos2d.dll",
+    "?updateWindow@CCEGLView@cocos2d@@QAEXHH@Z"
+);
+
 void CCDirector_drawScene(CCDirector* self) {
     static GLuint s_buffer  = 0;
     static GLuint s_texture = 0;
@@ -87,6 +97,11 @@ void CCDirector_drawScene(CCDirector* self) {
         return hook::orig<&CCDirector_drawScene>(self);
     }
     g_bRenderInSwapBuffers = false;
+
+    if (g_bUpdateBuffer) {
+        s_free();
+        g_bUpdateBuffer = false;
+    }
 
     auto winSize = self->getOpenGLView()->getViewPortRect();
 
@@ -124,7 +139,9 @@ void CCDirector_drawScene(CCDirector* self) {
     }
 
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-        std::cout << "oh no\n";
+        BGDInternalPlugin::get()->log()
+            << kBGDLogTypeError << kBGDSeverityError
+            << "Unable to Render to Framebuffer" << bgd::endl;
         s_free();
         hook::orig<&CCDirector_drawScene>(self);
         return;

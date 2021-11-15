@@ -25,18 +25,17 @@ class DevTools {
         bool m_bGDInWindow      = true;
         bool m_bAttributesInTree= false;
         bool m_bCommandSuccess  = false;
+        size_t m_nLastLogCount  = 0;
         bool m_bOddHtmlStyleSetting=false;
         DevToolsTheme m_eTheme  = kDevToolsThemeDark;
         ImFont* m_pDefaultFont  = nullptr;
         ImFont* m_pSmallFont    = nullptr;
+        ImFont* m_pMonoFont     = nullptr;
         ImVec4* m_pColorNo      = nullptr;
         ImVec4* m_pColorYes     = nullptr;
         ImVec4* m_pColorWarning = nullptr;
-        std::vector<CCRect> m_vDockInfo;
         CCNode* m_pSelectedNode = nullptr;
         ImGuiID m_nDockSpaceID  = 0;
-
-        void updateSceneScale(CCScene*);
 
         void executeConsoleCommand(std::string const&);
         
@@ -50,8 +49,12 @@ class DevTools {
         void recurseGetParents(std::vector<CCNode*>& vec, CCNode* node);
         void logMessage(BGDLogMessage* msg);
         void generatePluginInfo(BGDPlugin* plugin);
+        void hoverableNodeName(CCNode* node);
         void generateTree();
         void generateTabs();
+        template<int TabID>
+        void generateTab();
+        void selectNode(CCNode* node);
 
         void draw();
         

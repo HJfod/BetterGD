@@ -94,3 +94,4 @@ BGD_LOAD(MyPlugin);
  * Hooking backend from [lilac](https://github.com/lilac-sdk/core) by the lilac team
  * Hooking API based on [mat-dash](https://github.com/matcool/mat-dash) by [mat](https://github.com/matcool)
  * Zipping utilities based on [Zipper](https://github.com/sebastiandev/zipper)
+ * RTTI reading functionality from [RTTI-Finder-Dumper](https://github.com/theluc4s/RTTI-Finder-Dumper)

@@ -22,11 +22,11 @@ bool ParsedArgs::hasArg(size_t index) const {
     return index < this->m_vArgs.size();
 }
 
-arg_value_type ParsedArgs::at(size_t index) const {
+arg_value_type ParsedArgs::at(size_t index, arg_value_type const& default) const {
     if (index < this->m_vArgs.size()) {
         return this->m_vArgs[index];
     }
-    return arg_value_type();
+    return default;
 }
 
 std::vector<arg_name_type> ParsedArgs::getArgs() const {
