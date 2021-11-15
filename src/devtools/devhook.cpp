@@ -61,25 +61,27 @@ bool operator!=(ImVec2 const& v1, ImVec2 const& v2) {
     return v1.x == v2.x && v1.y == v2.y;
 }
 
-void CCEGLView_onGLFWMouseMoveCallBack(CCEGLView* self, GLFWwindow* window, double x, double y) {
-    if (g_bShouldPassEventsToGDButTransformed) {
-        auto win = ImGui::GetMainViewport()->Size;
-
-        x = (x / win.x) * g_obGDWindowRect.z + g_obGDWindowRect.x;
-        y = (y / win.y) * g_obGDWindowRect.w + g_obGDWindowRect.y;
-
-        std::cout << "tranformed\n";
-    }
-
-    hook::orig<&CCEGLView_onGLFWMouseMoveCallBack, hook::Thiscall>(self, window, x, y);
-}
-static InternalCreateHook<&CCEGLView_onGLFWMouseMoveCallBack, hook::Thiscall>$ccevogmmc(
-    "libcocos2d.dll",
-    "?onGLFWMouseMoveCallBack@CCEGLView@cocos2d@@IAEXPAUGLFWwindow@@NN@Z"
-);
-
 void CCDirector_drawScene(CCDirector* self) {
+    static GLuint s_buffer  = 0;
+    static GLuint s_texture = 0;
+    static GLuint s_depth   = 0;
+    static auto s_free = +[]() -> void {
+        if (s_depth) {
+            glDeleteRenderbuffers(1, &s_depth);
+            s_depth = 0;
+        }
+        if (s_texture) {
+            glDeleteTextures(1, &s_texture);
+            s_texture = 0;
+        }
+        if (s_buffer) {
+            glDeleteFramebuffers(1, &s_buffer);
+            s_buffer = 0;
+        }
+    };
+
     if (!DevTools::get()->shouldPopGame()) {
+        s_free();
         g_bRenderInSwapBuffers = true;
         g_bShouldPassEventsToGDButTransformed = false;
         return hook::orig<&CCDirector_drawScene>(self);
@@ -88,56 +90,47 @@ void CCDirector_drawScene(CCDirector* self) {
 
     auto winSize = self->getOpenGLView()->getViewPortRect();
 
-    // The framebuffer, which regroups 0, 1, or more textures, and 0 or 1 depth buffer.
-    GLuint framebuffer = 0;
-    glGenFramebuffers(1, &framebuffer);
-    glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+    if (!s_buffer) {
+        glGenFramebuffers(1, &s_buffer);
+        glBindFramebuffer(GL_FRAMEBUFFER, s_buffer);
+    }
 
-    // The texture we're going to render to
-    GLuint renderedTexture;
-    glGenTextures(1, &renderedTexture);
+    if (!s_texture) {
+        glGenTextures(1, &s_texture);
+        glBindTexture(GL_TEXTURE_2D, s_texture);
 
-    // "Bind" the newly created texture : all future texture functions will modify this texture
-    glBindTexture(GL_TEXTURE_2D, renderedTexture);
+        glTexImage2D(
+            GL_TEXTURE_2D, 0,GL_RGB,
+            static_cast<GLsizei>(winSize.size.width),
+            static_cast<GLsizei>(winSize.size.height),
+            0,GL_RGB, GL_UNSIGNED_BYTE, 0
+        );
 
-    // Give an empty image to OpenGL ( the last "0" )
-    glTexImage2D(
-        GL_TEXTURE_2D, 0,GL_RGB,
-        static_cast<GLsizei>(winSize.size.width),
-        static_cast<GLsizei>(winSize.size.height),
-        0,GL_RGB, GL_UNSIGNED_BYTE, 0
-    );
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    }
 
-    // Poor filtering. Needed !
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    if (!s_depth) {
+        glGenRenderbuffers(1, &s_depth);
+        glBindRenderbuffer(GL_RENDERBUFFER, s_depth);
+        glRenderbufferStorage(
+            GL_RENDERBUFFER, GL_DEPTH_COMPONENT,
+            static_cast<GLsizei>(winSize.size.width),
+            static_cast<GLsizei>(winSize.size.height)
+        );
+        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, s_depth);
 
-    // The depth buffer
-    GLuint depthrenderbuffer;
-    glGenRenderbuffers(1, &depthrenderbuffer);
-    glBindRenderbuffer(GL_RENDERBUFFER, depthrenderbuffer);
-    glRenderbufferStorage(
-        GL_RENDERBUFFER, GL_DEPTH_COMPONENT,
-        static_cast<GLsizei>(winSize.size.width),
-        static_cast<GLsizei>(winSize.size.height)
-    );
-    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthrenderbuffer);
+        glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, s_texture, 0);
+    }
 
-    // Set "renderedTexture" as our colour attachement #0
-    glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, renderedTexture, 0);
-
-    // Always check that our framebuffer is ok
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
         std::cout << "oh no\n";
+        s_free();
         hook::orig<&CCDirector_drawScene>(self);
-        glDeleteRenderbuffers(1, &depthrenderbuffer);
-        glDeleteTextures(1, &renderedTexture);
-        glDeleteFramebuffers(1, &framebuffer);
         return;
     }
 
-    // Render to our framebuffer
-    glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+    glBindFramebuffer(GL_FRAMEBUFFER, s_buffer);
 
     hook::orig<&CCDirector_drawScene>(self);
 
@@ -175,7 +168,7 @@ void CCDirector_drawScene(CCDirector* self) {
         auto pos = (ImGui::GetWindowSize() - imgSize) * .5f;
         pos.y += 10.f;
         ImGui::SetCursorPos(pos);
-        ImGui::Image(as<ImTextureID>(renderedTexture),
+        ImGui::Image(as<ImTextureID>(s_texture),
             imgSize, { 0, 1 }, { 1, 0 }
         );
         g_obGDWindowRect = {
@@ -193,9 +186,6 @@ void CCDirector_drawScene(CCDirector* self) {
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    glDeleteRenderbuffers(1, &depthrenderbuffer);
-    glDeleteTextures(1, &renderedTexture);
-    glDeleteFramebuffers(1, &framebuffer);
 }
 static InternalCreateHook<&CCDirector_drawScene>$ccdds(
     "libcocos2d.dll",

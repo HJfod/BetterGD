@@ -47,6 +47,7 @@ class DevTools {
 
         void recurseUpdateList(CCNode* parent, unsigned int = 0);
         void recurseUpdateListOdd(CCNode* parent, unsigned int = 0);
+        void recurseGetParents(std::vector<CCNode*>& vec, CCNode* node);
         void logMessage(BGDLogMessage* msg);
         void generatePluginInfo(BGDPlugin* plugin);
         void generateTree();

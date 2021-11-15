@@ -136,6 +136,7 @@ void DevTools::fixSceneScale(CCScene* scene) {
 }
 
 void DevTools::willSwitchToScene(CCScene* scene) {
+    this->m_pSelectedNode = nullptr;
     this->fixSceneScale(scene);
 }
 

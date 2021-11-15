@@ -187,6 +187,13 @@ void DevTools::logMessage(BGDLogMessage* log) {
     ImGui::Separator();
 }
 
+void DevTools::recurseGetParents(std::vector<CCNode*>& vec, CCNode* node) {
+    if (node->getParent()) {
+        this->recurseGetParents(vec, node->getParent());
+    }
+    vec.push_back(node);
+}
+
 void DevTools::generateTabs() {
     this->m_vDockInfo = {};
 
@@ -398,6 +405,65 @@ void DevTools::generateTabs() {
                 if (strcmp(text, labelStr)) {
                     labelNode->setString(text);
                 }
+            }
+        }
+    }
+    ImGui::End();
+
+    if (ImGui::Begin(FEATHER_LAYOUT    " Layout")) {
+        if (!this->m_pSelectedNode) {
+            ImGui::TextWrapped("Select a Node to Edit in the Scene or Tree");
+        } else {
+            std::vector<CCNode*> parents;
+            this->recurseGetParents(parents, this->m_pSelectedNode);
+            if (ImGui::BeginTable("dev.node.layout", 4)) {
+                CCPoint accumulatedPos  = CCPointZero;
+                float   accumulatedRot  = 0.f;
+                float   accumulatedScale= 1.f;
+                for (auto const& node : parents) {
+                    accumulatedPos   += node->getPosition();
+                    accumulatedRot   += node->getRotation();
+                    accumulatedScale *= node->getScale();
+                    ImGui::TableNextRow();
+                    ImGui::TableNextColumn();
+                    ImGui::Text(
+                        "[%p] %s",
+                        node, getNodeName(node)
+                    );
+                    ImGui::TableNextColumn();
+                    if (node->getPosition() != CCPointZero) {
+                        ImGui::PushStyleColor(ImGuiCol_Text, *this->m_pColorWarning);
+                    }
+                    ImGui::Text(
+                        "%.2f, %.2f (+ %.2f, %.2f)",
+                        accumulatedPos.x,
+                        accumulatedPos.y,
+                        node->getPositionX(),
+                        node->getPositionY()
+                    );
+                    ImGui::PopStyleColor(node->getPosition() != CCPointZero);
+                    ImGui::TableNextColumn();
+                    if (node->getRotation() != 0.f) {
+                        ImGui::PushStyleColor(ImGuiCol_Text, *this->m_pColorWarning);
+                    }
+                    ImGui::Text(
+                        "%.2f° (+ %.2f°)",
+                        accumulatedRot,
+                        node->getRotation()
+                    );
+                    ImGui::PopStyleColor(node->getRotation() != 0.f);
+                    ImGui::TableNextColumn();
+                    if (node->getScale() != 1.f) {
+                        ImGui::PushStyleColor(ImGuiCol_Text, *this->m_pColorWarning);
+                    }
+                    ImGui::Text(
+                        "%.2fx (* %.2fx)",
+                        accumulatedScale,
+                        node->getScale()
+                    );
+                    ImGui::PopStyleColor(node->getScale() != 1.f);
+                }
+                ImGui::EndTable();
             }
         }
     }
