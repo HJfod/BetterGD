@@ -5,6 +5,7 @@
 #include <imgui.h>
 #include <backends/imgui_impl_win32.h>
 #include <backends/imgui_impl_opengl3.h>
+#include "RTTI/address.hpp"
 #else
 struct ImFont;
 struct ImVec4;
@@ -31,11 +32,13 @@ class DevTools {
         ImFont* m_pDefaultFont  = nullptr;
         ImFont* m_pSmallFont    = nullptr;
         ImFont* m_pMonoFont     = nullptr;
+        ImFont* m_pBoxFont      = nullptr;
         ImVec4* m_pColorNo      = nullptr;
         ImVec4* m_pColorYes     = nullptr;
         ImVec4* m_pColorWarning = nullptr;
         CCNode* m_pSelectedNode = nullptr;
         ImGuiID m_nDockSpaceID  = 0;
+        AddressManager* m_pAddresses = nullptr;
 
         void executeConsoleCommand(std::string const&);
         
@@ -54,6 +57,7 @@ class DevTools {
         void generateTabs();
         template<int TabID>
         void generateTab();
+        void addressData(uintptr_t address);
         void selectNode(CCNode* node);
 
         void draw();

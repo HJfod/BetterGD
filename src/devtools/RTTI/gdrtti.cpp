@@ -18,6 +18,10 @@ GDRTTI& GDRTTI::get() {
     return *g;
 }
 
-std::string GDRTTI::read_rtti(void* pointer) {
+GDRTTI::rtti_t GDRTTI::read_rtti(void* pointer) {
     return this->RTTI::read_rtti(reinterpret_cast<uint32_t*>(pointer)[0]);
+}
+
+bool GDRTTI::valid(uintptr_t pointer) {
+    return this->maybe_valid(static_cast<uint32_t>(pointer));
 }

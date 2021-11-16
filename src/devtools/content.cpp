@@ -5,11 +5,15 @@
 #include <BGDInternal.hpp>
 #include <imgui/imgui_internal.h>
 #include "../config.h"
-#include "FeatherIcons.hpp"
+#include "fonts/FeatherIcons.hpp"
 #include "RTTI/gdrtti.hpp"
 
 #define CHECK_IS(var, newName, type) \
     type* newName = nullptr; if ((newName = dynamic_cast<type*>(var)))
+
+const char* hashlog(BGDLogMessage* log) {
+    return cstrfmt("##%p", log);
+}
 
 ImVec2 toVec2(const CCPoint& a) {
     const auto size = ImGui::GetMainViewport()->Size;
@@ -197,8 +201,14 @@ void DevTools::logMessage(BGDLogMessage* log) {
         min, max, color
     );
     draw_list->ChannelsMerge();
-    ImGui::Separator();
     ImGui::PopFont();
+    if (ImGui::IsMouseHoveringRect(min, max) && ImGui::BeginPopupContextWindow()) {
+        if (ImGui::MenuItem(FEATHER_TRASH_2 " Delete")) {
+            BGDLoader::get()->deleteLog(log);
+        }
+        ImGui::EndPopup();
+    }
+    ImGui::Separator();
 }
 
 void DevTools::recurseGetParents(std::vector<CCNode*>& vec, CCNode* node) {
@@ -266,14 +276,100 @@ void DevTools::generateTab<"Class Data"_h>() {
     }
     ImGui::PushFont(this->m_pMonoFont);
     ImGui::TextWrapped("Address: 0x%p", this->m_pSelectedNode);
+    ImGui::SameLine();
+    if (ImGui::Button(FEATHER_COPY " Copy")) {
+        copyToClipboard(cstrfmt("%p", this->m_pSelectedNode));
+    }
+   
+    static int s_read_count_buf = 0xec;
+    static int s_read_count = s_read_count_buf;
+    ImGui::Text("Size: 0x");
+    ImGui::SameLine();
+    if (ImGui::InputInt(
+        "##dev.class.read_count",
+        &s_read_count_buf, 4, 0x20,
+        ImGuiInputTextFlags_CharsHexadecimal |
+        ImGuiInputTextFlags_EnterReturnsTrue
+    )) {
+        s_read_count_buf -= s_read_count_buf % 4;
+        s_read_count = s_read_count_buf;
+    }
+   
     auto& rtti = GDRTTI::get();
-    auto  info  = rtti.read_rtti(this->m_pSelectedNode);
+    auto  info = rtti.read_rtti(this->m_pSelectedNode);
     if (info.size()) {
-        auto ninfo = string_replace(info, " : ", "\n     : ");
-        ImGui::TextWrapped(ninfo.c_str());
+        auto base = info[0];
+        info.erase(info.begin());
+        if (ImGui::TreeNode(base.get_name().c_str())) {
+            ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, { .0f, .5f });
+            std::vector<uint32_t> indent;
+            indent.push_back(base.get_bases());
+            for (auto const& r : info) {
+                indent.push_back(r.get_bases());
+                for (auto& i : indent) {
+                    i--;
+                }
+                while (indent.back() <= 0) {
+                    indent.pop_back();
+                }
+                ImGui::PushFont(this->m_pBoxFont);
+                std::string is = " ";
+                for (auto ix = 0u; ix < indent.size() - 1; ix++) {
+                    if (indent[ix] > 1) {
+                        is += u8"\u2502 ";
+                    } else {
+                        is += u8"  ";
+                    }
+                }
+                if (indent.back() < r.get_bases() + 1) {
+                    is += u8"\u2514\u2500";
+                } else {
+                    is += u8"\u251C\u2500";
+                }
+                ImGui::TextWrapped(is.c_str());
+                ImGui::SameLine();
+                ImGui::PopFont();
+                ImGui::TextWrapped(
+                    u8"[0x%x] %s",
+                    r.get_offset(),
+                    r.get_name().c_str()
+                );
+                if (ImGui::IsItemHovered()) {
+                    ImGui::SetTooltip(
+                        "%s (+ 0x%x)",
+                        r.get_mangled_name().c_str(),
+                        r.get_offset()
+                    );
+                }
+            }
+            ImGui::PopStyleVar();
+        }
     } else {
         ImGui::TextWrapped(FEATHER_ALERT_TRIANGLE " No RTTI Found");
     }
+    
+    for (int i = 0; i < s_read_count; i += 4) {
+        auto addr = as<uintptr_t>(this->m_pSelectedNode) + i;
+        if (rtti.valid(addr)) {
+            auto data = *as<uintptr_t*>(addr);
+            if (rtti.valid(data)) {
+                ImGui::Text(
+                    "+ %d : %x -> %x",
+                    i, data, *as<uintptr_t*>(data)
+                );
+            } else {
+                ImGui::Text(
+                    "+ %d : %x, %.6f",
+                    i, data, union_cast<float>(data)
+                );
+            }
+        } else {
+            ImGui::Text(
+                "+ %d : " FEATHER_ALERT_OCTAGON " <Unreadable Address>", i
+            );
+        }
+    }
+
     ImGui::PopFont();
 }
 
@@ -307,6 +403,9 @@ template<>
 void DevTools::generateTab<"Attributes"_h>() {
     if (!this->m_pSelectedNode) {
         return ImGui::TextWrapped("Select a Node to Edit in the Scene or Tree");
+    }
+    if (ImGui::Button("Deselect")) {
+        return this->selectNode(nullptr);
     }
     ImGui::Text("Address: 0x%p", this->m_pSelectedNode);
     ImGui::SameLine();

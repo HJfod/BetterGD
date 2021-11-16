@@ -12,7 +12,8 @@ class GDRTTI : public RTTI {
 
     public:
         static GDRTTI& get();
-        std::string read_rtti(void*);
+        rtti_t read_rtti(void*);
+        bool valid(uintptr_t pointer);
 
         GDRTTI(GDRTTI const&) = delete;
 	    GDRTTI& operator=( const GDRTTI& ) = delete;

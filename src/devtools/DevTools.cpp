@@ -4,10 +4,11 @@
 #include <limits>
 #include "ArgParser.hpp"
 
-#include "OpenSans.hpp"
-#include "BGDIcons.hpp"
-#include "FeatherIcons.hpp"
-#include "RobotoMono.hpp"
+#include "fonts/OpenSans.hpp"
+#include "fonts/BGDIcons.hpp"
+#include "fonts/FeatherIcons.hpp"
+#include "fonts/RobotoMono.hpp"
+#include "fonts/SourceCodeProLight.hpp"
 #undef max
 
 constexpr static auto resource_dir = const_join_path<bgd_directory, bgd_resource_directory>;
@@ -44,13 +45,17 @@ void DevTools::draw() {
 
 void DevTools::initFonts() {
     static const ImWchar icon_ranges[] = { FEATHER_MIN_FA, FEATHER_MAX_FA, 0 };
+    static const ImWchar box_ranges[]  = { BOX_DRAWING_MIN_FA, BOX_DRAWING_MAX_FA, 0 };
+    static const ImWchar* def_ranges   = ImGui::GetIO().Fonts->GetGlyphRangesDefault();
     
-    static const auto add_font = +[](ImFont** member, void* font, float size) -> void {
+    static const auto add_font = +[](
+        ImFont** member, void* font, float size, const ImWchar* range
+    ) -> void {
         auto& io = ImGui::GetIO();
         ImFontConfig config;
         config.MergeMode = true;
         *member = io.Fonts->AddFontFromMemoryTTF(
-            font, sizeof font, size
+            font, sizeof font, size, nullptr, range
         );
         io.Fonts->AddFontFromMemoryTTF(
             Font_FeatherIcons, sizeof Font_FeatherIcons, size - 4.f, &config, icon_ranges
@@ -58,21 +63,24 @@ void DevTools::initFonts() {
         io.Fonts->Build();
     };
 
-    add_font(&this->m_pDefaultFont, Font_OpenSans,   18.f);
-    add_font(&this->m_pSmallFont,   Font_OpenSans,   10.f);
-    add_font(&this->m_pMonoFont,    Font_RobotoMono, 18.f);
+    add_font(&this->m_pDefaultFont, Font_OpenSans,          18.f, def_ranges);
+    add_font(&this->m_pSmallFont,   Font_OpenSans,          10.f, def_ranges);
+    add_font(&this->m_pMonoFont,    Font_RobotoMono,        18.f, def_ranges);
+    add_font(&this->m_pBoxFont,     Font_SourceCodeProLight,23.f, box_ranges);
 }
 
 DevTools::DevTools() {
     this->m_pColorYes       = new ImVec4;
     this->m_pColorNo        = new ImVec4;
     this->m_pColorWarning   = new ImVec4;
+    this->m_pAddresses      = new AddressManager;
 }
 
 DevTools::~DevTools() {
     delete this->m_pColorYes;
     delete this->m_pColorNo;
     delete this->m_pColorWarning;
+    delete this->m_pAddresses;
 }
 
 DevTools* DevTools::get() {
