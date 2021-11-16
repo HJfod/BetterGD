@@ -8,49 +8,108 @@ enum DataType {
     kDataTypeBool,
     kDataTypeChar,
     kDataTypeInt,
-    kDataTypeFloat,
     kDataTypeLong,
+    kDataTypeLongLong,
+    kDataTypeFloat,
     kDataTypeDouble,
     kDataTypePointer,
-    kDataTypeStruct,
+    kDataTypeVoid,
+    kDataTypeUnknown,
 };
 
-struct datatype {
-    bool    is_const    = false;
-    bool    is_signed   = true;
-    size_t  size        = 0;
+constexpr size_t sizeOfDefaultDataType(DataType type);
+constexpr const char* stringFromDefaultDataType(DataType type);
 
-    virtual std::string to_string() const = 0;
-    virtual ~datatype() = default;
+struct MemberVariableBase {
+    virtual             ~MemberVariableBase()  = default;
+    virtual size_t      calc_size()      const = 0;
+    virtual std::string type_to_string() const = 0;
 };
 
-#define DEFINE_NORMAL_DATATYPE(type, type2)             \
-    struct dt_##type : public datatype {                \
-        inline std::string to_string() const override { \
-            return #type #type2;                        \
-        }                                               \
-        dt_##type() : size(sizeof type type2) {}        \
-    };                                                  \
+struct MemberVariable : public MemberVariableBase {
+    DataType        m_type;
+    bool            m_signed = true;
+    bool            m_const  = false;
 
-DEFINE_NORMAL_DATATYPE(bool);
-DEFINE_NORMAL_DATATYPE(int);
-DEFINE_NORMAL_DATATYPE(long);
-DEFINE_NORMAL_DATATYPE(long, long);
-DEFINE_NORMAL_DATATYPE(char);
-DEFINE_NORMAL_DATATYPE(float);
-DEFINE_NORMAL_DATATYPE(double);
+    size_t      calc_size()      const override;
+    std::string type_to_string() const override;
 
-struct dt_void : public datatype {
-    inline std::string to_string() const override { return "void"; }
+    MemberVariable(
+        DataType type
+    ) : m_type(type) {}
 };
 
-struct MixedDataType {
-    std::vector<DataType> m_members;
+struct PadMemberVariable : public MemberVariableBase {
+    size_t m_size;
+
+    inline size_t      calc_size()      const override { return this->m_size; }
+    inline std::string type_to_string() const override { return "PAD"; }
+};
+
+using MemberList = std::vector<std::tuple<std::string, MemberVariableBase>>;
+
+struct MixedMemberVariable : public MemberVariableBase {
+    std::string m_name;
+    MemberList m_members;
+    size_t calc_size() const override;
+};
+
+struct UnionMemberVariable : public MixedMemberVariable {
+    inline std::string type_to_string() const override {
+        return "union";
+    }
+};
+
+struct EnumMemberVariable : public MixedMemberVariable {
+    DataType                 m_base_type;
+    inline std::string type_to_string() const override {
+        return "enum";
+    }
+};
+
+struct StructMemberVariable : public MixedMemberVariable {
+    bool                        m_is_class = false;
+    inline std::string type_to_string() const override {
+        return m_is_class ? "class" : "struct";
+    }
+
+    StructMemberVariable(
+        std::string const& name,
+        MemberList  const& members,
+        bool is_class = false
+    ) : m_name(name),
+        m_members(members),
+        m_is_class(is_class) {}
+};
+
+
+static StructMemberVariable MV_CCPoint {
+    "CCPoint",
+    {
+        { "x", kDataTypeFloat },
+        { "y", kDataTypeFloat },
+    }
+};
+
+static StructMemberVariable MV_CCSize {
+    "CCSize",
+    {
+        { "width",  kDataTypeFloat },
+        { "height", kDataTypeFloat },
+    }
+};
+
+static StructMemberVariable MV_CCRect {
+    "CCRect",
+    {
+        { "origin", MV_CCPoint },
+        { "size",   MV_CCSize },
+    }
 };
 
 class AddressInfo {
     std::string m_name;
-    DataType    m_type; 
+    MemberVariableBase m_type;
 };
 
 class AddressManager {
@@ -58,7 +117,7 @@ class AddressManager {
         std::map<address_t, AddressInfo> m_info;
 
     public:
-        void load_info(address_t addr);
+        void deduce_info(address_t addr);
         Result<AddressInfo> info_at(address_t addr);
 };
 
