@@ -16,14 +16,6 @@ class OtherPlugin : public bgd::BGDPlugin {
         BGD_PLUGIN_GET(OtherPlugin);
 };
 
-
-
-
-
-
-
-
-
 bool GJGarageLayer_init(GJGarageLayer* self) {
     if (!bgd::hook::orig<&GJGarageLayer_init>(self))
         return false;
@@ -46,15 +38,6 @@ bool GJGarageLayer_init(GJGarageLayer* self) {
     return true;
 }
 static CreateHook<&GJGarageLayer_init>$gjgli(base + 0x1255d0, OtherPlugin::get());
-
-
-
-
-
-
-
-
-
 
 BGD_LOAD(OtherPlugin);
 
