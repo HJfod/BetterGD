@@ -1,0 +1,3 @@
+[submodule "submodules/lilac"]
+	path = submodules/lilac
+	url = https://github.com/lilac-sdk/lilac

@@ -1,0 +1,12 @@
+{
+    "lilac":        1,
+	"version":      "v0.1.0",
+	"id":           "com.hjfod.bettergd",
+    "name":         "BetterGD",
+    "developer":    "HJfod",
+    "description":  "Shared Utilities for BetterGD",
+    "details":      "Shared Utilities for BetterGD mods",
+    "credits":      null,
+	"dependencies": null,
+    "binary":       "BetterGD"
+}

@@ -1,0 +1,17 @@
+{
+    "lilac":        1,
+	"version":      "v0.1.0",
+	"id":           "com.hjfod.cool_scrollbars",
+    "name":         "Cool Scrollbars",
+    "developer":    "HJfod",
+    "description":  null,
+    "details":      null,
+    "credits":      "Various different chords in Onnanoko ni Naritai",
+	"dependencies": [
+        {
+            "id": "com.hjfod.bettergd",
+            "required": true
+        }
+    ],
+    "binary":       "CoolScrollbars"
+}
