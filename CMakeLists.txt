@@ -14,7 +14,6 @@ add_library(${PROJECT_NAME} SHARED ${SOURCES})
 
 add_compile_definitions(_EXPORTING_BGD)
 
-set(WIN32 ON)
 set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "")
 
 add_subdirectory(submodules/lilac)

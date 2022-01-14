@@ -12,7 +12,6 @@ file(GLOB_RECURSE SOURCES
 
 add_library(${PROJECT_NAME} SHARED ${SOURCES})
 
-set(WIN32 ON)
 set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "" OUTPUT_NAME "CoolScrollbars")
 
 create_lilac_file(${PROJECT_NAME})

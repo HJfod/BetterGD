@@ -11,7 +11,7 @@ LILAC_API bool LILAC_CALL lilac_load(Mod* mod) {
 }
 
 LILAC_API void LILAC_CALL lilac_unload() {
-
+    BetterGD::mod()->log() << "Goodbye from BetterGD" << lilac::endl;
 }
 
 BetterGD* BetterGD::get() {
